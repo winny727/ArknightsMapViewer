@@ -249,6 +249,11 @@ namespace ArknightsMapViewer
                     for (int i = 0; i <= routeSubIndex; i++)
                     {
                         int checkPointIndex = i - 1;
+                        routeViewData.RouteDrawer?.DrawMoveLine(checkPointIndex);
+                    }
+                    for (int i = 0; i <= routeSubIndex; i++)
+                    {
+                        int checkPointIndex = i - 1;
                         routeViewData.RouteDrawer?.DrawCheckPoint(checkPointIndex);
                     }
                     routeViewData.RouteDrawer?.RefreshCanvas();

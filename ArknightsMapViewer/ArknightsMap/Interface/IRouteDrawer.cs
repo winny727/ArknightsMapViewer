@@ -9,5 +9,6 @@ namespace ArknightsMap
         public Route Route { get; }
         public void DrawRoute();
         public void DrawCheckPoint(int checkPointIndex);
+        public void DrawMoveLine(int checkPointIndex);
     }
 }

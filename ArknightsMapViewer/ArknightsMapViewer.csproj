@@ -129,6 +129,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy "$(ProjectDir)TileDefine.txt" "$(TargetDir)"</PostBuildEvent>
+    <PostBuildEvent>xcopy "$(ProjectDir)TileDefine.txt" "$(TargetDir)" /y</PostBuildEvent>
   </PropertyGroup>
 </Project>

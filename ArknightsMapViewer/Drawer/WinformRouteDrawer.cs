@@ -38,6 +38,10 @@ namespace ArknightsMapViewer
             InitCanvas();
             for (int i = -1; i <= Route.checkPoints.Count; i++)
             {
+                DrawMoveLine(i);
+            }
+            for (int i = -1; i <= Route.checkPoints.Count; i++)
+            {
                 DrawCheckPoint(i);
             }
             RefreshCanvas();
@@ -53,11 +57,11 @@ namespace ArknightsMapViewer
             }
             else if(checkPointIndex< Route.checkPoints.Count)
             {
+                //DrawCheckPoints
                 CheckPoint checkPoint = Route.checkPoints[checkPointIndex];
                 if (checkPoint.SimpleType == CheckPoint.Type.MOVE)
                 {
                     Point point = GetPoint(checkPoint.position, checkPoint.reachOffset);
-                    DrawMoveLine(checkPointIndex);
                     DrawMovePosition(point);
                 }
                 else if (checkPoint.SimpleType == CheckPoint.Type.WAIT)
@@ -70,19 +74,17 @@ namespace ArknightsMapViewer
             {
                 //DrawEndPosition
                 Point point = GetPoint(Route.endPosition, default);
-                DrawMoveLine(Route.checkPoints.Count);
                 DrawMovePosition(point);
             }
         }
 
-        private void DrawMovePosition(Point point)
+        public void DrawMoveLine(int checkPointIndex)
         {
-            Bitmap bitmap = (Bitmap)PictureBox.Image;
-            DrawUtil.DrawPoint(bitmap, point, GlobalDefine.LINE_COLOR, GlobalDefine.LINE_WIDTH * 2);
-        }
+            if (checkPointIndex < 0)
+            {
+                return;
+            }
 
-        private void DrawMoveLine(int checkPointIndex)
-        {
             int prevIndex = GetPrevMoveIndex(checkPointIndex);
             bool needPathFinding = Route.motionMode == MotionMode.WALK;
             Color color = GlobalDefine.LINE_COLOR;
@@ -115,6 +117,10 @@ namespace ArknightsMapViewer
                     color = Color.FromArgb(color.A / 4, color.R, color.G, color.B);
                     needPathFinding = false;
                 }
+                else if (curCheckPoint.type != CheckPointType.MOVE)
+                {
+                    return;
+                }
             }
             else
             {
@@ -132,6 +138,12 @@ namespace ArknightsMapViewer
 
             Bitmap bitmap = (Bitmap)PictureBox.Image;
             DrawUtil.DrawLine(bitmap, prevPoint, curPoint, color, GlobalDefine.LINE_WIDTH);
+        }
+
+        private void DrawMovePosition(Point point)
+        {
+            Bitmap bitmap = (Bitmap)PictureBox.Image;
+            DrawUtil.DrawPoint(bitmap, point, GlobalDefine.LINE_COLOR, GlobalDefine.LINE_WIDTH * 2);
         }
 
         private void DrawWaitPosition(Point point, float time)

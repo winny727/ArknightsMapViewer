@@ -68,6 +68,7 @@ namespace ArknightsMapViewer
             DrawUtil.FillRectangle(bitmap, rectangle, color);
             DrawUtil.DrawRectangle(bitmap, rectangle);
 
+            //Draw TileText
             if (!string.IsNullOrEmpty(tileString.Item1))
             {
                 DrawUtil.DrawString(bitmap, tileString.Item1, rectangle, GlobalDefine.TEXT_FONT, tileString.Item2);

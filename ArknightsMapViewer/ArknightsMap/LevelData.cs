@@ -40,7 +40,10 @@ namespace ArknightsMap
             }
 
             waves = new List<Wave>(rawLevelData.waves);
-            branches = new Dictionary<string, Branch>(rawLevelData.branches);
+            if (rawLevelData.branches != null)
+            {
+                branches = new Dictionary<string, Branch>(rawLevelData.branches);
+            }
         }
 
         public Options options;
