@@ -17,7 +17,7 @@ namespace ArknightsMapViewer
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-
+            Global.InitTileColorConfig();
         }
 
         private void MainForm_DragEnter(object sender, DragEventArgs e)

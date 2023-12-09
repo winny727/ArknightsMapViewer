@@ -1,0 +1,10 @@
+TileType	Color(ARGB)	Text	TextColor(ARGB)
+tile_start	"255, 231, 15, 50"		
+tile_end	"255, 53, 157, 222"		
+tile_forbidden	"255, 22, 22, 22"		
+tile_floor	"255, 52, 52, 52"		
+tile_road	"255, 118, 118, 118"		
+tile_wall	"255, 187, 187, 187"		
+tile_telin	"255, 22, 22, 22"	in	"255, 176, 176, 176"
+tile_telout	"255, 22, 22, 22"	out	"255, 176, 176, 176"
+tile_hole	"255, 20, 20, 20"	hole	"255, 176, 176, 176"
