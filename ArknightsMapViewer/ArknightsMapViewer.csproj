@@ -128,4 +128,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy "$(ProjectDir)TileDefine.txt" "$(TargetDir)"</PostBuildEvent>
+  </PropertyGroup>
 </Project>
