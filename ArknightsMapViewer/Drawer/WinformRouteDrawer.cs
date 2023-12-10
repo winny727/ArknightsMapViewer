@@ -10,11 +10,11 @@ namespace ArknightsMapViewer
     {
         public PictureBox PictureBox { get; private set; }
         public Route Route { get; private set; }
-        public AStarPathFinding PathFinding { get; private set; }
+        public PathFinding PathFinding { get; private set; }
         public int MapWidth { get; private set; }
         public int MapHeight { get; private set; }
 
-        public WinformRouteDrawer(PictureBox pictureBox, Route route, AStarPathFinding pathFinding, int mapWidth, int mapHeight)
+        public WinformRouteDrawer(PictureBox pictureBox, Route route, PathFinding pathFinding, int mapWidth, int mapHeight)
         {
             PictureBox = pictureBox;
             Route = route;
@@ -144,7 +144,8 @@ namespace ArknightsMapViewer
                 //若最远的两个点之间无障碍，则移除两个点之间的所有路径点
                 for (int i = 0; i < path.Count - 2; i++)
                 {
-                    for (int j = path.Count - 1; j > i + 1; j--)
+                    int removeCount = 0;
+                    for (int j = i + 2; j < path.Count; j++)
                     {
                         Vector2 startPos = new Vector2(path[i].x, path[i].y);
                         Vector2 endPos = new Vector2(path[j].x, path[j].y);
@@ -160,12 +161,13 @@ namespace ArknightsMapViewer
                             endPos.y += curOffset.y;
                         }
 
-                        if (!Helper.HasCollider(startPos, endPos, PathFinding.isBarrier))
+                        if (Helper.HasCollider(startPos, endPos, PathFinding.isBarrier))
                         {
-                            path.RemoveRange(i + 1, j - i - 1);
                             break;
                         }
+                        removeCount++;
                     }
+                    path.RemoveRange(i + 1, removeCount);
                 }
 
                 if (path.Count > 2)

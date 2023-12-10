@@ -82,31 +82,25 @@ namespace ArknightsMapViewer
             }
         }
 
-        public static AStarPathFinding CreatePathFinding(LevelData levelData)
+        public static bool[,] GetIsBarrierArray(LevelData levelData)
         {
-            AStarPathFinding pathFinding = new AStarPathFinding();
-
             Tile[][] map = levelData.map;
             int mapHeight = map.Length;
             int mapWidth = map.Length > 0 ? map[0].Length : 0;
-
-            pathFinding.mapHeight = mapHeight;
-            pathFinding.mapWidth = mapWidth;
-            pathFinding.isBarrier = new bool[mapWidth, mapHeight];
-
+            bool[,] isBarrier = new bool[mapWidth, mapHeight];
             for (int row = 0; row < mapHeight; row++)
             {
                 for (int col = 0; col < mapWidth; col++)
                 {
                     Tile tile = map[row][col];
-                    pathFinding.isBarrier[col, mapHeight - row - 1] = (tile.passableMask & PassableMask.WALK_ONLY) == 0;
+                    isBarrier[col, mapHeight - row - 1] = (tile.passableMask & PassableMask.WALK_ONLY) == 0;
                 }
             }
 
-            return pathFinding;
+            return isBarrier;
         }
 
-        public static List<Vector2Int> PathFinding(this AStarPathFinding pathFinding, Position origin, Position destination)
+        public static List<Vector2Int> PathFinding(this PathFinding pathFinding, Position origin, Position destination)
         {
             if (pathFinding == null)
             {
@@ -115,12 +109,7 @@ namespace ArknightsMapViewer
 
             Vector2Int originVec = origin.ToVector2Int();
             Vector2Int destinationVec = destination.ToVector2Int();
-            List<Node> nodes = pathFinding.GetAStarPath(originVec, destinationVec);
-            List<Vector2Int> result = new List<Vector2Int>();
-            for (int i = 0; i < nodes.Count; i++)
-            {
-                result.Add(nodes[i].position);
-            }
+            List<Vector2Int> result = pathFinding.GetPath(originVec, destinationVec);
 
             return result;
         }

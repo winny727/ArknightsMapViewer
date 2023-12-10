@@ -96,6 +96,16 @@ namespace ArknightsMapViewer
             }
         }
 
+        private void toolStripStatusLabel1_Click(object sender, EventArgs e)
+        {
+            ShowLog();
+        }
+
+        private void logToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ShowLog();
+        }
+
         private void OpenFile()
         {
             OpenFileDialog dialog = new OpenFileDialog();
@@ -158,7 +168,8 @@ namespace ArknightsMapViewer
                 Log(errorMsg, LogType.Error);
                 MessageBox.Show(errorMsg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 #if DEBUG
-                MessageBox.Show(ex.StackTrace, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                //MessageBox.Show(ex.StackTrace, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                //Log(ex.StackTrace, LogType.Debug);
 #endif
             }
         }
@@ -167,7 +178,7 @@ namespace ArknightsMapViewer
         {
             if (treeView1.Nodes.ContainsKey(fileName))
             {
-                if (MessageBox.Show($"[{fileName}] has been added, continue?", "Continue?", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK)
+                if (MessageBox.Show($"[{fileName}] has already been added, add another one?", "Continue?", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK)
                 {
                     return;
                 }
@@ -182,7 +193,9 @@ namespace ArknightsMapViewer
 
             int mapHeight = levelData.map.Length;
             int mapWidth = levelData.map.Length > 0 ? levelData.map[0].Length : 0;
-            AStarPathFinding pathFinding = Helper.CreatePathFinding(levelData);
+            //PathFinding pathFinding = new AStarPathFinding();
+            PathFinding pathFinding = new DijkstraPathFinding();
+            pathFinding.isBarrier = Helper.GetIsBarrierArray(levelData);
 
             void AddRouteList(string name, List<Route> routes)
             {
@@ -279,6 +292,7 @@ namespace ArknightsMapViewer
         public enum LogType
         {
             Log,
+            Debug,
             Warning,
             Error,
         }
@@ -286,11 +300,14 @@ namespace ArknightsMapViewer
         public void Log(object obj, LogType logType = LogType.Log)
         {
             string content = obj.ToString();
-            toolStripStatusLabel1.Text = content;
+            if (logType != LogType.Debug)
+            {
+                toolStripStatusLabel1.Text = content;
+            }
             log += $"[{logType.ToString().ToUpper()}][{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:ff")}] {content} \n";
         }
 
-        private void toolStripStatusLabel1_Click(object sender, EventArgs e)
+        private void ShowLog()
         {
             //MessageBox.Show(log);
             LogForm logForm = new LogForm();
