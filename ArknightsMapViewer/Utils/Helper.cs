@@ -14,24 +14,32 @@ namespace ArknightsMapViewer
             Color ParseColor(string value)
             {
                 Color color = Color.White;
-                value = value.Replace(" ", "").Replace("\"", "");
-                string[] colors = value.Split(',');
-                int a, r, g, b;
-                if (colors.Length == 3)
+                try
                 {
-                    int.TryParse(colors[0], out r);
-                    int.TryParse(colors[1], out g);
-                    int.TryParse(colors[2], out b);
-                    color = Color.FromArgb(r, g, b);
+                    color = ColorTranslator.FromHtml(value);
                 }
-                else if (colors.Length == 4)
+                catch (Exception ex)
                 {
-                    int.TryParse(colors[0], out a);
-                    int.TryParse(colors[1], out r);
-                    int.TryParse(colors[2], out g);
-                    int.TryParse(colors[3], out b);
-                    color = Color.FromArgb(a, r, g, b);
+                    MainForm.Instance.Log("Invalid Tile Color: " + value, MainForm.LogType.Warning);
                 }
+                //value = value.Replace(" ", "").Replace("\"", "");
+                //string[] colors = value.Split(',');
+                //int a, r, g, b;
+                //if (colors.Length == 3)
+                //{
+                //    int.TryParse(colors[0], out r);
+                //    int.TryParse(colors[1], out g);
+                //    int.TryParse(colors[2], out b);
+                //    color = Color.FromArgb(r, g, b);
+                //}
+                //else if (colors.Length == 4)
+                //{
+                //    int.TryParse(colors[0], out a);
+                //    int.TryParse(colors[1], out r);
+                //    int.TryParse(colors[2], out g);
+                //    int.TryParse(colors[3], out b);
+                //    color = Color.FromArgb(a, r, g, b);
+                //}
                 return color;
             }
 
