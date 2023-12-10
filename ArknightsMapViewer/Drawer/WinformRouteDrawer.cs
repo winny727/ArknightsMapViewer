@@ -10,13 +10,15 @@ namespace ArknightsMapViewer
     {
         public PictureBox PictureBox { get; private set; }
         public Route Route { get; private set; }
+        public AStarPathFinding PathFinding { get; private set; }
         public int MapWidth { get; private set; }
         public int MapHeight { get; private set; }
 
-        public WinformRouteDrawer(PictureBox pictureBox, Route route, int mapWidth, int mapHeight)
+        public WinformRouteDrawer(PictureBox pictureBox, Route route, AStarPathFinding pathFinding, int mapWidth, int mapHeight)
         {
             PictureBox = pictureBox;
             Route = route;
+            PathFinding = pathFinding;
             MapWidth = mapWidth;
             MapHeight = mapHeight;
         }
@@ -55,7 +57,7 @@ namespace ArknightsMapViewer
                 Point point = GetPoint(Route.startPosition, Route.spawnOffset);
                 DrawMovePosition(point);
             }
-            else if(checkPointIndex< Route.checkPoints.Count)
+            else if (checkPointIndex < Route.checkPoints.Count)
             {
                 //DrawCheckPoints
                 CheckPoint checkPoint = Route.checkPoints[checkPointIndex];
@@ -84,6 +86,8 @@ namespace ArknightsMapViewer
             {
                 return;
             }
+
+            Bitmap bitmap = (Bitmap)PictureBox.Image;
 
             int prevIndex = GetPrevMoveIndex(checkPointIndex);
             bool needPathFinding = Route.motionMode == MotionMode.WALK;
@@ -128,15 +132,69 @@ namespace ArknightsMapViewer
                 curOffset = default;
             }
 
+            if (prevPosition == curPosition)
+            {
+                return;
+            }
+
             if (needPathFinding)
             {
-                //TODO
+                //PathFinding
+                List<Vector2Int> path = Helper.PathFinding(PathFinding, prevPosition, curPosition);
+                //若最远的两个点之间无障碍，则移除两个点之间的所有路径点
+                for (int i = 0; i < path.Count - 2; i++)
+                {
+                    for (int j = path.Count - 1; j > i + 1; j--)
+                    {
+                        Vector2 startPos = new Vector2(path[i].x, path[i].y);
+                        Vector2 endPos = new Vector2(path[j].x, path[j].y);
+
+                        if (i == 0)
+                        {
+                            startPos.x += prevOffset.x;
+                            startPos.y += prevOffset.y;
+                        }
+                        if (j == path.Count - 1)
+                        {
+                            endPos.x += curOffset.x;
+                            endPos.y += curOffset.y;
+                        }
+
+                        if (!Helper.HasCollider(startPos, endPos, PathFinding.isBarrier))
+                        {
+                            path.RemoveRange(i + 1, j - i - 1);
+                            break;
+                        }
+                    }
+                }
+
+                if (path.Count > 2)
+                {
+                    //color = Color.FromArgb(color.A / 2, color.R, color.G, color.B);
+                    for (int i = 0; i < path.Count - 1; i++)
+                    {
+                        Position position = path[i].ToPosition();
+                        Offset offset = default;
+                        Position nextPosition = path[i + 1].ToPosition();
+                        Offset nextOffset = default;
+                        if (i == 0)
+                        {
+                            offset = prevOffset;
+                        }
+                        if (i == path.Count - 2)
+                        {
+                            nextOffset = curOffset;
+                        }
+                        Point point = GetPoint(position, offset);
+                        Point nextPoint = GetPoint(nextPosition, nextOffset);
+                        DrawUtil.DrawLine(bitmap, point, nextPoint, color, GlobalDefine.LINE_WIDTH);
+                    }
+                    return;
+                }
             }
 
             Point prevPoint = GetPoint(prevPosition, prevOffset);
             Point curPoint = GetPoint(curPosition, curOffset);
-
-            Bitmap bitmap = (Bitmap)PictureBox.Image;
             DrawUtil.DrawLine(bitmap, prevPoint, curPoint, color, GlobalDefine.LINE_WIDTH);
         }
 
@@ -189,7 +247,7 @@ namespace ArknightsMapViewer
         private Point GetPoint(Position position, Offset offset)
         {
             int x = (int)((position.col + offset.x + 0.5f) * GlobalDefine.TILE_PIXLE);
-            int y = (int)((MapHeight - position.row - 1 - offset.y + 0.5f) * GlobalDefine.TILE_PIXLE);
+            int y = (int)((MapHeight - (position.row + offset.y) - 1 + 0.5f) * GlobalDefine.TILE_PIXLE);
             return new Point(x, y);
         }
     }

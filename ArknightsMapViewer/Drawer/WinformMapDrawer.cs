@@ -40,11 +40,11 @@ namespace ArknightsMapViewer
         public void DrawMap()
         {
             InitCanvas();
-            for (int i = 0; i < Width; i++)
+            for (int row = 0; row < Height; row++)
             {
-                for (int j = 0; j < Height; j++)
+                for (int col = 0; col < Width; col++)
                 {
-                    DrawTile(i, j);
+                    DrawTile(row, col);
                 }
             }
             RefreshCanvas();
@@ -52,10 +52,10 @@ namespace ArknightsMapViewer
 
         private void DrawTile(int rowIndex, int colIndex)
         {
-            Tile tile = Map[colIndex][rowIndex];
+            Tile tile = Map[rowIndex][colIndex];
             if (!GlobalDefine.TileColor.TryGetValue(tile.tileKey, out Color color))
             {
-                Console.WriteLine("Tile Color Undefine: " + tile.tileKey);
+                Console.WriteLine("Tile Color Undefine: " + tile.tileKey); //TODO LogRecord
                 color = Color.White;
             }
             GlobalDefine.TileString.TryGetValue(tile.tileKey, out (string, Color) tileString);
@@ -63,7 +63,7 @@ namespace ArknightsMapViewer
             Bitmap bitmap = (Bitmap)PictureBox.BackgroundImage;
 
             int length = GlobalDefine.TILE_PIXLE;
-            Rectangle rectangle = new Rectangle(rowIndex * length, colIndex * length, length, length);
+            Rectangle rectangle = new Rectangle(colIndex * length, rowIndex * length, length, length);
 
             DrawUtil.FillRectangle(bitmap, rectangle, color);
             DrawUtil.DrawRectangle(bitmap, rectangle);
@@ -75,14 +75,14 @@ namespace ArknightsMapViewer
             }
 
             //Draw Index
-            string indexText = GetIndexText(rowIndex, colIndex);
+            string indexText = GetIndexText(colIndex, rowIndex);
             DrawUtil.DrawString(bitmap, indexText, rectangle, GlobalDefine.INDEX_FONT, GlobalDefine.TEXT_COLOR, TextFormatFlags.Right | TextFormatFlags.Bottom);
         }
 
-        private string GetIndexText(int rowIndex, int colIndex)
+        private string GetIndexText(int colIndex, int rowIndex)
         {
-            return $"{rowIndex},{Height - colIndex - 1}";
-            //return $"{(char)('A' + (Height - colIndex - 1))}{rowIndex + 1}";
+            return $"{colIndex},{Height - rowIndex - 1}";
+            //return $"{(char)('A' + (Height - rowIndex - 1))}{colIndex + 1}";
         }
     }
 }

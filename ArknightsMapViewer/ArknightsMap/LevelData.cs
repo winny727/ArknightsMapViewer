@@ -12,12 +12,12 @@ namespace ArknightsMap
 
             var rawMap = rawLevelData.mapData.map;
             map = new Tile[rawMap.Length][];
-            for (int i = 0; i < rawMap.Length; i++)
+            for (int row = 0; row < rawMap.Length; row++)
             {
-                map[i] = new Tile[rawMap[i].Length];
-                for (int j = 0; j < rawMap[i].Length; j++)
+                map[row] = new Tile[rawMap[row].Length];
+                for (int col = 0; col < rawMap[row].Length; col++)
                 {
-                    map[i][j] = rawLevelData.mapData.tiles[rawMap[i][j]];
+                    map[row][col] = rawLevelData.mapData.tiles[rawMap[row][col]];
                 }
             }
 
@@ -153,7 +153,7 @@ namespace ArknightsMap
             {
                 text += $" {position}";
             }
-            else if(SimpleType == Type.WAIT)
+            else if (SimpleType == Type.WAIT)
             {
                 text += $" {time}s";
             }
@@ -213,6 +213,16 @@ namespace ArknightsMap
         {
             return $"({col},{row})";
         }
+
+        public static bool operator ==(Position pos1, Position pos2)
+        {
+            return pos1.col == pos2.col && pos1.row == pos2.row;
+        }
+
+        public static bool operator !=(Position pos1, Position pos2)
+        {
+            return pos1.col != pos2.col || pos1.row != pos2.row;
+        }
     }
 
     [Serializable]
@@ -223,7 +233,7 @@ namespace ArknightsMap
 
         public override string ToString()
         {
-            return $"({x}, {y})";
+            return $"({x},{y})";
         }
     }
 
@@ -314,10 +324,10 @@ namespace ArknightsMap
     [Flags]
     public enum PassableMask
     {
-        NONE,
-        WALK_ONLY,
-        FLY_ONLY,
-        ALL,
+        NONE = 0,
+        WALK_ONLY = 1,
+        FLY_ONLY = 2,
+        ALL = 3,
     }
 
     public enum MotionMode

@@ -17,7 +17,7 @@ namespace ArknightsMapViewer
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            Global.InitTileColorConfig();
+            Helper.InitTileColorConfig();
         }
 
         private void MainForm_DragEnter(object sender, DragEventArgs e)
@@ -168,6 +168,7 @@ namespace ArknightsMapViewer
 
             int mapHeight = levelData.map.Length;
             int mapWidth = levelData.map.Length > 0 ? levelData.map[0].Length : 0;
+            AStarPathFinding pathFinding = Helper.CreatePathFinding(levelData);
 
             void AddRouteList(string name, List<Route> routes)
             {
@@ -184,7 +185,7 @@ namespace ArknightsMapViewer
                     routeNode.Tag = new RouteViewData()
                     {
                         Route = route,
-                        RouteDrawer = new WinformRouteDrawer(pictureBox1, route, mapWidth, mapHeight),
+                        RouteDrawer = new WinformRouteDrawer(pictureBox1, route, pathFinding, mapWidth, mapHeight),
                     };
                     routeNode.Nodes.Add($"{nameof(route.startPosition)}: {route.startPosition}");
                     for (int j = 0; j < route.checkPoints.Count; j++)
