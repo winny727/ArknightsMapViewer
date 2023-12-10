@@ -242,7 +242,7 @@ namespace ArknightsMapViewer
                     routeNode.Nodes.Add($"{nameof(route.startPosition)}: {route.startPosition}");
                     for (int j = 0; j < route.checkPoints.Count; j++)
                     {
-                        routeNode.Nodes.Add($"checkPoint{j}: {route.checkPoints[j].ToSimpleString()}");
+                        routeNode.Nodes.Add($"checkPoint #{j} {route.checkPoints[j].ToSimpleString()}");
                     }
                     routeNode.Nodes.Add($"{nameof(route.endPosition)}: {route.endPosition}");
                 }
