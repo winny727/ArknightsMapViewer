@@ -381,7 +381,7 @@ namespace ArknightsMap
         FLY,
     }
 
-    //NOTE: 顺序未知，来源于所有地图文件全局搜索统计
+    //NOTE: 顺序未知，来源于所有地图文件全局搜索统计 TODO 顺序
     public enum CheckPointType
     {
         MOVE,
@@ -394,7 +394,7 @@ namespace ArknightsMap
         WAIT_BOSSRUSH_WAVE,
     }
 
-    //NOTE: 顺序未知，来源于所有地图文件全局搜索统计
+    //NOTE: 顺序未知，来源于所有地图文件全局搜索统计 TODO 顺序
     public enum ActionType
     {
         SPAWN,

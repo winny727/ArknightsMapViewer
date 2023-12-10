@@ -141,7 +141,7 @@ namespace ArknightsMapViewer
             {
                 //PathFinding
                 List<Vector2Int> path = PathFinding.GetPath(prevPosition, curPosition);
-                //若最远的两个点之间无障碍，则移除两个点之间的所有路径点
+                //若两个点之间无障碍，则移除两个点之间的所有路径点
                 for (int i = 0; i < path.Count - 2; i++)
                 {
                     int removeCount = 0;
