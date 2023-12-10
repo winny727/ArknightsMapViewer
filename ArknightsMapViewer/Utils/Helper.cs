@@ -75,7 +75,9 @@ namespace ArknightsMapViewer
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"TileDefine.txt Open Failed, {ex.Message}", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    string errorMsg = $"TileDefine.txt Open Failed, {ex.Message}";
+                    MainForm.Instance.Log(errorMsg, MainForm.LogType.Warning);
+                    //MessageBox.Show(errorMsg, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
         }

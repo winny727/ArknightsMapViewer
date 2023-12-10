@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using ArknightsMap;
 
-namespace ArknightsMapViewer
+namespace ArknightsMap
 {
-    public class LevelViewData
+    public class LevelView
     {
         public LevelData LevelData { get; set; }
         public IMapDrawer MapDrawer { get; set; }

@@ -8,11 +8,21 @@ namespace ArknightsMapViewer
 {
     public partial class MainForm : Form
     {
-        private LevelViewData curLevelViewData;
+        public static MainForm Instance { get; private set; }
+        private string log;
+
+        private LevelView curLevelView;
 
         public MainForm()
         {
             InitializeComponent();
+            Instance = this;
+            log = "";
+        }
+
+        ~MainForm()
+        {
+            Instance = null;
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -124,6 +134,7 @@ namespace ArknightsMapViewer
 
                 if (levelReader.IsValid)
                 {
+                    Log($"[{Path.GetFileName(path)}] Open Success");
                     AddRouteListToView(Path.GetFileNameWithoutExtension(path), levelReader.LevelData);
                 }
                 else
@@ -137,12 +148,15 @@ namespace ArknightsMapViewer
                     {
                         errorMsg = $"[{Path.GetFileName(path)}] Parse Error, Invalid Level File";
                     }
+                    Log(errorMsg, LogType.Error);
                     MessageBox.Show(errorMsg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"[{Path.GetFileName(path)}] Open Failed, {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                string errorMsg = $"[{Path.GetFileName(path)}] Open Failed, {ex.Message}";
+                Log(errorMsg, LogType.Error);
+                MessageBox.Show(errorMsg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 #if DEBUG
                 MessageBox.Show(ex.StackTrace, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 #endif
@@ -160,7 +174,7 @@ namespace ArknightsMapViewer
             }
 
             TreeNode rootNode = treeView1.Nodes.Add(fileName, fileName);
-            rootNode.Tag = new LevelViewData()
+            rootNode.Tag = new LevelView()
             {
                 LevelData = levelData,
                 MapDrawer = new WinformMapDrawer(pictureBox1, levelData.map),
@@ -182,7 +196,7 @@ namespace ArknightsMapViewer
                 {
                     Route route = routes[i];
                     TreeNode routeNode = routesNode.Nodes.Add($"routeIndex{i}");
-                    routeNode.Tag = new RouteViewData()
+                    routeNode.Tag = new RouteView()
                     {
                         Route = route,
                         RouteDrawer = new WinformRouteDrawer(pictureBox1, route, pathFinding, mapWidth, mapHeight),
@@ -208,58 +222,79 @@ namespace ArknightsMapViewer
         private void UpdateView()
         {
             TreeNode treeNode = treeView1.SelectedNode;
-            LevelViewData levelViewData = null;
-            RouteViewData routeViewData = null;
+            LevelView levelView = null;
+            RouteView routeView = null;
             int routeSubIndex = -1;
             while (treeNode != null)
             {
-                if (levelViewData == null && treeNode.Level == 0)
+                if (levelView == null && treeNode.Level == 0)
                 {
-                    levelViewData = treeNode.Tag as LevelViewData;
+                    levelView = treeNode.Tag as LevelView;
                 }
-                if (routeViewData == null && treeNode.Level == 2)
+                if (routeView == null && treeNode.Level == 2)
                 {
-                    routeViewData = treeNode.Tag as RouteViewData;
+                    routeView = treeNode.Tag as RouteView;
                 }
-                if (routeSubIndex < 0 && treeNode.Level == 3 && treeNode.Parent.Tag is RouteViewData)
+                if (routeSubIndex < 0 && treeNode.Level == 3 && treeNode.Parent.Tag is RouteView)
                 {
                     routeSubIndex = treeNode.Index;
                 }
                 treeNode = treeNode.Parent;
             }
 
-            if (curLevelViewData != levelViewData)
+            if (curLevelView != levelView)
             {
-                curLevelViewData = levelViewData;
+                curLevelView = levelView;
                 pictureBox1.BackgroundImage?.Dispose();
                 pictureBox1.BackgroundImage = null;
-                levelViewData?.MapDrawer?.DrawMap();
+                levelView?.MapDrawer?.DrawMap();
             }
 
             pictureBox1.Image?.Dispose();
             pictureBox1.Image = null;
-            if (routeViewData != null)
+            if (routeView != null)
             {
                 if (routeSubIndex < 0)
                 {
-                    routeViewData.RouteDrawer?.DrawRoute();
+                    routeView.RouteDrawer?.DrawRoute();
                 }
                 else
                 {
-                    routeViewData.RouteDrawer?.InitCanvas();
+                    routeView.RouteDrawer?.InitCanvas();
                     for (int i = 0; i <= routeSubIndex; i++)
                     {
                         int checkPointIndex = i - 1;
-                        routeViewData.RouteDrawer?.DrawMoveLine(checkPointIndex);
+                        routeView.RouteDrawer?.DrawMoveLine(checkPointIndex);
                     }
                     for (int i = 0; i <= routeSubIndex; i++)
                     {
                         int checkPointIndex = i - 1;
-                        routeViewData.RouteDrawer?.DrawCheckPoint(checkPointIndex);
+                        routeView.RouteDrawer?.DrawCheckPoint(checkPointIndex);
                     }
-                    routeViewData.RouteDrawer?.RefreshCanvas();
+                    routeView.RouteDrawer?.RefreshCanvas();
                 }
             }
+        }
+
+        public enum LogType
+        {
+            Log,
+            Warning,
+            Error,
+        }
+
+        public void Log(object obj, LogType logType = LogType.Log)
+        {
+            string content = obj.ToString();
+            toolStripStatusLabel1.Text = content;
+            log += $"[{logType.ToString().ToUpper()}][{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:ff")}] {content} \n";
+        }
+
+        private void toolStripStatusLabel1_Click(object sender, EventArgs e)
+        {
+            //MessageBox.Show(log);
+            LogForm logForm = new LogForm();
+            logForm.ShowLog(log);
         }
     }
 }

@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using ArknightsMap;
 
-namespace ArknightsMapViewer
+namespace ArknightsMap
 {
-    public class RouteViewData
+    public class RouteView
     {
         public Route Route { get; set; }
         public IRouteDrawer RouteDrawer { get; set; }
