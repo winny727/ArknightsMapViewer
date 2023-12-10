@@ -84,15 +84,15 @@ namespace ArknightsMapViewer
 
         public static bool[,] GetIsBarrierArray(LevelData levelData)
         {
-            Tile[][] map = levelData.map;
-            int mapHeight = map.Length;
-            int mapWidth = map.Length > 0 ? map[0].Length : 0;
+            Tile[,] map = levelData.map;
+            int mapWidth = map.GetLength(0);
+            int mapHeight = map.GetLength(1);
             bool[,] isBarrier = new bool[mapWidth, mapHeight];
             for (int row = 0; row < mapHeight; row++)
             {
                 for (int col = 0; col < mapWidth; col++)
                 {
-                    Tile tile = map[row][col];
+                    Tile tile = map[col, row];
                     isBarrier[col, mapHeight - row - 1] = (tile.passableMask & PassableMask.WALK_ONLY) == 0;
                 }
             }
@@ -285,6 +285,26 @@ namespace ArknightsMapViewer
         }
         #endregion
 
+        public static Point PositionToPoint(Position position, Offset offset, int mapHeight)
+        {
+            int x = (int)((position.col + offset.x + 0.5f) * GlobalDefine.TILE_PIXLE);
+            int y = (int)((mapHeight - (position.row + offset.y) - 1 + 0.5f) * GlobalDefine.TILE_PIXLE);
+            return new Point(x, y);
+        }
+
+        public static Position PointToPosition(Point point, int mapHeight)
+        {
+            int x = point.X / GlobalDefine.TILE_PIXLE;
+            int y = -(point.Y / GlobalDefine.TILE_PIXLE) + mapHeight - 1;
+            return new Position
+            {
+                col = x,
+                row = y,
+            };
+        }
+
+    #region Extension Method
+
         public static Position ToPosition(this Vector2Int vector)
         {
             return new Position
@@ -302,5 +322,14 @@ namespace ArknightsMapViewer
                 y = position.row,
             };
         }
+
+        public static T Clamp<T>(this T val, T min, T max) where T : IComparable<T>
+        {
+            if (val.CompareTo(min) < 0) return min;
+            else if (val.CompareTo(max) > 0) return max;
+            else return val;
+        }
+
+        #endregion
     }
 }

@@ -248,9 +248,7 @@ namespace ArknightsMapViewer
 
         private Point GetPoint(Position position, Offset offset)
         {
-            int x = (int)((position.col + offset.x + 0.5f) * GlobalDefine.TILE_PIXLE);
-            int y = (int)((MapHeight - (position.row + offset.y) - 1 + 0.5f) * GlobalDefine.TILE_PIXLE);
-            return new Point(x, y);
+            return Helper.PositionToPoint(position, offset, MapHeight);
         }
     }
 }

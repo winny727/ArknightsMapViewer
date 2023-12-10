@@ -11,13 +11,16 @@ namespace ArknightsMap
             options = rawLevelData.options;
 
             var rawMap = rawLevelData.mapData.map;
-            map = new Tile[rawMap.Length][];
+
+            int mapHeight = rawMap.Length;
+            int mapWidth = rawMap.Length > 0 ? rawMap[0].Length : 0;
+
+            map = new Tile[mapWidth, mapHeight];
             for (int row = 0; row < rawMap.Length; row++)
             {
-                map[row] = new Tile[rawMap[row].Length];
                 for (int col = 0; col < rawMap[row].Length; col++)
                 {
-                    map[row][col] = rawLevelData.mapData.tiles[rawMap[row][col]];
+                    map[col, row] = rawLevelData.mapData.tiles[rawMap[row][col]];
                 }
             }
 
@@ -47,7 +50,7 @@ namespace ArknightsMap
         }
 
         public Options options;
-        public Tile[][] map;
+        public Tile[,] map;
         public List<Route> routes;
         public List<Route> extraRoutes;
         public List<Wave> waves;
@@ -74,6 +77,17 @@ namespace ArknightsMap
         public int maxCost;
         public float costIncreaseTime;
         public float maxPlayTime;
+
+        public override string ToString()
+        {
+            return
+                nameof(characterLimit) + ": " + characterLimit + "\n" +
+                nameof(maxLifePoint) + ": " + maxLifePoint + "\n" +
+                nameof(initialCost) + ": " + initialCost + "\n" +
+                nameof(maxCost) + ": " + maxCost + "\n" +
+                nameof(costIncreaseTime) + ": " + costIncreaseTime; //+ "\n" +
+                //nameof(maxPlayTime) + ": " + maxPlayTime;
+        }
     }
 
     [Serializable]
@@ -92,6 +106,15 @@ namespace ArknightsMap
         public HeightType heightType; //高台/地面
         public BuildableType buildableType; //可部署类型
         public PassableMask passableMask; //可通过类型
+
+        public override string ToString()
+        {
+            return
+                nameof(tileKey) + ": " + tileKey + "\n" +
+                nameof(heightType) + ": " + heightType + "\n" +
+                nameof(buildableType) + ": " + buildableType + "\n" +
+                nameof(passableMask) + ": " + passableMask;
+        }
     }
 
     [Serializable]
@@ -103,6 +126,17 @@ namespace ArknightsMap
         public Offset spawnRandomRange;
         public Offset spawnOffset;
         public List<CheckPoint> checkPoints;
+
+        public override string ToString()
+        {
+            return
+                nameof(motionMode) + ": " + motionMode + "\n" +
+                nameof(startPosition) + ": " + startPosition + "\n" +
+                nameof(endPosition) + ": " + endPosition + "\n" +
+                nameof(spawnRandomRange) + ": " + spawnRandomRange + "\n" +
+                nameof(spawnOffset) + ": " + spawnOffset + "\n" +
+                nameof(checkPoints) + ": " + checkPoints.Count;
+        }
     }
 
     [Serializable]
@@ -146,7 +180,7 @@ namespace ArknightsMap
             }
         }
 
-        public override string ToString()
+        public string ToSimpleString()
         {
             string text = type.ToString();
             if (SimpleType == Type.MOVE)
@@ -158,6 +192,16 @@ namespace ArknightsMap
                 text += $" {time}s";
             }
             return text;
+        }
+
+        public override string ToString()
+        {
+            return
+                nameof(type) + ": " + type + "\n" +
+                nameof(position) + ": " + position + "\n" +
+                nameof(reachOffset) + ": " + reachOffset + "\n" +
+                nameof(randomizeReachOffset) + ": " + randomizeReachOffset + "\n" +
+                nameof(reachDistance) + ": " + reachDistance;
         }
     }
 

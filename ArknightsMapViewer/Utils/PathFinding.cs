@@ -230,7 +230,6 @@ namespace ArknightsMapViewer
 
         public override List<Vector2Int> GetPath(Vector2Int origin, Vector2Int destination)
         {
-            Console.WriteLine("GetPath" + origin + "," + destination);
             List<Vector2Int> path = new List<Vector2Int>();
             List<Vector2Int> nodeList = new List<Vector2Int>(); //所有节点列表
             int currentIndex = 0;
@@ -317,8 +316,6 @@ namespace ArknightsMapViewer
 
             //Dijkstra求解从起点到各个点的距离和路径
             DijkstraInfo dijkstraInfo = PathFindingByDijkstra(matrix, 0);
-
-            Console.WriteLine("DijkstraInfo " + Newtonsoft.Json.JsonConvert.SerializeObject(dijkstraInfo));
 
             //从目标点根据各前驱节点获取路径
             int nodeIndex = destinationIndex;

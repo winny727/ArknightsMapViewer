@@ -5,6 +5,7 @@ namespace ArknightsMap
 {
     public class LevelView
     {
+        public string Name { get; set; }
         public LevelData LevelData { get; set; }
         public IMapDrawer MapDrawer { get; set; }
     }

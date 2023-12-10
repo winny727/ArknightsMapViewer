@@ -9,18 +9,18 @@ namespace ArknightsMapViewer
     public class WinformMapDrawer : IMapDrawer
     {
         public PictureBox PictureBox { get; private set; }
-        public Tile[][] Map { get; private set; }
+        public Tile[,] Map { get; private set; }
 
         public int Width { get; private set; }
         public int Height { get; private set; }
 
-        public WinformMapDrawer(PictureBox pictureBox, Tile[][] map)
+        public WinformMapDrawer(PictureBox pictureBox, Tile[,] map)
         {
             PictureBox = pictureBox;
             Map = map;
 
-            Height = map.Length;
-            Width = map.Length > 0 ? map[0].Length : 0;
+            Width = map.GetLength(0);
+            Height = map.GetLength(1);
         }
 
         public void InitCanvas()
@@ -52,7 +52,7 @@ namespace ArknightsMapViewer
 
         private void DrawTile(int rowIndex, int colIndex)
         {
-            Tile tile = Map[rowIndex][colIndex];
+            Tile tile = Map[colIndex, rowIndex];
             if (!GlobalDefine.TileColor.TryGetValue(tile.tileKey, out Color color))
             {
                 //Console.WriteLine("Tile Color Undefine: " + tile.tileKey);

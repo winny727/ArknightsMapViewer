@@ -6,7 +6,7 @@ namespace ArknightsMap
 
     public interface IMapDrawer : IDrawer
     {
-        public Tile[][] Map { get; }
+        public Tile[,] Map { get; }
         public void DrawMap();
     }
 }

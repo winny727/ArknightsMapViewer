@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using System.IO;
 using ArknightsMap;
+using System.Text;
+using System.Drawing;
 
 namespace ArknightsMapViewer
 {
@@ -15,9 +17,8 @@ namespace ArknightsMapViewer
 
         public MainForm()
         {
-            InitializeComponent();
             Instance = this;
-            log = "";
+            InitializeComponent();
         }
 
         ~MainForm()
@@ -27,7 +28,9 @@ namespace ArknightsMapViewer
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            log = "";
             Helper.InitTileColorConfig();
+            UpdateView();
         }
 
         private void MainForm_DragEnter(object sender, DragEventArgs e)
@@ -94,6 +97,26 @@ namespace ArknightsMapViewer
                 rootNode.Remove();
                 UpdateView();
             }
+        }
+
+        private void expendToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (treeView1.SelectedNode == null)
+            {
+                return;
+            }
+
+            treeView1.SelectedNode.ExpandAll();
+        }
+
+        private void collapseToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (treeView1.SelectedNode == null)
+            {
+                return;
+            }
+
+            treeView1.SelectedNode.Collapse();
         }
 
         private void toolStripStatusLabel1_Click(object sender, EventArgs e)
@@ -187,12 +210,13 @@ namespace ArknightsMapViewer
             TreeNode rootNode = treeView1.Nodes.Add(fileName, fileName);
             rootNode.Tag = new LevelView()
             {
+                Name = fileName,
                 LevelData = levelData,
                 MapDrawer = new WinformMapDrawer(pictureBox1, levelData.map),
             };
 
-            int mapHeight = levelData.map.Length;
-            int mapWidth = levelData.map.Length > 0 ? levelData.map[0].Length : 0;
+            int mapWidth = levelData.map.GetLength(0);
+            int mapHeight = levelData.map.GetLength(1);
             //PathFinding pathFinding = new AStarPathFinding();
             PathFinding pathFinding = new DijkstraPathFinding();
             pathFinding.isBarrier = Helper.GetIsBarrierArray(levelData);
@@ -208,16 +232,17 @@ namespace ArknightsMapViewer
                 for (int i = 0; i < routes.Count; i++)
                 {
                     Route route = routes[i];
-                    TreeNode routeNode = routesNode.Nodes.Add($"routeIndex{i}");
+                    TreeNode routeNode = routesNode.Nodes.Add($"route #{i}");
                     routeNode.Tag = new RouteView()
                     {
+                        RouteIndex = i,
                         Route = route,
                         RouteDrawer = new WinformRouteDrawer(pictureBox1, route, pathFinding, mapWidth, mapHeight),
                     };
                     routeNode.Nodes.Add($"{nameof(route.startPosition)}: {route.startPosition}");
                     for (int j = 0; j < route.checkPoints.Count; j++)
                     {
-                        routeNode.Nodes.Add($"checkPoint{j}: {route.checkPoints[j]}");
+                        routeNode.Nodes.Add($"checkPoint{j}: {route.checkPoints[j].ToSimpleString()}");
                     }
                     routeNode.Nodes.Add($"{nameof(route.endPosition)}: {route.endPosition}");
                 }
@@ -235,6 +260,8 @@ namespace ArknightsMapViewer
         private void UpdateView()
         {
             TreeNode treeNode = treeView1.SelectedNode;
+
+            StringBuilder stringBuilder = new StringBuilder();
             LevelView levelView = null;
             RouteView routeView = null;
             int routeSubIndex = -1;
@@ -287,6 +314,50 @@ namespace ArknightsMapViewer
                     routeView.RouteDrawer?.RefreshCanvas();
                 }
             }
+
+            //Info
+            if (levelView != null && routeView == null)
+            {
+                LevelData levelData = levelView.LevelData;
+                stringBuilder.AppendLine($"[{levelView.Name}]");
+                stringBuilder.AppendLine(levelData.options.ToString());
+                stringBuilder.AppendLine($"width: {levelData.map.GetLength(0)}");
+                stringBuilder.AppendLine($"height: {levelData.map.GetLength(1)}");
+                stringBuilder.AppendLine($"{nameof(levelData.routes)}: {levelData.routes.Count}");
+                stringBuilder.AppendLine($"{nameof(levelData.waves)}: {levelData.waves.Count}");
+                stringBuilder.AppendLine($"{nameof(levelData.extraRoutes)}: {levelData.extraRoutes.Count}");
+            }
+            else if (routeView != null)
+            {
+                Route route = routeView.Route;
+                stringBuilder.AppendLine($"[route #{routeView.RouteIndex}]");
+                if (routeSubIndex < 0)
+                {
+                    stringBuilder.AppendLine(route.ToString());
+                }
+                else
+                {
+                    int checkPointIndex = routeSubIndex - 1;
+                    if (checkPointIndex < 0)
+                    {
+                        stringBuilder.AppendLine($"{nameof(route.startPosition)}: {route.startPosition}");
+                        stringBuilder.AppendLine($"{nameof(route.spawnOffset)}: {route.spawnOffset}");
+                        stringBuilder.AppendLine($"{nameof(route.spawnRandomRange)}: {route.spawnRandomRange}");
+                    }
+                    else if (checkPointIndex < route.checkPoints.Count)
+                    {
+                        CheckPoint checkPoint = route.checkPoints[checkPointIndex];
+                        stringBuilder.AppendLine($"checkPoint #{checkPointIndex}");
+                        stringBuilder.AppendLine(checkPoint.ToString());
+                    }
+                    else
+                    {
+                        stringBuilder.AppendLine($"{nameof(route.endPosition)}: {route.endPosition}");
+                    }
+                }
+            }
+
+            label1.Text = stringBuilder.ToString();
         }
 
         public enum LogType
@@ -312,6 +383,34 @@ namespace ArknightsMapViewer
             //MessageBox.Show(log);
             LogForm logForm = new LogForm();
             logForm.ShowLog(log);
+        }
+
+        private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (pictureBox1.BackgroundImage == null || curLevelView == null)
+            {
+                return;
+            }
+
+            //Point to row & col
+            Point point = e.Location;
+            Tile[,] map = curLevelView.LevelData.map;
+            int mapWidth = map.GetLength(0);
+            int mapHeight = map.GetLength(1);
+
+            Position position = Helper.PointToPosition(point, mapHeight);
+            position.col = position.col.Clamp(0, mapWidth - 1);
+            position.row = position.row.Clamp(0, mapHeight - 1);
+            Tile tile = map[position.col, mapHeight - position.row - 1];
+
+            string text = $"[Tile: {position}]\n" + tile.ToString();
+
+            if (!GlobalDefine.TileColor.ContainsKey(tile.tileKey))
+            {
+                text += "\n(Warning: Tile Color Undefine)";
+            }
+
+            label1.Text = text;
         }
     }
 }
