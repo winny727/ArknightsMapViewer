@@ -140,7 +140,7 @@ namespace ArknightsMapViewer
             if (needPathFinding)
             {
                 //PathFinding
-                List<Vector2Int> path = Helper.PathFinding(PathFinding, prevPosition, curPosition);
+                List<Vector2Int> path = PathFinding.GetPath(prevPosition, curPosition);
                 //若最远的两个点之间无障碍，则移除两个点之间的所有路径点
                 for (int i = 0; i < path.Count - 2; i++)
                 {
@@ -175,9 +175,9 @@ namespace ArknightsMapViewer
                     //color = Color.FromArgb(color.A / 2, color.R, color.G, color.B);
                     for (int i = 0; i < path.Count - 1; i++)
                     {
-                        Position position = path[i].ToPosition();
+                        Position position = path[i];
                         Offset offset = default;
-                        Position nextPosition = path[i + 1].ToPosition();
+                        Position nextPosition = path[i + 1];
                         Offset nextOffset = default;
                         if (i == 0)
                         {

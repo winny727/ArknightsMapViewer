@@ -108,20 +108,6 @@ namespace ArknightsMapViewer
             return isBarrier;
         }
 
-        public static List<Vector2Int> PathFinding(this PathFinding pathFinding, Position origin, Position destination)
-        {
-            if (pathFinding == null)
-            {
-                return null;
-            }
-
-            Vector2Int originVec = origin.ToVector2Int();
-            Vector2Int destinationVec = destination.ToVector2Int();
-            List<Vector2Int> result = pathFinding.GetPath(originVec, destinationVec);
-
-            return result;
-        }
-
         /// <summary>
         /// 判断两点之间有无碰撞体，类似射线
         /// </summary>
@@ -311,16 +297,7 @@ namespace ArknightsMapViewer
             };
         }
 
-    #region Extension Method
-
-        public static Position ToPosition(this Vector2Int vector)
-        {
-            return new Position
-            {
-                col = vector.x,
-                row = vector.y,
-            };
-        }
+        #region Extension Method
 
         public static Vector2Int ToVector2Int(this Position position)
         {

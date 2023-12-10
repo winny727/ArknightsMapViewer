@@ -34,6 +34,24 @@ public struct Vector2Int
         return new Vector2(v.x, v.y);
     }
 
+    public static implicit operator ArknightsMap.Position(Vector2Int v)
+    {
+        return new ArknightsMap.Position
+        {
+            col = v.x,
+            row = v.y,
+        };
+    }
+
+    public static implicit operator Vector2Int(ArknightsMap.Position position)
+    {
+        return new Vector2Int
+        {
+            x = position.col,
+            y = position.row,
+        };
+    }
+
     #endregion
 }
 
