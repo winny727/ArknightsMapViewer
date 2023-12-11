@@ -68,10 +68,7 @@ namespace ArknightsMapViewer
         private void treeView1_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             treeView1.SelectedNode = e.Node;
-            if (e.Button == MouseButtons.Right)
-            {
-                contextMenuStrip1.Show(treeView1, e.Location);
-            }
+            e.Node.ContextMenuStrip = contextMenuStrip1;
         }
 
         private void openToolStripMenuItem1_Click(object sender, EventArgs e)

@@ -85,8 +85,8 @@ namespace ArknightsMap
                 nameof(maxLifePoint) + ": " + maxLifePoint + "\n" +
                 nameof(initialCost) + ": " + initialCost + "\n" +
                 nameof(maxCost) + ": " + maxCost + "\n" +
-                nameof(costIncreaseTime) + ": " + costIncreaseTime; //+ "\n" +
-                //nameof(maxPlayTime) + ": " + maxPlayTime;
+                nameof(costIncreaseTime) + ": " + costIncreaseTime + "\n" +
+                nameof(maxPlayTime) + ": " + maxPlayTime;
         }
     }
 
