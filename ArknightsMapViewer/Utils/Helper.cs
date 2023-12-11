@@ -282,15 +282,6 @@ namespace ArknightsMapViewer
 
         #region Extension Method
 
-        public static Vector2Int ToVector2Int(this Position position)
-        {
-            return new Vector2Int
-            {
-                x = position.col,
-                y = position.row,
-            };
-        }
-
         public static T Clamp<T>(this T val, T min, T max) where T : IComparable<T>
         {
             if (val.CompareTo(min) < 0) return min;
