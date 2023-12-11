@@ -11,21 +11,21 @@ namespace ArknightsMapViewer
         public PictureBox PictureBox { get; private set; }
         public Tile[,] Map { get; private set; }
 
-        public int Width { get; private set; }
-        public int Height { get; private set; }
+        public int MapWidth { get; private set; }
+        public int MapHeight { get; private set; }
 
         public WinformMapDrawer(PictureBox pictureBox, Tile[,] map)
         {
             PictureBox = pictureBox;
             Map = map;
 
-            Width = map.GetLength(0);
-            Height = map.GetLength(1);
+            MapWidth = map.GetLength(0);
+            MapHeight = map.GetLength(1);
         }
 
         public void InitCanvas()
         {
-            Bitmap bitmap = new Bitmap(Width * GlobalDefine.TILE_PIXLE + Width, Height * GlobalDefine.TILE_PIXLE + Height);
+            Bitmap bitmap = new Bitmap(MapWidth * GlobalDefine.TILE_PIXLE + MapWidth, MapHeight * GlobalDefine.TILE_PIXLE + MapHeight);
             PictureBox.BackgroundImage?.Dispose();
             PictureBox.BackgroundImage = bitmap;
             PictureBox.Width = bitmap.Width;
@@ -40,9 +40,9 @@ namespace ArknightsMapViewer
         public void DrawMap()
         {
             InitCanvas();
-            for (int row = 0; row < Height; row++)
+            for (int row = 0; row < MapHeight; row++)
             {
-                for (int col = 0; col < Width; col++)
+                for (int col = 0; col < MapWidth; col++)
                 {
                     DrawTile(row, col);
                 }
@@ -82,7 +82,7 @@ namespace ArknightsMapViewer
 
         private string GetIndexText(int colIndex, int rowIndex)
         {
-            return $"{colIndex},{Height - rowIndex - 1}";
+            return $"{colIndex},{MapHeight - rowIndex - 1}";
             //return $"{(char)('A' + (Height - rowIndex - 1))}{colIndex + 1}";
         }
     }

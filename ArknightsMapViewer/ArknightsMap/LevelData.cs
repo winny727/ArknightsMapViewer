@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace ArknightsMap
 {
@@ -11,10 +12,8 @@ namespace ArknightsMap
             options = rawLevelData.options;
 
             var rawMap = rawLevelData.mapData.map;
-
             int mapHeight = rawMap.Length;
             int mapWidth = rawMap.Length > 0 ? rawMap[0].Length : 0;
-
             map = new Tile[mapWidth, mapHeight];
             for (int row = 0; row < rawMap.Length; row++)
             {
@@ -81,12 +80,12 @@ namespace ArknightsMap
         public override string ToString()
         {
             return
-                nameof(characterLimit) + ": " + characterLimit + "\n" +
-                nameof(maxLifePoint) + ": " + maxLifePoint + "\n" +
-                nameof(initialCost) + ": " + initialCost + "\n" +
-                nameof(maxCost) + ": " + maxCost + "\n" +
-                nameof(costIncreaseTime) + ": " + costIncreaseTime + "\n" +
-                nameof(maxPlayTime) + ": " + maxPlayTime;
+                $"characterLimit: {characterLimit}\n" + 
+                $"maxLifePoint: {maxLifePoint}\n" + 
+                $"initialCost: {initialCost}\n" + 
+                $"maxCost: {maxCost}\n" + 
+                $"costIncreaseTime: {costIncreaseTime}\n" + 
+                $"maxPlayTime: {maxPlayTime}";
         }
     }
 
@@ -110,10 +109,10 @@ namespace ArknightsMap
         public override string ToString()
         {
             return
-                nameof(tileKey) + ": " + tileKey + "\n" +
-                nameof(heightType) + ": " + heightType + "\n" +
-                nameof(buildableType) + ": " + buildableType + "\n" +
-                nameof(passableMask) + ": " + passableMask;
+                $"tileKey: {tileKey}\n" +
+                $"heightType: {heightType}\n" +
+                $"buildableType: {buildableType}\n" +
+                $"passableMask: {passableMask}";
         }
     }
 
@@ -130,12 +129,12 @@ namespace ArknightsMap
         public override string ToString()
         {
             return
-                nameof(motionMode) + ": " + motionMode + "\n" +
-                nameof(startPosition) + ": " + startPosition + "\n" +
-                nameof(endPosition) + ": " + endPosition + "\n" +
-                nameof(spawnRandomRange) + ": " + spawnRandomRange + "\n" +
-                nameof(spawnOffset) + ": " + spawnOffset + "\n" +
-                nameof(checkPoints) + ": " + checkPoints.Count;
+                $"motionMode: {motionMode}\n" +
+                $"startPosition: {startPosition}\n" +
+                $"endPosition: {endPosition}\n" +
+                $"spawnRandomRange: {spawnRandomRange}\n" +
+                $"spawnOffset: {spawnOffset}\n" +
+                $"checkPoints: {checkPoints.Count}";
         }
     }
 
@@ -197,11 +196,11 @@ namespace ArknightsMap
         public override string ToString()
         {
             return
-                nameof(type) + ": " + type + "\n" +
-                nameof(position) + ": " + position + "\n" +
-                nameof(reachOffset) + ": " + reachOffset + "\n" +
-                nameof(randomizeReachOffset) + ": " + randomizeReachOffset + "\n" +
-                nameof(reachDistance) + ": " + reachDistance;
+                $"type: {type}\n" +
+                $"position: {position}\n" +
+                $"reachOffset: {reachOffset}\n" +
+                $"randomizeReachOffset: {randomizeReachOffset}\n" +
+                $"reachDistance: {reachDistance}";
         }
     }
 
@@ -265,7 +264,7 @@ namespace ArknightsMap
 
         public static bool operator !=(Position pos1, Position pos2)
         {
-            return pos1.col != pos2.col || pos1.row != pos2.row;
+            return !(pos1 == pos2);
         }
     }
 

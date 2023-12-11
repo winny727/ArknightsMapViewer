@@ -214,7 +214,7 @@ namespace ArknightsMapViewer
 
             int mapWidth = levelData.map.GetLength(0);
             int mapHeight = levelData.map.GetLength(1);
-            //PathFinding pathFinding = new AStarPathFinding();
+            //PathFinding pathFinding = new AStarPathFinding(); //A*在节点周围多个点cost相同的情况，可能会选到后续较远的路径，即不一定会搜到最短路径
             PathFinding pathFinding = new DijkstraPathFinding();
             pathFinding.isBarrier = Helper.GetIsBarrierArray(levelData);
 
@@ -236,12 +236,12 @@ namespace ArknightsMapViewer
                         Route = route,
                         RouteDrawer = new WinformRouteDrawer(pictureBox1, route, pathFinding, mapWidth, mapHeight),
                     };
-                    routeNode.Nodes.Add($"{nameof(route.startPosition)}: {route.startPosition}");
+                    routeNode.Nodes.Add($"startPosition: {route.startPosition}");
                     for (int j = 0; j < route.checkPoints.Count; j++)
                     {
                         routeNode.Nodes.Add($"checkPoint #{j} {route.checkPoints[j].ToSimpleString()}");
                     }
-                    routeNode.Nodes.Add($"{nameof(route.endPosition)}: {route.endPosition}");
+                    routeNode.Nodes.Add($"endPosition: {route.endPosition}");
                 }
                 routesNode.Expand();
             }
@@ -320,9 +320,9 @@ namespace ArknightsMapViewer
                 stringBuilder.AppendLine(levelData.options.ToString());
                 stringBuilder.AppendLine($"width: {levelData.map.GetLength(0)}");
                 stringBuilder.AppendLine($"height: {levelData.map.GetLength(1)}");
-                stringBuilder.AppendLine($"{nameof(levelData.routes)}: {levelData.routes.Count}");
-                stringBuilder.AppendLine($"{nameof(levelData.waves)}: {levelData.waves.Count}");
-                stringBuilder.AppendLine($"{nameof(levelData.extraRoutes)}: {levelData.extraRoutes.Count}");
+                stringBuilder.AppendLine($"routes: {levelData.routes.Count}");
+                stringBuilder.AppendLine($"waves: {levelData.waves.Count}");
+                stringBuilder.AppendLine($"extraRoutes: {levelData.extraRoutes.Count}");
             }
             else if (routeView != null)
             {
@@ -337,9 +337,9 @@ namespace ArknightsMapViewer
                     int checkPointIndex = routeSubIndex - 1;
                     if (checkPointIndex < 0)
                     {
-                        stringBuilder.AppendLine($"{nameof(route.startPosition)}: {route.startPosition}");
-                        stringBuilder.AppendLine($"{nameof(route.spawnOffset)}: {route.spawnOffset}");
-                        stringBuilder.AppendLine($"{nameof(route.spawnRandomRange)}: {route.spawnRandomRange}");
+                        stringBuilder.AppendLine($"startPosition: {route.startPosition}");
+                        stringBuilder.AppendLine($"spawnOffset: {route.spawnOffset}");
+                        stringBuilder.AppendLine($"spawnRandomRange: {route.spawnRandomRange}");
                     }
                     else if (checkPointIndex < route.checkPoints.Count)
                     {
@@ -349,7 +349,7 @@ namespace ArknightsMapViewer
                     }
                     else
                     {
-                        stringBuilder.AppendLine($"{nameof(route.endPosition)}: {route.endPosition}");
+                        stringBuilder.AppendLine($"endPosition: {route.endPosition}");
                     }
                 }
             }
