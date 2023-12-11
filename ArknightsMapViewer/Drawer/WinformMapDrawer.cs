@@ -55,8 +55,8 @@ namespace ArknightsMapViewer
             Tile tile = Map[colIndex, rowIndex];
             if (!GlobalDefine.TileColor.TryGetValue(tile.tileKey, out Color color))
             {
-                //Console.WriteLine("Tile Color Undefine: " + tile.tileKey);
-                MainForm.Instance.Log("Tile Color Undefine: " + tile.tileKey, MainForm.LogType.Warning);
+                //Console.WriteLine("Undefined Tile: " + tile.tileKey);
+                MainForm.Instance.Log("Undefined Tile: " + tile.tileKey, MainForm.LogType.Warning);
                 color = Color.White;
             }
             GlobalDefine.TileString.TryGetValue(tile.tileKey, out (string, Color) tileString);

@@ -17,26 +17,8 @@ namespace ArknightsMapViewer
         public static readonly Color LINE_COLOR = Color.Red;
         public static readonly Color CIRCLE_COLOR = Color.FromArgb(255, 118, 118, 118);
 
-        public readonly static Dictionary<TileKey, Color> TileColor = new Dictionary<TileKey, Color>
-        {
-            { TileKey.tile_start, Color.FromArgb(255, 231, 15, 50) },
-            { TileKey.tile_end, Color.FromArgb(255, 53, 157, 222) },
-
-            { TileKey.tile_forbidden, Color.FromArgb(255, 22, 22, 22) },
-            { TileKey.tile_floor, Color.FromArgb(255, 52, 52, 52) },
-            { TileKey.tile_road, Color.FromArgb(255, 118, 118, 118) },
-            { TileKey.tile_wall, Color.FromArgb(255, 187, 187, 187) },
-
-            { TileKey.tile_telin, Color.FromArgb(255, 22, 22, 22) },
-            { TileKey.tile_telout, Color.FromArgb(255, 22, 22, 22) },
-            { TileKey.tile_hole, Color.FromArgb(255, 20, 20, 20) },
-        };
-
-        public readonly static Dictionary<TileKey, (string, Color)> TileString = new Dictionary<TileKey, (string, Color)>
-        {
-            { TileKey.tile_telin, ("in", Color.FromArgb(255, 176, 176, 176)) },
-            { TileKey.tile_telout, ("out", Color.FromArgb(255, 176, 176, 176)) },
-            { TileKey.tile_hole, ("hole", Color.FromArgb(255, 176, 176, 176)) },
-        };
+        //TileDefine.txt
+        public readonly static Dictionary<string, Color> TileColor = new Dictionary<string, Color>();
+        public readonly static Dictionary<string, (string, Color)> TileString = new Dictionary<string, (string, Color)>();
     }
 }

@@ -102,7 +102,7 @@ namespace ArknightsMap
     [Serializable]
     public struct Tile
     {
-        public TileKey tileKey; //格子类型
+        public string tileKey; //格子类型
         public HeightType heightType; //高台/地面
         public BuildableType buildableType; //可部署类型
         public PassableMask passableMask; //可通过类型
@@ -283,74 +283,6 @@ namespace ArknightsMap
 
     #region Enum
 
-    //NOTE: 顺序未知，来源于所有地图文件全局搜索统计
-    public enum TileKey
-    {
-        tile_forbidden,
-        tile_end,
-        tile_road,
-        tile_floor,
-        tile_start,
-        tile_wall,
-        tile_hole,
-        tile_corrosion,
-        tile_grass,
-        tile_flystart,
-        tile_volcano,
-        tile_fence,
-        tile_defbreak,
-        tile_icetur_lb,
-        tile_icestr,
-        tile_icetur_rb,
-        tile_icetur_lt,
-        tile_icetur_rt,
-        tile_telin,
-        tile_telout,
-        tile_bigforce,
-        tile_infection,
-        tile_yinyang_switch,
-        tile_yinyang_road,
-        tile_rcm_crate,
-        tile_healing,
-        tile_deepwater,
-        tile_deepsea,
-        tile_wooden_wall,
-        tile_defup,
-        tile_gazebo,
-        tile_empty,
-        tile_yinyang_wall,
-        tile_smog,
-        tile_fence_bound,
-        tile_rcm_operator,
-        tile_poison,
-        tile_volcano_emp,
-        tile_creepf,
-        tile_creep,
-        tile_magic_circle_h,
-        tile_magic_circle,
-        tile_volspread,
-        tile_corrosion_2,
-        tile_mire,
-        tile_reed,
-        tile_reedw,
-        tile_reedf,
-        tile_stairs,
-        tile_passable_wall,
-        tile_passable_wall_forbidden,
-        tile_grvtybtn,
-        tile_ristar_road_forbidden,
-        tile_ristar_road,
-        tile_woodrd,
-        tile_act27side,
-        tile_green,
-        tile_aircraft,
-        tile_volcano_strife,
-        tile_flowerf,
-        tile_flower,
-        tile_pollution_road,
-        tile_pollution_wall,
-    }
-
     public enum HeightType
     {
         LOWLAND,
@@ -385,11 +317,11 @@ namespace ArknightsMap
     public enum CheckPointType
     {
         MOVE,
-        WAIT_CURRENT_FRAGMENT_TIME,
         WAIT_FOR_SECONDS,
+        WAIT_CURRENT_FRAGMENT_TIME,
+        WAIT_CURRENT_WAVE_TIME,
         DISAPPEAR,
         APPEAR_AT_POS,
-        WAIT_CURRENT_WAVE_TIME,
         PATROL_MOVE,
         WAIT_BOSSRUSH_WAVE,
     }

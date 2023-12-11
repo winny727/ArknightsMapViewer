@@ -29,7 +29,7 @@ namespace ArknightsMapViewer
         private void MainForm_Load(object sender, EventArgs e)
         {
             log = "";
-            Helper.InitTileColorConfig();
+            Helper.InitTileDefineConfig();
             UpdateView();
         }
 
@@ -407,7 +407,7 @@ namespace ArknightsMapViewer
 
             if (!GlobalDefine.TileColor.ContainsKey(tile.tileKey))
             {
-                text += "\n(Warning: Tile Color Undefine)";
+                text += "\n(Warning: Undefined Tile)";
             }
 
             label1.Text = text;

@@ -9,7 +9,7 @@ namespace ArknightsMapViewer
 {
     public static class Helper
     {
-        public static void InitTileColorConfig()
+        public static void InitTileDefineConfig()
         {
             Color ParseColor(string value)
             {
@@ -22,24 +22,6 @@ namespace ArknightsMapViewer
                 {
                     MainForm.Instance.Log("Invalid Tile Color: " + value, MainForm.LogType.Warning);
                 }
-                //value = value.Replace(" ", "").Replace("\"", "");
-                //string[] colors = value.Split(',');
-                //int a, r, g, b;
-                //if (colors.Length == 3)
-                //{
-                //    int.TryParse(colors[0], out r);
-                //    int.TryParse(colors[1], out g);
-                //    int.TryParse(colors[2], out b);
-                //    color = Color.FromArgb(r, g, b);
-                //}
-                //else if (colors.Length == 4)
-                //{
-                //    int.TryParse(colors[0], out a);
-                //    int.TryParse(colors[1], out r);
-                //    int.TryParse(colors[2], out g);
-                //    int.TryParse(colors[3], out b);
-                //    color = Color.FromArgb(a, r, g, b);
-                //}
                 return color;
             }
 
@@ -52,9 +34,10 @@ namespace ArknightsMapViewer
                     string[] lines = text.Split('\n');
                     for (int i = 1; i < lines.Length; i++)
                     {
-                        string[] values = lines[i].Split('\t');
-                        if (values.Length >= 2 && Enum.TryParse(values[0], out TileKey tileKey))
+                        string[] values = lines[i].Replace("\"", "").Split('\t');
+                        if (values.Length >= 2 && !string.IsNullOrEmpty(values[0]) && !string.IsNullOrEmpty(values[1]))
                         {
+                            string tileKey = values[0];
                             Color tileColor = ParseColor(values[1]);
                             if (!GlobalDefine.TileColor.ContainsKey(tileKey))
                             {
