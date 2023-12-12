@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 public struct Vector2Int
 {
@@ -19,28 +20,49 @@ public struct Vector2Int
 
     #region operator
 
-    public static Vector2Int operator +(Vector2Int vec1, Vector2Int vec2)
+    public static Vector2Int operator -(Vector2Int v)
     {
-        return new Vector2Int(vec1.x + vec2.x, vec1.y + vec2.y);
+        return new Vector2Int(-v.x, -v.y);
     }
-
-    public static Vector2Int operator -(Vector2Int vec1, Vector2Int vec2)
+    public static Vector2Int operator +(Vector2Int a, Vector2Int b)
     {
-        return new Vector2Int(vec1.x - vec2.x, vec1.y - vec2.y);
+        return new Vector2Int(a.x + b.x, a.y + b.y);
     }
-    public static bool operator ==(Vector2Int vec1, Vector2Int vec2)
+    public static Vector2Int operator -(Vector2Int a, Vector2Int b)
     {
-        return vec1.x == vec2.x && vec1.y == vec2.y;
+        return new Vector2Int(a.x - b.x, a.y - b.y);
     }
-    public static bool operator !=(Vector2Int vec1, Vector2Int vec2)
+    public static Vector2Int operator *(Vector2Int a, Vector2Int b)
     {
-        return !(vec1 == vec2);
+        return new Vector2Int(a.x * b.x, a.y * b.y);
+    }
+    public static Vector2Int operator *(int a, Vector2Int b)
+    {
+        return new Vector2Int(a * b.x, a * b.y);
+    }
+    public static Vector2Int operator *(Vector2Int a, int b)
+    {
+        return new Vector2Int(a.x * b, a.y * b);
+    }
+    public static Vector2Int operator /(Vector2Int a, int b)
+    {
+        return new Vector2Int(a.x / b, a.y / b);
+    }
+    public static bool operator ==(Vector2Int lhs, Vector2Int rhs)
+    {
+        return lhs.x == rhs.x && lhs.y == rhs.y;
+    }
+    public static bool operator !=(Vector2Int lhs, Vector2Int rhs)
+    {
+        return !(lhs == rhs);
     }
 
     public static implicit operator Vector2(Vector2Int v)
     {
         return new Vector2(v.x, v.y);
     }
+
+    #endregion
 
     public static implicit operator ArknightsMap.Position(Vector2Int v)
     {
@@ -59,8 +81,6 @@ public struct Vector2Int
             y = position.row,
         };
     }
-
-    #endregion
 }
 
 public struct Vector2
@@ -79,6 +99,11 @@ public struct Vector2
     public override string ToString()
     {
         return $"({x},{y})";
+    }
+
+    public static float Dot(Vector2 lhs, Vector2 rhs)
+    {
+        return lhs.x * rhs.x + lhs.y * rhs.y;
     }
 
     #region operator

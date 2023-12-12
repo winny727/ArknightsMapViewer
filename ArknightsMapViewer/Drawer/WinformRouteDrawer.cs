@@ -141,6 +141,19 @@ namespace ArknightsMapViewer
             {
                 //PathFinding
                 List<Vector2Int> path = PathFinding.GetPath(prevPosition, curPosition);
+
+                //移除路径中的非拐点
+                for (int i = 1; i < path.Count - 1; i++)
+                {
+                    Vector2Int prevDir = path[i] - path[i - 1];
+                    Vector2Int nextDir = path[i + 1] - path[i];
+                    if (Vector2.Dot(prevDir, nextDir) != 0)
+                    {
+                        path.RemoveAt(i);
+                        i--;
+                    }
+                }
+
                 //若两个点之间无障碍，则移除两个点之间的所有路径点
                 for (int i = 0; i < path.Count - 2; i++)
                 {
