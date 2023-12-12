@@ -172,7 +172,7 @@ namespace ArknightsMapViewer
                             endPos += curOffset;
                         }
 
-                        if (Helper.HasCollider(startPos, endPos, PathFinding.isBarrier))
+                        if (Helper.HasCollider(startPos, endPos, PathFinding.IsBarrier))
                         {
                             break;
                         }

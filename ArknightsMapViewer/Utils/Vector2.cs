@@ -1,8 +1,9 @@
 ﻿using ArknightsMap;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
-public struct Vector2Int
+public struct Vector2Int : IEquatable<Vector2Int>
 {
     public int x;
     public int y;
@@ -12,6 +13,10 @@ public struct Vector2Int
     {
         this.x = x;
         this.y = y;
+    }
+    public bool Equals(Vector2Int other)
+    {
+        return x == other.x && y == other.y;
     }
     public override string ToString()
     {
@@ -64,16 +69,16 @@ public struct Vector2Int
 
     #endregion
 
-    public static implicit operator ArknightsMap.Position(Vector2Int v)
+    public static implicit operator Position(Vector2Int v)
     {
-        return new ArknightsMap.Position
+        return new Position
         {
             col = v.x,
             row = v.y,
         };
     }
 
-    public static implicit operator Vector2Int(ArknightsMap.Position position)
+    public static implicit operator Vector2Int(Position position)
     {
         return new Vector2Int
         {
@@ -83,7 +88,7 @@ public struct Vector2Int
     }
 }
 
-public struct Vector2
+public struct Vector2 : IEquatable<Vector2>
 {
     public float x;
     public float y;
@@ -95,6 +100,10 @@ public struct Vector2
     {
         this.x = x;
         this.y = y;
+    }
+    public bool Equals(Vector2 other)
+    {
+        return x == other.x && y == other.y;
     }
     public override string ToString()
     {

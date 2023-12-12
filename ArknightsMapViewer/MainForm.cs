@@ -217,7 +217,7 @@ namespace ArknightsMapViewer
             int mapHeight = levelData.map.GetLength(1);
             //PathFinding pathFinding = new AStarPathFinding(); //A*在节点周围多个点cost相同的情况，可能会选到后续较远的路径，即不一定会搜到最短路径
             PathFinding pathFinding = new DijkstraPathFinding();
-            pathFinding.isBarrier = Helper.GetIsBarrierArray(levelData);
+            pathFinding.SetIsBarrierArray(Helper.GetIsBarrierArray(levelData));
 
             //TODO SPFA https://blog.csdn.net/beijinghorn/article/details/125510627
 
