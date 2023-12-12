@@ -5,14 +5,13 @@ using System.IO;
 using ArknightsMap;
 using System.Text;
 using System.Drawing;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
 
 namespace ArknightsMapViewer
 {
     public partial class MainForm : Form
     {
         public static MainForm Instance { get; private set; }
-        private string log;
+        public string logText { get; private set; }
 
         private LevelView curLevelView;
 
@@ -29,7 +28,7 @@ namespace ArknightsMapViewer
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            log = "";
+            logText = "";
             Helper.InitTileDefineConfig();
             UpdateView();
         }
@@ -122,7 +121,7 @@ namespace ArknightsMapViewer
             ShowLog();
         }
 
-        private void logToolStripMenuItem_Click(object sender, EventArgs e)
+        private void showLogToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ShowLog();
         }
@@ -158,6 +157,12 @@ namespace ArknightsMapViewer
                 return;
             }
 
+            if (!path.ToLower().EndsWith(".json") || (!File.Exists(path) && Directory.Exists(path)))
+            {
+                Log($"File Type Error, Request Json Files(*.json)\n{path}", LogType.Error);
+                return;
+            }
+
             try
             {
                 string levelJson = File.ReadAllText(path);
@@ -180,16 +185,13 @@ namespace ArknightsMapViewer
                         errorMsg = $"[{Path.GetFileName(path)}] Parse Error, Invalid Level File";
                     }
                     Log(errorMsg, LogType.Error);
-                    MessageBox.Show(errorMsg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             catch (Exception ex)
             {
                 string errorMsg = $"[{Path.GetFileName(path)}] Open Failed, {ex.Message}";
                 Log(errorMsg, LogType.Error);
-                MessageBox.Show(errorMsg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 #if DEBUG
-                //MessageBox.Show(ex.StackTrace, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Log(ex.StackTrace, LogType.Debug);
 #endif
             }
@@ -228,11 +230,12 @@ namespace ArknightsMapViewer
                     return;
                 }
 
+                string title = name.TrimEnd('s'); // routes -> route
                 TreeNode routesNode = rootNode.Nodes.Add(name);
                 for (int i = 0; i < routes.Count; i++)
                 {
                     Route route = routes[i];
-                    TreeNode routeNode = routesNode.Nodes.Add($"route #{i}");
+                    TreeNode routeNode = routesNode.Nodes.Add($"{title} #{i}");
                     routeNode.Tag = new RouteView()
                     {
                         RouteIndex = i,
@@ -264,6 +267,7 @@ namespace ArknightsMapViewer
             StringBuilder stringBuilder = new StringBuilder();
             LevelView levelView = null;
             RouteView routeView = null;
+            TreeNode routeViewNode = null;
             int routeSubIndex = -1;
             checkBox1.Visible = false;
 
@@ -276,6 +280,10 @@ namespace ArknightsMapViewer
                 if (routeView == null && treeNode.Level == 2)
                 {
                     routeView = treeNode.Tag as RouteView;
+                    if (routeView != null)
+                    {
+                        routeViewNode = treeNode;
+                    }
                 }
                 if (routeSubIndex < 0 && treeNode.Level == 3 && treeNode.Parent.Tag is RouteView)
                 {
@@ -334,7 +342,7 @@ namespace ArknightsMapViewer
             else if (routeView != null)
             {
                 Route route = routeView.Route;
-                stringBuilder.AppendLine($"[route #{routeView.RouteIndex}]");
+                stringBuilder.AppendLine($"[{treeView1.SelectedNode.Text}]");
                 if (routeSubIndex < 0)
                 {
                     stringBuilder.AppendLine(route.ToString());
@@ -374,19 +382,24 @@ namespace ArknightsMapViewer
 
         public void Log(object obj, LogType logType = LogType.Log)
         {
-            string content = obj.ToString();
+            string msg = obj.ToString();
             if (logType != LogType.Debug)
             {
-                toolStripStatusLabel1.Text = content;
+                toolStripStatusLabel1.Text = msg;
             }
-            log += $"[{logType.ToString().ToUpper()}][{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:ff")}] {content} \n";
+            if (logType == LogType.Error)
+            {
+                MessageBox.Show(msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            logText += $"[{logType.ToString().ToUpper()}][{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:ff")}] {msg} \n";
         }
 
         private void ShowLog()
         {
             //MessageBox.Show(log);
             LogForm logForm = new LogForm();
-            logForm.ShowLog(log);
+            logForm.UpdateLog(logText);
+            logForm.ShowDialog();
         }
 
         private void pictureBox1_MouseClick(object sender, MouseEventArgs e)

@@ -6,13 +6,57 @@ namespace ArknightsMapViewer
 {
     public abstract class PathFinding
     {
-        public bool[,] IsBarrier { get; protected set; }
+        public bool[,] IsBarrier { get; private set; }
+        protected int Width { get; private set; }
+        protected int Height { get; private set; }
         public virtual void SetIsBarrierArray(bool[,] isBarrier)
         {
             IsBarrier = isBarrier;
+            Width = isBarrier.GetLength(0);
+            Height = isBarrier.GetLength(1);
         }
 
         public abstract List<Vector2Int> GetPath(Vector2Int origin, Vector2Int destination);
+
+        protected void ForEachNeighbor(Vector2Int current, Action<Vector2Int> callback)
+        {
+            if (callback == null)
+            {
+                return;
+            }
+
+            //遍历当前点邻域
+            for (int i = -1; i <= 1; i++)
+            {
+                for (int j = -1; j <= 1; j++)
+                {
+                    //去除左上右上左下右下
+                    if (Math.Abs(i) + Math.Abs(j) == 2)
+                    {
+                        continue;
+                    }
+
+                    //判断是否超出地图范围并排除本身
+                    if (current.x + i >= Width ||
+                        current.x + i < 0 ||
+                        current.y + j >= Height ||
+                        current.y + j < 0 || (i == 0 && j == 0))
+
+                    {
+                        continue;
+                    }
+
+                    //判断该处是否为路障
+                    if (IsBarrier[current.x + i, current.y + j])
+                    {
+                        continue;
+                    }
+
+                    Vector2Int node = new Vector2Int(current.x + i, current.y + j);
+                    callback(node);
+                }
+            }
+        }
     }
 
     #region A*寻路算法
@@ -52,14 +96,11 @@ namespace ArknightsMapViewer
             }
         }
 
-        public static List<Node> GetAstarPath(Vector2Int origin, Vector2Int destination, bool[,] isBarrier)
+        public List<Node> GetAstarPath(Vector2Int origin, Vector2Int destination)
         {
             List<Node> open = new List<Node>();//待搜索的点
             List<Node> close = new List<Node>();//已经搜索过一次或多次的点
             List<Node> road = new List<Node>();
-
-            int width = isBarrier.GetLength(0);
-            int height = isBarrier.GetLength(1);
 
             Node current;
             int minLocation;
@@ -84,55 +125,34 @@ namespace ArknightsMapViewer
                 close.Add(current);
                 int index;//存储所有暂时需要保存的list中元素位置
                           //遍历当前点邻域，使所有点的前置节点都保证其代价更小
-                for (int i = -1; i <= 1; i++)
+
+                ForEachNeighbor(current.position, (neighbor) =>
                 {
-                    for (int j = -1; j <= 1; j++)
+                    //已经在close中则跳过
+                    if (close.Exists(t => t.position == neighbor))
                     {
-                        //去除左上右上左下右下
-                        if (Math.Abs(i) + Math.Abs(j) == 2) continue;
+                        return;
+                    }
+                    //open中是否已经存在，如果不存在，添加进open，如果存在，看所在路径是否需要更新
+                    Node temp = new Node(neighbor, destination, current);
 
-                        //判断是否超出地图范围并排除本身
-                        if (current.position.x + i >= width ||
-                            current.position.x + i < 0 ||
-                            current.position.y + j >= height ||
-                            current.position.y + j < 0 || (i == 0 && j == 0))
+                    if (!open.Exists(t => t.position == neighbor))
 
+                    {
+                        open.Add(temp);
+                    }
+                    else
+                    {
+                        index = open.FindIndex(t => t.position == neighbor);
+
+                        //如果以current点为父节点计算出来的代价比现有代价小，改变其前置结点
+                        if (open[index].cost > temp.cost)
                         {
-                            continue;
-                        }
-                        //判断该处是否为路障
-                        if (isBarrier[current.position.x + i, current.position.y + j])
-                        {
-                            continue;
-                        }
-                        //已经在close中则跳过
-                        if (close.Exists(t => t.position == new Vector2Int(current.position.x + i, current.position.y + j)))
-
-                        {
-                            continue;
-                        }
-                        //open中是否已经存在，如果不存在，添加进open，如果存在，看所在路径是否需要更新
-                        Node temp = new Node(new Vector2Int(current.position.x + i,
-                            current.position.y + j), destination, current);
-
-                        if (!open.Exists(t => t.position == new Vector2Int(current.position.x + i, current.position.y + j)))
-
-                        {
+                            open.RemoveAt(index);
                             open.Add(temp);
                         }
-                        else
-                        {
-                            index = open.FindIndex(t => t.position == new Vector2Int(current.position.x + i, current.position.y + j));
-
-                            //如果以current点为父节点计算出来的代价比现有代价小，改变其前置结点
-                            if (open[index].cost > temp.cost)
-                            {
-                                open.RemoveAt(index);
-                                open.Add(temp);
-                            }
-                        }
                     }
-                }
+                });
             } while (current.position != destination);
             //将链中的结点提取出来
             road.Add(current);
@@ -149,7 +169,7 @@ namespace ArknightsMapViewer
 
         public override List<Vector2Int> GetPath(Vector2Int origin, Vector2Int destination)
         {
-            List<Node> road = GetAstarPath(origin, destination, IsBarrier);
+            List<Node> road = GetAstarPath(origin, destination);
             List<Vector2Int> result = new List<Vector2Int>();
             for (int i = 0; i < road.Count; i++)
             {
@@ -165,7 +185,7 @@ namespace ArknightsMapViewer
 
     public class DijkstraPathFinding : PathFinding
     {
-        private List<Vector2Int> nodeList;
+        private List<Vector2Int> nodeList = new List<Vector2Int>();
         private float[,] adjacencyMatrix;
 
         public class DijkstraInfo
@@ -182,21 +202,19 @@ namespace ArknightsMapViewer
         /// <summary>
         /// 初始化邻接矩阵
         /// </summary>
-        public static void ProgressIsBarrierArray(bool[,] isBarrier, out List<Vector2Int> nodeList, out float[,] adjacencyMatrix)
+        private void ProgressIsBarrierArray()
         {
-            nodeList = new List<Vector2Int>();
+            nodeList.Clear();
 
-            int width = isBarrier.GetLength(0);
-            int height = isBarrier.GetLength(1);
-            int maxLength = width * height;
+            int maxLength = Width * Height;
             float[,] tempMatrix = new float[maxLength, maxLength];
 
             //因为考虑到地图两边不连通的情况，所以这里遍历扫一遍，已经在nodeList即为处理过的则跳过
-            for (int row = 0; row < height; row++)
+            for (int row = 0; row < Height; row++)
             {
-                for (int col = 0; col < width; col++)
+                for (int col = 0; col < Width; col++)
                 {
-                    if (isBarrier[col, row])
+                    if (IsBarrier[col, row])
                     {
                         continue;
                     }
@@ -213,45 +231,18 @@ namespace ArknightsMapViewer
                     do
                     {
                         Vector2Int current = nodeList[currentIndex];
-                        //遍历当前点邻域
-                        for (int i = -1; i <= 1; i++)
+
+                        ForEachNeighbor(current, (neighbor) =>
                         {
-                            for (int j = -1; j <= 1; j++)
+                            //nodeList中是否已经存在，如果不存在，添加进nodeList；同时记录连接关系
+                            int nodeIndex = nodeList.IndexOf(neighbor);
+                            if (nodeIndex < 0)
                             {
-                                //去除左上右上左下右下
-                                if (Math.Abs(i) + Math.Abs(j) == 2)
-                                {
-                                    continue;
-                                }
-
-                                //判断是否超出地图范围并排除本身
-                                if (current.x + i >= width ||
-                                    current.x + i < 0 ||
-                                    current.y + j >= height ||
-                                    current.y + j < 0 || (i == 0 && j == 0))
-
-                                {
-                                    continue;
-                                }
-
-                                //判断该处是否为路障
-                                if (isBarrier[current.x + i, current.y + j])
-                                {
-                                    continue;
-                                }
-
-                                Vector2Int node = new Vector2Int(current.x + i, current.y + j);
-
-                                //nodeList中是否已经存在，如果不存在，添加进nodeList；同时记录连接关系
-                                int nodeIndex = nodeList.IndexOf(node);
-                                if (nodeIndex < 0)
-                                {
-                                    nodeList.Add(node);
-                                    nodeIndex = nodeList.Count - 1;
-                                }
-                                tempMatrix[currentIndex, nodeIndex] = 1;
+                                nodeList.Add(neighbor);
+                                nodeIndex = nodeList.Count - 1;
                             }
-                        }
+                            tempMatrix[currentIndex, nodeIndex] = 1;
+                        });
                     }
                     while (++currentIndex < nodeList.Count);
                 }
@@ -333,7 +324,7 @@ namespace ArknightsMapViewer
         public override void SetIsBarrierArray(bool[,] isBarrier)
         {
             base.SetIsBarrierArray(isBarrier);
-            ProgressIsBarrierArray(isBarrier, out nodeList, out adjacencyMatrix);
+            ProgressIsBarrierArray();
         }
 
         public override List<Vector2Int> GetPath(Vector2Int origin, Vector2Int destination)

@@ -17,9 +17,8 @@ namespace ArknightsMapViewer
             InitializeComponent();
         }
 
-        public void ShowLog(string log)
+        public void UpdateLog(string log)
         {
-            Show();
             richTextBox1.Text = log;
         }
     }
