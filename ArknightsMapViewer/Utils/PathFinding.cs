@@ -274,18 +274,22 @@ namespace ArknightsMapViewer
         /// <param name="startIndex"></param>
         public static DijkstraInfo PathFindingByDijkstra(float[,] mgrap, int startIndex)
         {
-            int len = mgrap.GetLength(0);//节点个数
+            int len = mgrap.GetLength(0); //节点个数
+
             DijkstraInfo dijkstraInfo = new DijkstraInfo(len);
-            int[] s = new int[len];   //选定的顶点的集合
+            int[] s = new int[len]; //选定的顶点的集合
+
             float mindis;
-            int u;
-            u = 0;
+            int u = 0;
+
             for (int i = 0; i < len; i++)
             {
-                dijkstraInfo.Dists[i] = mgrap[startIndex, i];       //距离初始化
-                s[i] = 0;                        //s[]置空  0表示i不在s集合中
+                dijkstraInfo.Dists[i] = mgrap[startIndex, i]; //距离初始化
+                s[i] = 0; //s[]置空  0表示i不在s集合中
+
+                //路径初始化
                 if (mgrap[startIndex, i] < int.MaxValue)
-                {      //路径初始化
+                {      
                     dijkstraInfo.Path[i] = startIndex;
                 }
                 else
@@ -293,27 +297,39 @@ namespace ArknightsMapViewer
                     dijkstraInfo.Path[i] = -1;
                 }
             }
-            s[startIndex] = 1;                  //源点编号v放入s中
+
+            s[startIndex] = 1; //源点编号v放入s中
             dijkstraInfo.Path[startIndex] = 0;
-            for (int i = 0; i < len; i++)                //循环直到所有顶点的最短路径都求出
+
+            //循环直到所有顶点的最短路径都求出
+            for (int i = 0; i < len; i++)                
             {
-                mindis = int.MaxValue;                    //mindis置最大长度初值
-                for (int j = 0; j < len; j++)         //选取不在s中且具有最小距离的顶点u
+                mindis = int.MaxValue; //mindis置最大长度初值
+
+                //选取不在s中且具有最小距离的顶点u
+                for (int j = 0; j < len; j++)
+                {
                     if (s[j] == 0 && dijkstraInfo.Dists[j] < mindis)
                     {
                         u = j;
                         mindis = dijkstraInfo.Dists[j];
                     }
-                s[u] = 1;                       //顶点u加入s中
+                }
+
+                s[u] = 1; //顶点u加入s中
+
+                //修改不在s中的顶点的距离
                 for (int j = 0; j < len; j++)
-                {        //修改不在s中的顶点的距离
-                    if (s[j] == 0)
+                {        
+                    if (s[j] != 0)
                     {
-                        if (mgrap[u, j] < int.MaxValue && dijkstraInfo.Dists[u] + mgrap[u, j] < dijkstraInfo.Dists[j])
-                        {
-                            dijkstraInfo.Dists[j] = dijkstraInfo.Dists[u] + mgrap[u, j];
-                            dijkstraInfo.Path[j] = u;
-                        }
+                        continue;
+                    }
+
+                    if (mgrap[u, j] < int.MaxValue && dijkstraInfo.Dists[u] + mgrap[u, j] < dijkstraInfo.Dists[j])
+                    {
+                        dijkstraInfo.Dists[j] = dijkstraInfo.Dists[u] + mgrap[u, j];
+                        dijkstraInfo.Path[j] = u;
                     }
                 }
             }
