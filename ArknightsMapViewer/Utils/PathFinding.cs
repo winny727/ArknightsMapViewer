@@ -100,8 +100,7 @@ namespace ArknightsMapViewer
                             continue;
                         }
                         //已经在close中则跳过
-                        if (close.Exists(t => (t.position - new Vector2Int(current.position.x + i,
-                            current.position.y + j)).sqrMagnitude == 0))
+                        if (close.Exists(t => t.position == new Vector2Int(current.position.x + i, current.position.y + j)))
 
                         {
                             continue;
@@ -110,16 +109,14 @@ namespace ArknightsMapViewer
                         Node temp = new Node(new Vector2Int(current.position.x + i,
                             current.position.y + j), destination, current);
 
-                        if (!open.Exists(t => (t.position - new Vector2Int(current.position.x + i,
-                            current.position.y + j)).sqrMagnitude == 0))
+                        if (!open.Exists(t => t.position == new Vector2Int(current.position.x + i, current.position.y + j)))
 
                         {
                             open.Add(temp);
                         }
                         else
                         {
-                            index = open.FindIndex(t => (t.position - new Vector2Int
-                            (current.position.x + i, current.position.y + j)).sqrMagnitude == 0);
+                            index = open.FindIndex(t => t.position == new Vector2Int(current.position.x + i, current.position.y + j));
 
                             //如果以current点为父节点计算出来的代价比现有代价小，改变其前置结点
                             if (open[index].cost > temp.cost)
@@ -130,7 +127,7 @@ namespace ArknightsMapViewer
                         }
                     }
                 }
-            } while ((current.position - destination).sqrMagnitude != 0);
+            } while (current.position != destination);
             //将链中的结点提取出来
             road.Add(current);
             do
@@ -245,7 +242,7 @@ namespace ArknightsMapViewer
             do
             {
                 Vector2Int current = nodeList[currentIndex];
-                if ((current - destination).sqrMagnitude == 0)
+                if (current == destination)
                 {
                     destinationIndex = currentIndex;
                 }
@@ -280,7 +277,7 @@ namespace ArknightsMapViewer
                         Vector2Int temp = new Vector2Int(current.x + i, current.y + j);
 
                         //nodeList中是否已经存在，如果不存在，添加进nodeList
-                        if (!nodeList.Exists(t => (t - temp).sqrMagnitude == 0))
+                        if (!nodeList.Exists(t => t == temp))
                         {
                             nodeList.Add(temp);
                             tempMatrix[currentIndex, nodeList.Count - 1] = 1; //记录连接关系
@@ -331,4 +328,8 @@ namespace ArknightsMapViewer
         }
     }
     #endregion
+
+    //TODO SPFA
+
+    //TODO 起点终点视为可进入的点
 }

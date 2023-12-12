@@ -28,6 +28,14 @@ public struct Vector2Int
     {
         return new Vector2Int(vec1.x - vec2.x, vec1.y - vec2.y);
     }
+    public static bool operator ==(Vector2Int vec1, Vector2Int vec2)
+    {
+        return vec1.x == vec2.x && vec1.y == vec2.y;
+    }
+    public static bool operator !=(Vector2Int vec1, Vector2Int vec2)
+    {
+        return !(vec1 == vec2);
+    }
 
     public static implicit operator Vector2(Vector2Int v)
     {

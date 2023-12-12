@@ -4,6 +4,7 @@ using System.IO;
 using System.Windows.Forms;
 using ArknightsMap;
 using System.Drawing;
+using Newtonsoft.Json.Linq;
 
 namespace ArknightsMapViewer
 {
@@ -20,56 +21,53 @@ namespace ArknightsMapViewer
                 }
                 catch (Exception ex)
                 {
-                    MainForm.Instance.Log("Invalid Tile Color: " + value, MainForm.LogType.Warning);
+                    MainForm.Instance.Log($"Invalid Tile Color: {value}", MainForm.LogType.Warning);
                 }
                 return color;
             }
 
             string path = Environment.CurrentDirectory + "/TileDefine.txt";
-            if (File.Exists(path))
-            {
-                try
-                {
-                    string text = File.ReadAllText(path);
-                    string[] lines = text.Split('\n');
-                    for (int i = 1; i < lines.Length; i++)
-                    {
-                        string[] values = lines[i].Replace("\"", "").Split('\t');
-                        if (values.Length >= 2 && !string.IsNullOrEmpty(values[0]) && !string.IsNullOrEmpty(values[1]))
-                        {
-                            string tileKey = values[0];
-                            Color tileColor = ParseColor(values[1]);
-                            if (!GlobalDefine.TileColor.ContainsKey(tileKey))
-                            {
-                                GlobalDefine.TileColor.Add(tileKey, tileColor);
-                            }
-                            else
-                            {
-                                GlobalDefine.TileColor[tileKey] = tileColor;
-                            }
 
-                            string tileText = values[2];
-                            if (values.Length >= 4 && !string.IsNullOrEmpty(tileText))
-                            {
-                                Color textColor = ParseColor(values[3]);
-                                if (!GlobalDefine.TileString.ContainsKey(tileKey))
-                                {
-                                    GlobalDefine.TileString.Add(tileKey, (tileText, textColor));
-                                }
-                                else
-                                {
-                                    GlobalDefine.TileString[tileKey] = (tileText, textColor);
-                                }
-                            }
+            try
+            {
+                TableReader tableReader = new TableReader(path);
+                tableReader.ForEach((key, line) =>
+                {
+                    string tileKey = key;
+                    Color tileColor = ParseColor(line["tileColor"]);
+                    string tileText = line["tileText"];
+                    Color textColor = ParseColor(line["textColor"]);
+
+                    if (!string.IsNullOrEmpty(tileKey))
+                    {
+                        if (!GlobalDefine.TileColor.ContainsKey(tileKey))
+                        {
+                            GlobalDefine.TileColor.Add(tileKey, tileColor);
+                        }
+                        else
+                        {
+                            GlobalDefine.TileColor[tileKey] = tileColor;
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    string errorMsg = $"TileDefine.txt Open Failed, {ex.Message}";
-                    MainForm.Instance.Log(errorMsg, MainForm.LogType.Warning);
-                    //MessageBox.Show(errorMsg, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
+
+                    if (!string.IsNullOrEmpty(tileText))
+                    {
+                        if (!GlobalDefine.TileString.ContainsKey(tileKey))
+                        {
+                            GlobalDefine.TileString.Add(tileKey, (tileText, textColor));
+                        }
+                        else
+                        {
+                            GlobalDefine.TileString[tileKey] = (tileText, textColor);
+                        }
+                    }
+                });
+            }
+            catch(Exception ex)
+            {
+                string errorMsg = $"TileDefine.txt Read Error, {ex.Message}";
+                MainForm.Instance.Log(errorMsg, MainForm.LogType.Warning);
+                //MessageBox.Show(errorMsg, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
@@ -84,7 +82,7 @@ namespace ArknightsMapViewer
                 for (int col = 0; col < mapWidth; col++)
                 {
                     Tile tile = map[col, row];
-                    isBarrier[col, mapHeight - row - 1] = (tile.passableMask & PassableMask.WALK_ONLY) == 0;
+                    isBarrier[col, row] = (tile.passableMask & PassableMask.WALK_ONLY) == 0;
                 }
             }
 
@@ -265,6 +263,7 @@ namespace ArknightsMapViewer
         public static Point PositionToPoint(Position position, Offset offset, int mapHeight)
         {
             int x = (int)((position.col + offset.x + 0.5f) * GlobalDefine.TILE_PIXLE);
+            //int y = (int)((position.row + offset.y + 0.5f) * GlobalDefine.TILE_PIXLE);
             int y = (int)((mapHeight - (position.row + offset.y) - 1 + 0.5f) * GlobalDefine.TILE_PIXLE);
             return new Point(x, y);
         }
@@ -272,6 +271,7 @@ namespace ArknightsMapViewer
         public static Position PointToPosition(Point point, int mapHeight)
         {
             int x = point.X / GlobalDefine.TILE_PIXLE;
+            //int y = point.Y / GlobalDefine.TILE_PIXLE;
             int y = -(point.Y / GlobalDefine.TILE_PIXLE) + mapHeight - 1;
             return new Position
             {

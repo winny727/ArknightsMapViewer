@@ -64,7 +64,7 @@ namespace ArknightsMapViewer
             Bitmap bitmap = (Bitmap)PictureBox.BackgroundImage;
 
             int length = GlobalDefine.TILE_PIXLE;
-            Rectangle rectangle = new Rectangle(colIndex * length, rowIndex * length, length, length);
+            Rectangle rectangle = new Rectangle(colIndex * length, (MapHeight - rowIndex - 1) * length, length, length);
 
             DrawUtil.FillRectangle(bitmap, rectangle, color);
             DrawUtil.DrawRectangle(bitmap, rectangle);
@@ -82,8 +82,8 @@ namespace ArknightsMapViewer
 
         private string GetIndexText(int colIndex, int rowIndex)
         {
-            return $"{colIndex},{MapHeight - rowIndex - 1}";
-            //return $"{(char)('A' + (Height - rowIndex - 1))}{colIndex + 1}";
+            return $"{colIndex},{rowIndex}";
+            //return $"{(char)('A' + rowIndex)}{colIndex + 1}";
         }
     }
 }

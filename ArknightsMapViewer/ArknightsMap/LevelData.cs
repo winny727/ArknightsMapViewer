@@ -14,14 +14,17 @@ namespace ArknightsMap
             var rawMap = rawLevelData.mapData.map;
             int mapHeight = rawMap.Length;
             int mapWidth = rawMap.Length > 0 ? rawMap[0].Length : 0;
+
+            //TODO row顺序
             map = new Tile[mapWidth, mapHeight];
-            for (int row = 0; row < rawMap.Length; row++)
+            for (int row = 0; row < mapHeight; row++)
             {
-                for (int col = 0; col < rawMap[row].Length; col++)
+                for (int col = 0; col < mapWidth; col++)
                 {
-                    map[col, row] = rawLevelData.mapData.tiles[rawMap[row][col]];
+                    map[col, row] = rawLevelData.mapData.tiles[rawMap[mapHeight - row - 1][col]];
                 }
             }
+
 
             routes = new List<Route>();
             for (int i = 0; i < rawLevelData.routes.Count; i++)
@@ -312,17 +315,19 @@ namespace ArknightsMap
         FLY,
     }
 
-    //NOTE: 顺序未知，来源于所有地图文件全局搜索统计 TODO 顺序
+    //NOTE: 来源于所有地图文件全局搜索统计，顺序来源PRTS
     public enum CheckPointType
     {
-        MOVE,
-        WAIT_FOR_SECONDS,
-        WAIT_CURRENT_FRAGMENT_TIME,
-        WAIT_CURRENT_WAVE_TIME,
-        DISAPPEAR,
-        APPEAR_AT_POS,
-        PATROL_MOVE,
-        WAIT_BOSSRUSH_WAVE,
+        MOVE = 0, //移动
+        WAIT_FOR_SECONDS = 1, //停驻(到位置后计时)
+        WAIT_FOR_PLAY_TIME = 2, //停驻(全局计时)
+        WAIT_CURRENT_FRAGMENT_TIME = 3, //停驻(兵团行动开始后计时)
+        WAIT_CURRENT_WAVE_TIME = 4, //停驻(波次行动开始后计时)	
+        DISAPPEAR = 5, //进入传送
+        APPEAR_AT_POS = 6, //离开传送
+        ALERT = 7, //警报
+        PATROL_MOVE = 8, //巡逻：存在巡逻路径点时，敌方单位将始终留在战场上沿闭合路径移动，除非其因某些特殊能力退场
+        WAIT_BOSSRUSH_WAVE = 9, //引航者试炼-休整
     }
 
     //NOTE: 顺序未知，来源于所有地图文件全局搜索统计 TODO 顺序

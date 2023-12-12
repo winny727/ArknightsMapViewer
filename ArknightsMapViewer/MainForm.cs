@@ -5,6 +5,7 @@ using System.IO;
 using ArknightsMap;
 using System.Text;
 using System.Drawing;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
 
 namespace ArknightsMapViewer
 {
@@ -189,7 +190,7 @@ namespace ArknightsMapViewer
                 MessageBox.Show(errorMsg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 #if DEBUG
                 //MessageBox.Show(ex.StackTrace, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                //Log(ex.StackTrace, LogType.Debug);
+                Log(ex.StackTrace, LogType.Debug);
 #endif
             }
         }
@@ -217,6 +218,8 @@ namespace ArknightsMapViewer
             //PathFinding pathFinding = new AStarPathFinding(); //A*在节点周围多个点cost相同的情况，可能会选到后续较远的路径，即不一定会搜到最短路径
             PathFinding pathFinding = new DijkstraPathFinding();
             pathFinding.isBarrier = Helper.GetIsBarrierArray(levelData);
+
+            //TODO SPFA https://blog.csdn.net/beijinghorn/article/details/125510627
 
             void AddRouteList(string name, List<Route> routes)
             {
@@ -262,6 +265,8 @@ namespace ArknightsMapViewer
             LevelView levelView = null;
             RouteView routeView = null;
             int routeSubIndex = -1;
+            checkBox1.Visible = false;
+
             while (treeNode != null)
             {
                 if (levelView == null && treeNode.Level == 0)
@@ -297,16 +302,18 @@ namespace ArknightsMapViewer
                 }
                 else
                 {
+                    checkBox1.Visible = true;
+                    int curCheckPointIndex = routeSubIndex - 1;
+                    int startIndex = checkBox1.Checked ? curCheckPointIndex : -1; //-1表示从startPosition开始
+
                     routeView.RouteDrawer?.InitCanvas();
-                    for (int i = 0; i <= routeSubIndex; i++)
+                    for (int i = startIndex; i <= curCheckPointIndex; i++)
                     {
-                        int checkPointIndex = i - 1;
-                        routeView.RouteDrawer?.DrawMoveLine(checkPointIndex);
+                        routeView.RouteDrawer?.DrawMoveLine(i);
                     }
-                    for (int i = 0; i <= routeSubIndex; i++)
+                    for (int i = startIndex; i <= curCheckPointIndex; i++)
                     {
-                        int checkPointIndex = i - 1;
-                        routeView.RouteDrawer?.DrawCheckPoint(checkPointIndex);
+                        routeView.RouteDrawer?.DrawCheckPoint(i);
                     }
                     routeView.RouteDrawer?.RefreshCanvas();
                 }
@@ -398,7 +405,7 @@ namespace ArknightsMapViewer
             Position position = Helper.PointToPosition(point, mapHeight);
             position.col = position.col.Clamp(0, mapWidth - 1);
             position.row = position.row.Clamp(0, mapHeight - 1);
-            Tile tile = map[position.col, mapHeight - position.row - 1];
+            Tile tile = map[position.col, position.row];
 
             string text = $"[Tile: {position}]\n" + tile.ToString();
 
@@ -408,6 +415,11 @@ namespace ArknightsMapViewer
             }
 
             label1.Text = text;
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateView();
         }
     }
 }
