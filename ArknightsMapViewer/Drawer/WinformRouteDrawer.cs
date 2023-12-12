@@ -160,18 +160,16 @@ namespace ArknightsMapViewer
                     int removeCount = 0;
                     for (int j = i + 2; j < path.Count; j++)
                     {
-                        Vector2 startPos = new Vector2(path[i].x, path[i].y);
-                        Vector2 endPos = new Vector2(path[j].x, path[j].y);
+                        Vector2 startPos = path[i];
+                        Vector2 endPos = path[j];
 
                         if (i == 0)
                         {
-                            startPos.x += prevOffset.x;
-                            startPos.y += prevOffset.y;
+                            startPos += prevOffset;
                         }
                         if (j == path.Count - 1)
                         {
-                            endPos.x += curOffset.x;
-                            endPos.y += curOffset.y;
+                            endPos += curOffset;
                         }
 
                         if (Helper.HasCollider(startPos, endPos, PathFinding.isBarrier))

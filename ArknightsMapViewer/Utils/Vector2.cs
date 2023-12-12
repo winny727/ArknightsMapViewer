@@ -1,6 +1,6 @@
-﻿using System;
+﻿using ArknightsMap;
+using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 public struct Vector2Int
 {
@@ -152,5 +152,23 @@ public struct Vector2
     }
 
     #endregion
+
+    public static implicit operator Offset(Vector2 v)
+    {
+        return new Offset
+        {
+            x = v.x,
+            y = v.y,
+        };
+    }
+
+    public static implicit operator Vector2(Offset offset)
+    {
+        return new Vector2
+        {
+            x = offset.x,
+            y = offset.y,
+        };
+    }
 }
 
