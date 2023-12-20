@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Windows.Forms;
 
 namespace ArknightsMap
 {
@@ -15,7 +14,6 @@ namespace ArknightsMap
             int mapHeight = rawMap.Length;
             int mapWidth = rawMap.Length > 0 ? rawMap[0].Length : 0;
 
-            //TODO row顺序
             map = new Tile[mapWidth, mapHeight];
             for (int row = 0; row < mapHeight; row++)
             {
@@ -287,61 +285,73 @@ namespace ArknightsMap
 
     public enum HeightType
     {
-        LOWLAND,
-        HIGHLAND,
+        LOWLAND     = 0,
+        HIGHLAND    = 1,
+
+        E_NUM,
     }
 
     public enum BuildableType
     {
-        NONE,
-        MELEE,
-        RANGED,
-        ALL,
+        NONE    = 0,
+        MELEE   = 1,
+        RANGED  = 2,
+        ALL     = 3,
+
+        E_NUM,
     }
 
     [Flags]
     public enum PassableMask
     {
-        NONE = 0,
-        WALK_ONLY = 1,
-        FLY_ONLY = 2,
-        ALL = 3,
+        NONE        = 0,
+        WALK_ONLY   = 1 << 0,
+        FLY_ONLY    = 1 << 1,
+        ALL         = 1 << 2,
+
+        E_NUM,
     }
 
     public enum MotionMode
     {
-        E_NUM = -1, //跳过？
-        WALK,
-        FLY,
+        WALK    = 0,
+        FLY     = 1,
+
+        E_NUM,
     }
 
-    //NOTE: 来源于所有地图文件全局搜索统计，顺序来源PRTS
+    //NOTE: 来源PRTS
     public enum CheckPointType
     {
-        MOVE = 0, //移动
-        WAIT_FOR_SECONDS = 1, //停驻(到位置后计时)
-        WAIT_FOR_PLAY_TIME = 2, //停驻(全局计时)
-        WAIT_CURRENT_FRAGMENT_TIME = 3, //停驻(兵团行动开始后计时)
-        WAIT_CURRENT_WAVE_TIME = 4, //停驻(波次行动开始后计时)	
-        DISAPPEAR = 5, //进入传送
-        APPEAR_AT_POS = 6, //离开传送
-        ALERT = 7, //警报
-        PATROL_MOVE = 8, //巡逻：存在巡逻路径点时，敌方单位将始终留在战场上沿闭合路径移动，除非其因某些特殊能力退场
-        WAIT_BOSSRUSH_WAVE = 9, //引航者试炼-休整
+        MOVE                        = 0, //移动
+        WAIT_FOR_SECONDS            = 1, //停驻(到位置后计时)
+        WAIT_FOR_PLAY_TIME          = 2, //停驻(全局计时)
+        WAIT_CURRENT_FRAGMENT_TIME  = 3, //停驻(兵团行动开始后计时)
+        WAIT_CURRENT_WAVE_TIME      = 4, //停驻(波次行动开始后计时)	
+        DISAPPEAR                   = 5, //进入传送
+        APPEAR_AT_POS               = 6, //离开传送
+        ALERT                       = 7, //警报
+        PATROL_MOVE                 = 8, //巡逻：存在巡逻路径点时，敌方单位将始终留在战场上沿闭合路径移动，除非其因某些特殊能力退场
+        WAIT_BOSSRUSH_WAVE          = 9, //引航者试炼-休整
+
+        E_NUM,
     }
 
-    //NOTE: 顺序未知，来源于所有地图文件全局搜索统计 TODO 顺序
+    //NOTE: 来源PRTS
     public enum ActionType
     {
-        SPAWN,
-        STORY,
-        DISPLAY_ENEMY_INFO,
-        PREVIEW_CURSOR,
-        ACTIVATE_PREDEFINED,
-        PLAY_OPERA,
-        TRIGGER_PREDEFINED,
-        PLAY_BGM,
-        BATTLE_EVENTS,
+        SPAWN               = 0, //召唤
+        PREVIEW_CURSOR      = 1 , //显示路径
+        STORY               = 2, //显示剧情
+        TUTORIAL            = 3,
+        PLAY_BGM            = 4, //播放BGM
+        DISPLAY_ENEMY_INFO  = 5, //显示敌人信息
+        ACTIVATE_PREDEFINED = 6, //预部署单位生效(干员)
+        PLAY_OPERA          = 7, //播放画面特效
+        TRIGGER_PREDEFINED  = 8, //预部署单位生效(装置)
+        BATTLE_EVENTS       = 9,
+
+        E_NUM,
     }
 
     //出现统计：0,1,2

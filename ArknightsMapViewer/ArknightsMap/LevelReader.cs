@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using System.Windows.Forms;
 
 namespace ArknightsMap
 {
@@ -64,12 +63,12 @@ namespace ArknightsMap
                 return false;
             }
 
-            if (rawLevelData.routes == null | rawLevelData.routes.Count <= 0)
+            if (rawLevelData.routes == null || rawLevelData.routes.Count <= 0)
             {
                 return false;
             }
 
-            if (rawLevelData.waves == null | rawLevelData.waves.Count <= 0)
+            if (rawLevelData.waves == null || rawLevelData.waves.Count <= 0)
             {
                 return false;
             }
