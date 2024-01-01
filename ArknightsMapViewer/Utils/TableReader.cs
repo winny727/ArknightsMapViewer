@@ -172,8 +172,8 @@ public class TableReader
                 throw new ArgumentException($"Data Key {key} is Already Exist");
             }
 
-            string[] values = new string[maxColIndex];
-            for (int j = 0; j < maxColIndex; j++)
+            string[] values = new string[maxColIndex + 1];
+            for (int j = 0; j <= maxColIndex; j++)
             {
                 values[j] = line[j];
             }
