@@ -202,7 +202,7 @@ namespace ArknightsMapViewer
         /// <summary>
         /// 初始化邻接矩阵
         /// </summary>
-        private void ProgressIsBarrierArray()
+        private void ProcessIsBarrierArray()
         {
             nodeList.Clear();
 
@@ -340,7 +340,7 @@ namespace ArknightsMapViewer
         public override void SetIsBarrierArray(bool[,] isBarrier)
         {
             base.SetIsBarrierArray(isBarrier);
-            ProgressIsBarrierArray();
+            ProcessIsBarrierArray();
         }
 
         public override List<Vector2Int> GetPath(Vector2Int origin, Vector2Int destination)
