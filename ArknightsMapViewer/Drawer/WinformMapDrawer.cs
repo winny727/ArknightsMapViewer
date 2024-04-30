@@ -25,7 +25,7 @@ namespace ArknightsMapViewer
 
         public void InitCanvas()
         {
-            Bitmap bitmap = new Bitmap(MapWidth * GlobalDefine.TILE_PIXLE + MapWidth, MapHeight * GlobalDefine.TILE_PIXLE + MapHeight);
+            Bitmap bitmap = new Bitmap(MapWidth * GlobalDefine.TILE_PIXLE, MapHeight * GlobalDefine.TILE_PIXLE);
             PictureBox.BackgroundImage?.Dispose();
             PictureBox.BackgroundImage = bitmap;
             PictureBox.Width = bitmap.Width;

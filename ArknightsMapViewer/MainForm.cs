@@ -5,6 +5,7 @@ using System.IO;
 using ArknightsMap;
 using System.Text;
 using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace ArknightsMapViewer
 {
@@ -14,9 +15,8 @@ namespace ArknightsMapViewer
         public string logText { get; private set; }
 
         private LevelView curLevelView;
-
-        private bool hideBackground = false;
-        private bool hideRoute = false;
+        private RouteView curRouteView;
+        private int curCheckPointIndex;
 
         public MainForm()
         {
@@ -300,19 +300,13 @@ namespace ArknightsMapViewer
                 curLevelView = levelView;
                 pictureBox1.BackgroundImage?.Dispose();
                 pictureBox1.BackgroundImage = null;
-                if (!hideBackground)
-                {
-                    levelView?.MapDrawer?.DrawMap();
-                }
-                else
-                {
-                    levelView?.MapDrawer?.InitCanvas();
-                }
+                levelView?.MapDrawer?.DrawMap();
             }
 
             pictureBox1.Image?.Dispose();
             pictureBox1.Image = null;
-            if (routeView != null && !hideRoute)
+            curRouteView = routeView;
+            if (routeView != null)
             {
                 if (routeSubIndex < 0)
                 {
@@ -321,15 +315,15 @@ namespace ArknightsMapViewer
                 else
                 {
                     checkBox1.Visible = true;
-                    int curCheckPointIndex = routeSubIndex - 1;
-                    int startIndex = checkBox1.Checked ? curCheckPointIndex : -1; //-1表示从startPosition开始
+                    int checkPointIndex = routeSubIndex - 1;
+                    int startIndex = checkBox1.Checked ? checkPointIndex : -1; //-1表示从startPosition开始
 
                     routeView.RouteDrawer?.InitCanvas();
-                    for (int i = startIndex; i <= curCheckPointIndex; i++)
+                    for (int i = startIndex; i <= checkPointIndex; i++)
                     {
                         routeView.RouteDrawer?.DrawMoveLine(i);
                     }
-                    for (int i = startIndex; i <= curCheckPointIndex; i++)
+                    for (int i = startIndex; i <= checkPointIndex; i++)
                     {
                         routeView.RouteDrawer?.DrawCheckPoint(i);
                     }
@@ -447,22 +441,27 @@ namespace ArknightsMapViewer
 
         private void fullImageToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            SaveImageToFile();
+            SaveImageToFile(saveFull: true);
         }
 
         private void routeOnlyToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            SaveImageToFile(saveBackground: false);
+            SaveImageToFile(saveRoute: true);
         }
 
         private void backgroundToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            SaveImageToFile(saveRoute: false);
+            SaveImageToFile(saveBackground: true);
         }
 
-        private void SaveImageToFile(bool saveBackground = true, bool saveRoute = true)
+        private void allToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!saveBackground && !saveRoute)
+            SaveImageToFile(saveBackground: true, saveRoute: true, saveFull: true);
+        }
+
+        private void SaveImageToFile(bool saveBackground = false, bool saveRoute = false, bool saveFull = false)
+        {
+            if (!saveBackground && !saveRoute && !saveFull)
             {
                 return;
             }
@@ -485,24 +484,33 @@ namespace ArknightsMapViewer
                 Directory.CreateDirectory(path);
             }
 
-            bool complete = false;
+            bool backGroundSaved = false;
             void ForEachRouteNode(TreeNode treeNode)
             {
-                if (complete)
-                {
-                    return;
-                }
-
-                if (treeNode.Tag is RouteView)
+                if (treeNode.Tag is RouteView routeView)
                 {
                     treeView1.SelectedNode = treeNode;
                     UpdateView();
-                    //TODO Export
 
-                    //不导出路线，导出一张背景图即返回
-                    if (!saveRoute)
+                    if (saveBackground && !backGroundSaved)
                     {
-                        complete = true;
+                        string fullPath = Path.Combine(path, $"{curLevelView.Name}_Background.png");
+                        pictureBox1.BackgroundImage.Save(fullPath, ImageFormat.Png);
+                        backGroundSaved = true;
+                    }
+
+                    if (saveRoute)
+                    {
+                        string fullPath = Path.Combine(path, $"{curLevelView.Name}_{treeNode.Parent.Text}_R{routeView.RouteIndex}.png");
+                        pictureBox1.Image.Save(fullPath, ImageFormat.Png);
+                    }
+
+                    if (saveFull)
+                    {
+                        string fullPath = Path.Combine(path, $"{curLevelView.Name}_{treeNode.Parent.Text}_F{routeView.RouteIndex}.png");
+                        Bitmap bitmap = new Bitmap(pictureBox1.Width, pictureBox1.Height);
+                        pictureBox1.DrawToBitmap(bitmap, new Rectangle(0, 0, pictureBox1.Width, pictureBox1.Height));
+                        bitmap.Save(fullPath, ImageFormat.Png);
                     }
                 }
 
@@ -512,17 +520,10 @@ namespace ArknightsMapViewer
                 }
             }
 
-            curLevelView = null; //触发背景刷新
-            hideBackground = !saveBackground;
-            hideRoute = !saveRoute;
-
             ForEachRouteNode(selectedNode);
 
             //还原
             treeView1.SelectedNode = selectedNode;
-            curLevelView = null;
-            hideBackground = false;
-            hideRoute = false;
             UpdateView();
         }
     }
