@@ -43,6 +43,11 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.openToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.exportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.fullImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.routeOnlyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.backgroundToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.expendToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.collapseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -179,12 +184,14 @@
             this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.openToolStripMenuItem1,
+            this.toolStripSeparator2,
+            this.exportToolStripMenuItem,
             this.toolStripSeparator3,
             this.expendToolStripMenuItem,
             this.collapseToolStripMenuItem,
             this.removeToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(127, 98);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(127, 126);
             // 
             // openToolStripMenuItem1
             // 
@@ -192,6 +199,42 @@
             this.openToolStripMenuItem1.Size = new System.Drawing.Size(126, 22);
             this.openToolStripMenuItem1.Text = "&Open";
             this.openToolStripMenuItem1.Click += new System.EventHandler(this.openToolStripMenuItem1_Click);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(123, 6);
+            // 
+            // exportToolStripMenuItem
+            // 
+            this.exportToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fullImageToolStripMenuItem,
+            this.routeOnlyToolStripMenuItem,
+            this.backgroundToolStripMenuItem});
+            this.exportToolStripMenuItem.Name = "exportToolStripMenuItem";
+            this.exportToolStripMenuItem.Size = new System.Drawing.Size(126, 22);
+            this.exportToolStripMenuItem.Text = "Export";
+            // 
+            // fullImageToolStripMenuItem
+            // 
+            this.fullImageToolStripMenuItem.Name = "fullImageToolStripMenuItem";
+            this.fullImageToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
+            this.fullImageToolStripMenuItem.Text = "Full Image";
+            this.fullImageToolStripMenuItem.Click += new System.EventHandler(this.fullImageToolStripMenuItem_Click);
+            // 
+            // routeOnlyToolStripMenuItem
+            // 
+            this.routeOnlyToolStripMenuItem.Name = "routeOnlyToolStripMenuItem";
+            this.routeOnlyToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
+            this.routeOnlyToolStripMenuItem.Text = "Route Only";
+            this.routeOnlyToolStripMenuItem.Click += new System.EventHandler(this.routeOnlyToolStripMenuItem_Click);
+            // 
+            // backgroundToolStripMenuItem
+            // 
+            this.backgroundToolStripMenuItem.Name = "backgroundToolStripMenuItem";
+            this.backgroundToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
+            this.backgroundToolStripMenuItem.Text = "Background";
+            this.backgroundToolStripMenuItem.Click += new System.EventHandler(this.backgroundToolStripMenuItem_Click);
             // 
             // toolStripSeparator3
             // 
@@ -347,6 +390,11 @@
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem showLogToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripMenuItem exportToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem fullImageToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem routeOnlyToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem backgroundToolStripMenuItem;
     }
 }
 

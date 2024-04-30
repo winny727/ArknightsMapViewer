@@ -15,6 +15,9 @@ namespace ArknightsMapViewer
 
         private LevelView curLevelView;
 
+        private bool hideBackground = false;
+        private bool hideRoute = false;
+
         public MainForm()
         {
             Instance = this;
@@ -297,12 +300,19 @@ namespace ArknightsMapViewer
                 curLevelView = levelView;
                 pictureBox1.BackgroundImage?.Dispose();
                 pictureBox1.BackgroundImage = null;
-                levelView?.MapDrawer?.DrawMap();
+                if (!hideBackground)
+                {
+                    levelView?.MapDrawer?.DrawMap();
+                }
+                else
+                {
+                    levelView?.MapDrawer?.InitCanvas();
+                }
             }
 
             pictureBox1.Image?.Dispose();
             pictureBox1.Image = null;
-            if (routeView != null)
+            if (routeView != null && !hideRoute)
             {
                 if (routeSubIndex < 0)
                 {
@@ -432,6 +442,87 @@ namespace ArknightsMapViewer
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
+            UpdateView();
+        }
+
+        private void fullImageToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveImageToFile();
+        }
+
+        private void routeOnlyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveImageToFile(saveBackground: false);
+        }
+
+        private void backgroundToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveImageToFile(saveRoute: false);
+        }
+
+        private void SaveImageToFile(bool saveBackground = true, bool saveRoute = true)
+        {
+            if (!saveBackground && !saveRoute)
+            {
+                return;
+            }
+
+            TreeNode selectedNode = treeView1.SelectedNode;
+            if (selectedNode == null)
+            {
+                return;
+            }
+
+            FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
+            if (folderBrowserDialog.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+
+            string path = folderBrowserDialog.SelectedPath;
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+
+            bool complete = false;
+            void ForEachRouteNode(TreeNode treeNode)
+            {
+                if (complete)
+                {
+                    return;
+                }
+
+                if (treeNode.Tag is RouteView)
+                {
+                    treeView1.SelectedNode = treeNode;
+                    UpdateView();
+                    //TODO Export
+
+                    //不导出路线，导出一张背景图即返回
+                    if (!saveRoute)
+                    {
+                        complete = true;
+                    }
+                }
+
+                foreach (TreeNode child in treeNode.Nodes)
+                {
+                    ForEachRouteNode(child);
+                }
+            }
+
+            curLevelView = null; //触发背景刷新
+            hideBackground = !saveBackground;
+            hideRoute = !saveRoute;
+
+            ForEachRouteNode(selectedNode);
+
+            //还原
+            treeView1.SelectedNode = selectedNode;
+            curLevelView = null;
+            hideBackground = false;
+            hideRoute = false;
             UpdateView();
         }
     }

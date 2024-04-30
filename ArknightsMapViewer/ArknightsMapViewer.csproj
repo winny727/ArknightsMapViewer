@@ -97,6 +97,9 @@
     <Compile Include="Drawer\WinformRouteDrawer.cs" />
     <Compile Include="Utils\PathFinding.cs" />
     <Compile Include="Utils\TableReader.cs" />
+    <Compile Include="Utils\TreeViewExt.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Utils\TypeUtility.cs" />
     <Compile Include="Utils\Vector2.cs" />
     <Compile Include="ArknightsMap\View\RouteView.cs" />
