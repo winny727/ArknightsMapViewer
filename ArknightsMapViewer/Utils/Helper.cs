@@ -4,12 +4,51 @@ using System.IO;
 using System.Windows.Forms;
 using ArknightsMap;
 using System.Drawing;
-using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace ArknightsMapViewer
 {
     public static class Helper
     {
+        public static void InitDrawConfig()
+        {
+            DrawConfig drawConfig;
+            string path = Path.Combine(Directory.GetCurrentDirectory(), "drawConfig.json");
+            if (!File.Exists(path))
+            {
+                drawConfig = new DrawConfig();
+                string json = JsonConvert.SerializeObject(drawConfig, Formatting.Indented);
+                File.WriteAllText(path, json);
+            }
+            else
+            {
+                string json = File.ReadAllText(path);
+                drawConfig = JsonConvert.DeserializeObject<DrawConfig>(json);
+            }
+
+            if (drawConfig == null)
+            {
+                drawConfig = new DrawConfig();
+                string json = JsonConvert.SerializeObject(drawConfig, Formatting.Indented);
+                File.WriteAllText(path, json);
+            }
+
+            GlobalDefine.TILE_PIXLE = drawConfig.Size.tilePixle;
+            GlobalDefine.LINE_WIDTH = drawConfig.Size.lineWidth;
+            GlobalDefine.CIRCLE_RADIUS = drawConfig.Size.circleRadius;
+
+            Enum.TryParse(drawConfig.Font.textFontStyle, out FontStyle textFontStyle);
+            Enum.TryParse(drawConfig.Font.indexFontStyle, out FontStyle indexFontStyle);
+            Enum.TryParse(drawConfig.Font.timeFontStyle, out FontStyle timeFontStyle);
+
+            GlobalDefine.TEXT_FONT = new Font(drawConfig.Font.textFont, drawConfig.Font.textFontSize, textFontStyle);
+            GlobalDefine.INDEX_FONT = new Font(drawConfig.Font.indexFont, drawConfig.Font.indexFontSize, indexFontStyle);
+            GlobalDefine.TIME_FONT = new Font(drawConfig.Font.timeFont, drawConfig.Font.timeFontSize, timeFontStyle);
+            GlobalDefine.TEXT_COLOR = ColorTranslator.FromHtml(drawConfig.Color.textColor);
+            GlobalDefine.LINE_COLOR = ColorTranslator.FromHtml(drawConfig.Color.lineColor);
+            GlobalDefine.CIRCLE_COLOR = ColorTranslator.FromHtml(drawConfig.Color.circleColor);
+        }
+
         public static void InitTileDefineConfig()
         {
             Color ParseColor(string value)

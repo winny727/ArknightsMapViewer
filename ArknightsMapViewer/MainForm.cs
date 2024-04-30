@@ -16,7 +16,6 @@ namespace ArknightsMapViewer
 
         private LevelView curLevelView;
         private RouteView curRouteView;
-        private int curCheckPointIndex;
 
         public MainForm()
         {
@@ -32,6 +31,7 @@ namespace ArknightsMapViewer
         private void MainForm_Load(object sender, EventArgs e)
         {
             logText = "";
+            Helper.InitDrawConfig();
             Helper.InitTileDefineConfig();
             UpdateView();
         }
