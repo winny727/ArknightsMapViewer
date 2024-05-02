@@ -15,11 +15,15 @@
     "indexFontStyle": "Bold",
     "timeFont": "Consolas",
     "timeFontSize": 10.0,
-    "timeFontStyle": "Regular"
+    "timeFontStyle": "Regular",
+    "lenghtFont": "Consolas",
+    "lenghtFontSize": 8.0,
+    "lenghtFontStyle": "Regular"
   },
   "Color": {
     "textColor": "#ffffff",
     "lineColor": "#ff0000",
-    "circleColor": "#767676"
+    "circleColor": "#767676",
+    "lengthColor": "#00ff00"
   }
 }
