@@ -13,7 +13,9 @@ namespace ArknightsMapViewer
         {
             public int tilePixle = 50;
             public int lineWidth = 3;
+            public int circleEdgeWidth = 3;
             public int circleRadius = 20;
+            public int pointRadius = 6;
         }
 
         [Serializable]
@@ -47,7 +49,9 @@ namespace ArknightsMapViewer
     {
         public static int TILE_PIXLE = 50;
         public static int LINE_WIDTH = 3;
+        public static int CIRCLE_EDGE_WIDTH = 3;
         public static int CIRCLE_RADIUS = 20;
+        public static int POINT_RADIUS = 6;
 
         public static Font TEXT_FONT = new Font("Consolas", 12f);
         public static Font INDEX_FONT = new Font("Consolas", 8f, FontStyle.Bold);

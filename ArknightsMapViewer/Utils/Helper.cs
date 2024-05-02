@@ -35,7 +35,9 @@ namespace ArknightsMapViewer
 
             GlobalDefine.TILE_PIXLE = drawConfig.Size.tilePixle;
             GlobalDefine.LINE_WIDTH = drawConfig.Size.lineWidth;
+            GlobalDefine.CIRCLE_EDGE_WIDTH = drawConfig.Size.circleEdgeWidth;
             GlobalDefine.CIRCLE_RADIUS = drawConfig.Size.circleRadius;
+            GlobalDefine.POINT_RADIUS = drawConfig.Size.pointRadius;
 
             Enum.TryParse(drawConfig.Font.textFontStyle, out FontStyle textFontStyle);
             Enum.TryParse(drawConfig.Font.indexFontStyle, out FontStyle indexFontStyle);

@@ -2,7 +2,9 @@
   "Size": {
     "tilePixle": 50,
     "lineWidth": 3,
-    "circleRadius": 20
+    "circleEdgeWidth": 3,
+    "circleRadius": 20,
+    "pointRadius": 6
   },
   "Font": {
     "textFont": "Consolas",

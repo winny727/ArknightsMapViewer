@@ -487,6 +487,11 @@ namespace ArknightsMapViewer
             bool backGroundSaved = false;
             void ForEachRouteNode(TreeNode treeNode)
             {
+                if (backGroundSaved && !saveRoute && !saveFull)
+                {
+                    return;
+                }
+
                 if (treeNode.Tag is RouteView routeView)
                 {
                     treeView1.SelectedNode = treeNode;
@@ -525,6 +530,8 @@ namespace ArknightsMapViewer
             //还原
             treeView1.SelectedNode = selectedNode;
             UpdateView();
+
+            MessageBox.Show("Export Image Completed.");
         }
     }
 }

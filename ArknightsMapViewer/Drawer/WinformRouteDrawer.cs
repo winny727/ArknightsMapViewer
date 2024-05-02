@@ -214,7 +214,7 @@ namespace ArknightsMapViewer
         private void DrawMovePosition(Point point)
         {
             Bitmap bitmap = (Bitmap)PictureBox.Image;
-            DrawUtil.DrawPoint(bitmap, point, GlobalDefine.LINE_COLOR, GlobalDefine.LINE_WIDTH * 2);
+            DrawUtil.DrawPoint(bitmap, point, GlobalDefine.LINE_COLOR, GlobalDefine.POINT_RADIUS);
         }
 
         private void DrawWaitPosition(Point point, float time)
@@ -223,7 +223,7 @@ namespace ArknightsMapViewer
             int length = GlobalDefine.TILE_PIXLE;
             Rectangle rectangle = new Rectangle(point.X - length, point.Y - length, 2 * length, 2 * length);
             DrawUtil.FillCircle(bitmap, point, GlobalDefine.CIRCLE_RADIUS, GlobalDefine.CIRCLE_COLOR);
-            DrawUtil.DrawCircle(bitmap, point, GlobalDefine.CIRCLE_RADIUS, GlobalDefine.LINE_COLOR, GlobalDefine.LINE_WIDTH);
+            DrawUtil.DrawCircle(bitmap, point, GlobalDefine.CIRCLE_RADIUS, GlobalDefine.LINE_COLOR, GlobalDefine.CIRCLE_EDGE_WIDTH);
             DrawUtil.DrawString(bitmap, time + "s", rectangle, GlobalDefine.TIME_FONT, GlobalDefine.TEXT_COLOR);
         }
 
