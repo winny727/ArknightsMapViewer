@@ -273,6 +273,7 @@ namespace ArknightsMapViewer
             TreeNode routeViewNode = null;
             int routeSubIndex = -1;
             checkBox1.Visible = false;
+            checkBox2.Visible = false;
 
             while (treeNode != null)
             {
@@ -308,26 +309,32 @@ namespace ArknightsMapViewer
             curRouteView = routeView;
             if (routeView != null)
             {
-                if (routeSubIndex < 0)
+                checkBox2.Visible = true;
+                IRouteDrawer routeDrawer = routeView.RouteDrawer;
+                if (routeDrawer != null)
                 {
-                    routeView.RouteDrawer?.DrawRoute();
-                }
-                else
-                {
-                    checkBox1.Visible = true;
-                    int checkPointIndex = routeSubIndex - 1;
-                    int startIndex = checkBox1.Checked ? checkPointIndex : -1; //-1表示从startPosition开始
+                    routeDrawer.ShowRouteLength = checkBox2.Checked;
+                    if (routeSubIndex < 0)
+                    {
+                        routeDrawer.DrawRoute();
+                    }
+                    else
+                    {
+                        checkBox1.Visible = true;
+                        int checkPointIndex = routeSubIndex - 1;
+                        int startIndex = checkBox1.Checked ? checkPointIndex : -1; //-1表示从startPosition开始
 
-                    routeView.RouteDrawer?.InitCanvas();
-                    for (int i = startIndex; i <= checkPointIndex; i++)
-                    {
-                        routeView.RouteDrawer?.DrawMoveLine(i);
+                        routeDrawer.InitCanvas();
+                        for (int i = startIndex; i <= checkPointIndex; i++)
+                        {
+                            routeDrawer.DrawMoveLine(i);
+                        }
+                        for (int i = startIndex; i <= checkPointIndex; i++)
+                        {
+                            routeDrawer.DrawCheckPoint(i);
+                        }
+                        routeDrawer.RefreshCanvas();
                     }
-                    for (int i = startIndex; i <= checkPointIndex; i++)
-                    {
-                        routeView.RouteDrawer?.DrawCheckPoint(i);
-                    }
-                    routeView.RouteDrawer?.RefreshCanvas();
                 }
             }
 
@@ -395,7 +402,7 @@ namespace ArknightsMapViewer
             {
                 MessageBox.Show(msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            logText += $"[{logType.ToString().ToUpper()}][{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:ff")}] {msg} \n";
+            logText += $"[{logType.ToString().ToUpper()}][{DateTime.Now:yyyy-MM-dd HH:mm:ss:ff}] {msg} \n";
         }
 
         private void ShowLog()
@@ -435,6 +442,11 @@ namespace ArknightsMapViewer
         }
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateView();
+        }
+
+        private void checkBox2_CheckedChanged(object sender, EventArgs e)
         {
             UpdateView();
         }

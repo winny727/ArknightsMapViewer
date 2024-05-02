@@ -10,6 +10,7 @@ namespace ArknightsMapViewer
     {
         public PictureBox PictureBox { get; private set; }
         public Route Route { get; private set; }
+        public bool ShowRouteLength { get; set; }
         public PathFinding PathFinding { get; private set; }
         public int MapWidth { get; private set; }
         public int MapHeight { get; private set; }
@@ -201,6 +202,18 @@ namespace ArknightsMapViewer
                         Point point = GetPoint(position, offset);
                         Point nextPoint = GetPoint(nextPosition, nextOffset);
                         DrawUtil.DrawLine(bitmap, point, nextPoint, color, GlobalDefine.LINE_WIDTH);
+                        if (ShowRouteLength)
+                        {
+                            float deltaCol = (position.col + offset.x) - (nextPosition.col + nextOffset.x);
+                            float deltaRow = (position.row + offset.y) - (nextPosition.row + nextOffset.y);
+                            float length = (float)Math.Sqrt(deltaCol * deltaCol + deltaRow * deltaRow);
+                            Rectangle rectangle = new Rectangle(
+                                Math.Min(point.X, nextPoint.X), 
+                                Math.Min(point.Y, nextPoint.Y), 
+                                Math.Max(Math.Abs(point.X - nextPoint.X), GlobalDefine.TILE_PIXLE), 
+                                Math.Max(Math.Abs(point.Y - nextPoint.Y), GlobalDefine.TILE_PIXLE / 2));
+                            DrawUtil.DrawString(bitmap, $"({length:f2})", rectangle, GlobalDefine.LENGTH_FONT, GlobalDefine.LENGTH_COLOR);
+                        }
                     }
                     return;
                 }
@@ -209,6 +222,18 @@ namespace ArknightsMapViewer
             Point prevPoint = GetPoint(prevPosition, prevOffset);
             Point curPoint = GetPoint(curPosition, curOffset);
             DrawUtil.DrawLine(bitmap, prevPoint, curPoint, color, GlobalDefine.LINE_WIDTH);
+            if (ShowRouteLength)
+            {
+                float deltaCol = (prevPosition.col + prevOffset.x) - (curPosition.col + curOffset.x);
+                float deltaRow = (prevPosition.row + prevOffset.y) - (curPosition.row + curOffset.y);
+                float length = (float)Math.Sqrt(deltaCol * deltaCol + deltaRow * deltaRow);
+                Rectangle rectangle = new Rectangle(
+                    Math.Min(prevPoint.X, curPoint.X), 
+                    Math.Min(prevPoint.Y, curPoint.Y), 
+                    Math.Max(Math.Abs(prevPoint.X - curPoint.X), GlobalDefine.TILE_PIXLE), 
+                    Math.Max(Math.Abs(prevPoint.Y - curPoint.Y), GlobalDefine.TILE_PIXLE / 2));
+                DrawUtil.DrawString(bitmap, $"{length:f2}", rectangle, GlobalDefine.LENGTH_FONT, GlobalDefine.LENGTH_COLOR);
+            }
         }
 
         private void DrawMovePosition(Point point)

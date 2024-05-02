@@ -30,6 +30,9 @@ namespace ArknightsMapViewer
             public string timeFont = "Consolas";
             public float timeFontSize = 10.0f;
             public string timeFontStyle = "Regular";
+            public string lenghtFont = "Consolas";
+            public float lenghtFontSize = 8.0f;
+            public string lenghtFontStyle = "Regular";
         }
 
         [Serializable]
@@ -38,6 +41,7 @@ namespace ArknightsMapViewer
             public string textColor = "#ffffff";
             public string lineColor = "#ff0000";
             public string circleColor = "#767676";
+            public string lengthColor = "#00ff00";
         }
 
         public SizeConfig Size = new SizeConfig();
@@ -53,13 +57,15 @@ namespace ArknightsMapViewer
         public static int CIRCLE_RADIUS = 20;
         public static int POINT_RADIUS = 6;
 
-        public static Font TEXT_FONT = new Font("Consolas", 12f);
-        public static Font INDEX_FONT = new Font("Consolas", 8f, FontStyle.Bold);
-        public static Font TIME_FONT = new Font("Consolas", 10f);
+        public static Font TEXT_FONT = new Font("Consolas", 12.0f);
+        public static Font INDEX_FONT = new Font("Consolas", 8.0f, FontStyle.Bold);
+        public static Font TIME_FONT = new Font("Consolas", 10.0f);
+        public static Font LENGTH_FONT = new Font("Consolas", 8.0f);
 
         public static Color TEXT_COLOR = Color.White;
         public static Color LINE_COLOR = Color.Red;
         public static Color CIRCLE_COLOR = Color.FromArgb(255, 118, 118, 118);
+        public static Color LENGTH_COLOR = Color.Green;
 
         //TileDefine.txt
         public readonly static Dictionary<string, Color> TileColor = new Dictionary<string, Color>();
