@@ -126,7 +126,7 @@ namespace ArknightsMapViewer
                 for (int col = 0; col < mapWidth; col++)
                 {
                     Tile tile = map[col, row];
-                    isBarrier[col, row] = (tile.passableMask & PassableMask.WALK_ONLY) == 0;
+                    isBarrier[col, row] = tile.passableMask == PassableMask.FLY_ONLY || tile.passableMask == PassableMask.NONE;
                 }
             }
 

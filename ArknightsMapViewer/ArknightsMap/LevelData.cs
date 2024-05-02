@@ -305,9 +305,9 @@ namespace ArknightsMap
     public enum PassableMask
     {
         NONE        = 0,
-        WALK_ONLY   = 1 << 0,
-        FLY_ONLY    = 1 << 1,
-        ALL         = 1 << 2,
+        WALK_ONLY   = 1,
+        FLY_ONLY    = 2,
+        ALL         = 3,
 
         E_NUM,
     }
