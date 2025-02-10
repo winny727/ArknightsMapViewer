@@ -176,6 +176,12 @@ namespace ArknightsMapViewer
                 return;
             }
 
+            if (!File.Exists(path))
+            {
+                Log($"Open File Failed, File does not exist.\n{path}", LogType.Error);
+                return;
+            }
+
             if (!path.ToLower().EndsWith(".json") || (!File.Exists(path) && Directory.Exists(path)))
             {
                 Log($"File Type Error, Request Json Files(*.json)\n{path}", LogType.Error);
