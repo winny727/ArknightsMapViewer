@@ -1,3 +1,6 @@
 .vs/
 .svn/
 obj/
+
+ArknightsMapViewer\bin\Debug\latestFilePath.ini
+ArknightsMapViewer\bin\Release\latestFilePath.ini

@@ -10,6 +10,23 @@ namespace ArknightsMapViewer
 {
     public static class Helper
     {
+        public static string[] LoadLatestFilePath()
+        {
+            string path = Path.Combine(Directory.GetCurrentDirectory(), "latestFilePath.ini");
+            if (!File.Exists(path))
+            {
+                return null;
+            }
+
+            return File.ReadAllLines(path);
+        }
+
+        public static void SaveLatestFilePath(IEnumerable<string> latestFilePath)
+        {
+            string path = Path.Combine(Directory.GetCurrentDirectory(), "latestFilePath.ini");
+            File.WriteAllLines(path, latestFilePath);
+        }
+
         public static void InitDrawConfig()
         {
             DrawConfig drawConfig;

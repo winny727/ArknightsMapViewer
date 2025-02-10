@@ -62,3 +62,7 @@ tile_flowerf
 tile_flower						
 tile_pollution_road						
 tile_pollution_wall						
+tile_toxichill	#161616					
+tile_toxic	#343434					
+tile_toxicroad	#767676					
+tile_toxicwall	#bbbbbb					

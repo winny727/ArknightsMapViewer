@@ -34,6 +34,22 @@ namespace ArknightsMapViewer
             Helper.InitDrawConfig();
             Helper.InitTileDefineConfig();
             UpdateView();
+
+            string[] latestFilePath = Helper.LoadLatestFilePath();
+            ReadMapFiles(latestFilePath);
+        }
+
+        private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            List<string> latestFilePath = new List<string>();
+            foreach (TreeNode child in treeView1.Nodes)
+            {
+                if (child.Tag is LevelView levelView)
+                {
+                    latestFilePath.Add(levelView.Path);
+                }
+            }
+            Helper.SaveLatestFilePath(latestFilePath);
         }
 
         private void MainForm_DragEnter(object sender, DragEventArgs e)
@@ -174,7 +190,7 @@ namespace ArknightsMapViewer
                 if (levelReader.IsValid)
                 {
                     Log($"[{Path.GetFileName(path)}] Open Success");
-                    AddRouteListToView(Path.GetFileNameWithoutExtension(path), levelReader.LevelData);
+                    AddRouteListToView(path, levelReader.LevelData);
                 }
                 else
                 {
@@ -200,8 +216,9 @@ namespace ArknightsMapViewer
             }
         }
 
-        private void AddRouteListToView(string fileName, LevelData levelData)
+        private void AddRouteListToView(string path, LevelData levelData)
         {
+            string fileName = Path.GetFileNameWithoutExtension(path);
             if (treeView1.Nodes.ContainsKey(fileName))
             {
                 if (MessageBox.Show($"[{fileName}] has already been added, add another one?", "Continue?", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK)
@@ -213,6 +230,7 @@ namespace ArknightsMapViewer
             TreeNode rootNode = treeView1.Nodes.Add(fileName, fileName);
             rootNode.Tag = new LevelView()
             {
+                Path = path,
                 Name = fileName,
                 LevelData = levelData,
                 MapDrawer = new WinformMapDrawer(pictureBox1, levelData.map),
