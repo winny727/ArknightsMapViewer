@@ -279,7 +279,7 @@ namespace ArknightsMapViewer
                     }
                     routeNode.Nodes.Add($"endPosition: {route.endPosition}");
                 }
-                routesNode.Expand();
+                //routesNode.Expand();
             }
 
             //AddRouteList
@@ -357,9 +357,9 @@ namespace ArknightsMapViewer
                 }
                 spawnTime += wave.postDelay;
 
-                waveNode.Expand();
+                //waveNode.Expand();
             }
-            wavesNode.Expand();
+            //wavesNode.Expand();
 
             //AddSpawnList
             TreeNode spawnsNode = rootNode.Nodes.Add("spawns");
@@ -411,6 +411,7 @@ namespace ArknightsMapViewer
             checkBox1.Visible = false;
             checkBox2.Visible = false;
             checkBox3.Visible = false;
+            flowLayoutPanel2.Controls.Clear();
 
             while (treeNode != null)
             {
@@ -560,28 +561,21 @@ namespace ArknightsMapViewer
 
             if (spawnView != null)
             {
-                if (!flowLayoutPanel2.HasChildren)
+                foreach (var item in spawnView.SpawnGroups)
                 {
-                    foreach (var item in spawnView.SpawnGroups)
+                    CheckBox checkBox = new CheckBox
                     {
-                        CheckBox checkBox = new CheckBox
-                        {
-                            Text = item.Key,
-                            Checked = item.Value,
-                        };
-                        checkBox.CheckedChanged += (s, e) =>
-                        {
-                            spawnView.SpawnGroups[checkBox.Text] = checkBox.Checked;
-                            spawnView.UpdateNodes();
-                            UpdateView();
-                        };
-                        flowLayoutPanel2.Controls.Add(checkBox);
-                    }
+                        Text = item.Key,
+                        Checked = item.Value,
+                    };
+                    checkBox.CheckedChanged += (s, e) =>
+                    {
+                        spawnView.SpawnGroups[checkBox.Text] = checkBox.Checked;
+                        spawnView.UpdateNodes();
+                        UpdateView();
+                    };
+                    flowLayoutPanel2.Controls.Add(checkBox);
                 }
-            }
-            else
-            {
-                flowLayoutPanel2.Controls.Clear();
             }
 
             label1.Text = stringBuilder.ToString();

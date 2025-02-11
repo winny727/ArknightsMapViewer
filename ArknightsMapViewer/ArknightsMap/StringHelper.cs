@@ -20,7 +20,7 @@ namespace ArknightsMap
             foreach (FieldInfo field in obj.GetType().GetFields())
             {
                 DbData.Data value = (DbData.Data)field.GetValue(obj);
-                if (value.m_defined)
+                if (value != null && value.m_defined)
                 {
                     text += $"{field.Name}: {value}\n";
                 }
