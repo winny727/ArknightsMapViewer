@@ -313,10 +313,7 @@ namespace ArknightsMapViewer
                         TreeNode actionNode = fragmentNode.Nodes.Add($"action #{k} {action.ToSimpleString()}");
                         if (action.actionType == ActionType.SPAWN && action.routeIndex >= 0 && action.routeIndex < levelData.routes.Count)
                         {
-                            waveSpawnIndex++;
-                            spawnIndex++;
                             IRouteDrawer routeDrawer = new WinformRouteDrawer(pictureBox1, levelData.routes[action.routeIndex], pathFinding, mapWidth, mapHeight);
-
                             actionNode.Tag = new SpawnActionView()
                             {
                                 SpawnAction = action,
@@ -352,6 +349,9 @@ namespace ArknightsMapViewer
                                     fragmentSpawnTime = enemySpawnView.SpawnTime;
                                 }
                             }
+
+                            waveSpawnIndex++;
+                            spawnIndex++;
                         }
                         else
                         {
