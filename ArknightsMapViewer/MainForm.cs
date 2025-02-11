@@ -305,6 +305,7 @@ namespace ArknightsMapViewer
                     TreeNode fragmentNode = waveNode.Nodes.Add($"fragment #{j}");
                     fragmentNode.Tag = fragment;
 
+                    float fragmentSpawnTime = 0;
                     spawnTime += fragment.preDelay;
                     for (int k = 0; k < fragment.actions.Count; k++)
                     {
@@ -314,7 +315,6 @@ namespace ArknightsMapViewer
                         {
                             waveSpawnIndex++;
                             spawnIndex++;
-                            spawnTime += action.preDelay;
                             IRouteDrawer routeDrawer = new WinformRouteDrawer(pictureBox1, levelData.routes[action.routeIndex], pathFinding, mapWidth, mapHeight);
 
                             actionNode.Tag = new SpawnActionView()
@@ -326,13 +326,12 @@ namespace ArknightsMapViewer
                             for (int n = 0; n < action.count; n++)
                             {
                                 levelData.enemyDbRefs.TryGetValue(action.key, out DbData enemyData);
-
                                 EnemySpawnView enemySpawnView = new EnemySpawnView()
                                 {
                                     EnemyKey = action.key,
                                     EnemyData = enemyData,
                                     //TODO 多波敌人的地图 测试 7-18？, action中其他字段作用（下载所有地图json查看）
-                                    SpawnTime = spawnTime + n * action.interval,
+                                    SpawnTime = spawnTime + action.preDelay + n * action.interval,
                                     TotalSpawnIndex = spawnIndex,
                                     TotalWave = levelData.waves.Count,
                                     WaveIndex = i,
@@ -347,6 +346,11 @@ namespace ArknightsMapViewer
                                     RouteDrawer = routeDrawer,
                                 };
                                 enemySpawnViews.Add(enemySpawnView);
+
+                                if (enemySpawnView.SpawnTime > fragmentSpawnTime)
+                                {
+                                    fragmentSpawnTime = enemySpawnView.SpawnTime;
+                                }
                             }
                         }
                         else
@@ -354,6 +358,7 @@ namespace ArknightsMapViewer
                             actionNode.Tag = action;
                         }
                     }
+                    spawnTime = fragmentSpawnTime;
                 }
                 spawnTime += wave.postDelay;
 
