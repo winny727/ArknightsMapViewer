@@ -5,6 +5,9 @@ using System.Windows.Forms;
 using ArknightsMap;
 using System.Drawing;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using static ArknightsMap.DbData;
+using System.Reflection;
 
 namespace ArknightsMapViewer
 {
@@ -18,36 +21,65 @@ namespace ArknightsMapViewer
                 return null;
             }
 
-            return File.ReadAllLines(path);
+            try
+            {
+                return File.ReadAllLines(path);
+            }
+            catch (Exception ex)
+            {
+                string errorMsg = $"latestFilePath.ini Read Error, {ex.Message}";
+                MainForm.Instance.Log(errorMsg, MainForm.LogType.Error);
+            }
+
+            return null;
         }
 
         public static void SaveLatestFilePath(IEnumerable<string> latestFilePath)
         {
             string path = Path.Combine(Directory.GetCurrentDirectory(), "latestFilePath.ini");
-            File.WriteAllLines(path, latestFilePath);
+
+            try
+            {
+                File.WriteAllLines(path, latestFilePath);
+            }
+            catch (Exception ex)
+            {
+                string errorMsg = $"latestFilePath.ini Write Error, {ex.Message}";
+                MainForm.Instance.Log(errorMsg, MainForm.LogType.Error);
+            }
         }
 
         public static void InitDrawConfig()
         {
-            DrawConfig drawConfig;
+            DrawConfig drawConfig = null;
             string path = Path.Combine(Directory.GetCurrentDirectory(), "drawConfig.json");
-            if (!File.Exists(path))
+            if (File.Exists(path))
             {
-                drawConfig = new DrawConfig();
-                string json = JsonConvert.SerializeObject(drawConfig, Formatting.Indented);
-                File.WriteAllText(path, json);
-            }
-            else
-            {
-                string json = File.ReadAllText(path);
-                drawConfig = JsonConvert.DeserializeObject<DrawConfig>(json);
+                try
+                {
+                    string json = File.ReadAllText(path);
+                    drawConfig = JsonConvert.DeserializeObject<DrawConfig>(json);
+                }
+                catch (Exception ex)
+                {
+                    string errorMsg = $"drawConfig.txt Parse Error, {ex.Message}";
+                    MainForm.Instance.Log(errorMsg, MainForm.LogType.Error);
+                }
             }
 
             if (drawConfig == null)
             {
                 drawConfig = new DrawConfig();
-                string json = JsonConvert.SerializeObject(drawConfig, Formatting.Indented);
-                File.WriteAllText(path, json);
+                try
+                {
+                    string json = JsonConvert.SerializeObject(drawConfig, Formatting.Indented);
+                    File.WriteAllText(path, json);
+                }
+                catch (Exception ex)
+                {
+                    string errorMsg = $"drawConfig.json Write Error, {ex.Message}";
+                    MainForm.Instance.Log(errorMsg, MainForm.LogType.Error);
+                }
             }
 
             GlobalDefine.TILE_PIXLE = drawConfig.Size.tilePixle;
@@ -87,7 +119,7 @@ namespace ArknightsMapViewer
                 return color;
             }
 
-            string path = Environment.CurrentDirectory + "/TileDefine.txt";
+            string path = Path.Combine(Directory.GetCurrentDirectory(), "TileDefine.txt");
 
             try
             {
@@ -129,6 +161,53 @@ namespace ArknightsMapViewer
                 string errorMsg = $"TileDefine.txt Read Error, {ex.Message}";
                 MainForm.Instance.Log(errorMsg, MainForm.LogType.Warning);
                 //MessageBox.Show(errorMsg, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+        public static void InitEnemyDatabase()
+        {
+            string path = Path.Combine(Directory.GetCurrentDirectory(), "enemy_database.json");
+            if (!File.Exists(path))
+            {
+                return;
+            }
+
+            try
+            {
+                string json = File.ReadAllText(path);
+                var enemyDatabase = JsonConvert.DeserializeObject<JObject>(json);
+                var enemies = enemyDatabase["enemies"];
+                if (enemies != null)
+                {
+                    foreach (var enemy in enemies)
+                    {
+                        string key = enemy["Key"]?.ToString();
+                        Dictionary<int, DbData> dbDatas = new Dictionary<int, DbData>();
+                        if (enemy["Value"] is JArray jArray)
+                        {
+                            for (int i = 0; i < jArray.Count; i++)
+                            {
+                                int level = jArray[i]["level"].ToObject<int>();
+                                DbData data = jArray[i]["enemyData"].ToObject<DbData>();
+                                dbDatas.Add(level, data);
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(key) && !GlobalDefine.EnemyDBData.ContainsKey(key))
+                        {
+                            GlobalDefine.EnemyDBData.Add(key, dbDatas);
+                        }
+                        else
+                        {
+                            string errorMsg = $"enemy_database.json Parse Error, ErrorKey: {key}";
+                            MainForm.Instance.Log(errorMsg, MainForm.LogType.Warning);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                string errorMsg = $"enemy_database.json Parse Error, {ex.Message}";
+                MainForm.Instance.Log(errorMsg, MainForm.LogType.Error);
             }
         }
 

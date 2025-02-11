@@ -49,6 +49,7 @@ namespace ArknightsMapViewer
         public ColorConfig Color = new ColorConfig();
     }
 
+
     public static class GlobalDefine
     {
         public static int TILE_PIXLE = 50;
@@ -70,5 +71,8 @@ namespace ArknightsMapViewer
         //TileDefine.txt
         public readonly static Dictionary<string, Color> TileColor = new Dictionary<string, Color>();
         public readonly static Dictionary<string, (string, Color)> TileString = new Dictionary<string, (string, Color)>();
+
+        //EnemyData
+        public readonly static Dictionary<string, Dictionary<int, DbData>> EnemyDBData = new Dictionary<string, Dictionary<int, DbData>>();
     }
 }

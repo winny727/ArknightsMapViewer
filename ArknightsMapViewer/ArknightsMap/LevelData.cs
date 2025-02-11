@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
+using static ArknightsMap.DbData;
 
 namespace ArknightsMap
 {
@@ -42,6 +44,22 @@ namespace ArknightsMap
                 }
             }
 
+            enemyDbRefs = new Dictionary<string, DbData>();
+            for (int i = 0; i < rawLevelData.enemyDbRefs.Count; i++)
+            {
+                DbData data;
+                EnemyDbRef enemyDbRef = rawLevelData.enemyDbRefs[i];
+                if (enemyDbRef.useDb)
+                {
+                    data = ArknightsMapViewer.GlobalDefine.EnemyDBData[enemyDbRef.id][enemyDbRef.level];
+                }
+                else
+                {
+                    data = enemyDbRef.overwrittenData;
+                }
+                enemyDbRefs.Add(enemyDbRef.id, data);
+            }
+
             waves = new List<Wave>(rawLevelData.waves);
             if (rawLevelData.branches != null)
             {
@@ -53,6 +71,7 @@ namespace ArknightsMap
         public Tile[,] map;
         public List<Route> routes;
         public List<Route> extraRoutes;
+        public Dictionary<string, DbData> enemyDbRefs;
         public List<Wave> waves;
         public Dictionary<string, Branch> branches;
     }
@@ -64,12 +83,13 @@ namespace ArknightsMap
         public MapData mapData;
         public List<Route> routes;
         public List<Route> extraRoutes;
+        public List<EnemyDbRef> enemyDbRefs;
         public List<Wave> waves;
         public Dictionary<string, Branch> branches;
     }
 
     [Serializable]
-    public struct Options
+    public class Options : IData
     {
         public int characterLimit;
         public int maxLifePoint;
@@ -80,13 +100,7 @@ namespace ArknightsMap
 
         public override string ToString()
         {
-            return
-                $"characterLimit: {characterLimit}\n" + 
-                $"maxLifePoint: {maxLifePoint}\n" + 
-                $"initialCost: {initialCost}\n" + 
-                $"maxCost: {maxCost}\n" + 
-                $"costIncreaseTime: {costIncreaseTime}\n" + 
-                $"maxPlayTime: {maxPlayTime}";
+            return StringHelper.GetObjFieldValueString(this);
         }
     }
 
@@ -100,7 +114,7 @@ namespace ArknightsMap
     }
 
     [Serializable]
-    public struct Tile
+    public class Tile : IData
     {
         public string tileKey; //格子类型
         public HeightType heightType; //高台/地面
@@ -109,16 +123,12 @@ namespace ArknightsMap
 
         public override string ToString()
         {
-            return
-                $"tileKey: {tileKey}\n" +
-                $"heightType: {heightType}\n" +
-                $"buildableType: {buildableType}\n" +
-                $"passableMask: {passableMask}";
+            return StringHelper.GetObjFieldValueString(this);
         }
     }
 
     [Serializable]
-    public class Route
+    public class Route : IData
     {
         public MotionMode motionMode;
         public Position startPosition;
@@ -130,17 +140,17 @@ namespace ArknightsMap
         public override string ToString()
         {
             return
-                $"motionMode: {motionMode}\n" +
-                $"startPosition: {startPosition}\n" +
-                $"endPosition: {endPosition}\n" +
-                $"spawnRandomRange: {spawnRandomRange}\n" +
-                $"spawnOffset: {spawnOffset}\n" +
-                $"checkPoints: {checkPoints.Count}";
+                $"{nameof(motionMode)}: {motionMode}\n" +
+                $"{nameof(startPosition)}: {startPosition}\n" +
+                $"{nameof(endPosition)}: {endPosition}\n" +
+                $"{nameof(spawnRandomRange)}: {spawnRandomRange}\n" +
+                $"{nameof(spawnOffset)}: {spawnOffset}\n" +
+                $"{nameof(checkPoints)}: {checkPoints.Count}";
         }
     }
 
     [Serializable]
-    public struct CheckPoint
+    public class CheckPoint : IData
     {
         public enum Type
         {
@@ -196,35 +206,45 @@ namespace ArknightsMap
 
         public override string ToString()
         {
-            return
-                $"type: {type}\n" +
-                $"position: {position}\n" +
-                $"reachOffset: {reachOffset}\n" +
-                $"randomizeReachOffset: {randomizeReachOffset}\n" +
-                $"reachDistance: {reachDistance}";
+            return StringHelper.GetObjFieldValueString(this);
         }
     }
 
     [Serializable]
-    public class Wave
+    public class Wave : IData
     {
         public float preDelay;
         public float postDelay;
         public float maxTimeWaitingForNextWave;
         public List<Fragment> fragments;
+
+        public override string ToString()
+        {
+            return
+                $"{nameof(preDelay)}: {preDelay}\n" +
+                $"{nameof(postDelay)}: {postDelay}\n" +
+                $"{nameof(maxTimeWaitingForNextWave)}: {maxTimeWaitingForNextWave}\n";
+        }
     }
 
     [Serializable]
-    public class Fragment
+    public class Fragment : IData
     {
         public float preDelay;
         public List<Action> actions;
+
+        public override string ToString()
+        {
+            return
+                $"{nameof(preDelay)}: {preDelay}\n";
+        }
     }
 
     [Serializable]
-    public class Action
+    public class Action : IData
     {
         public ActionType actionType;
+        public bool managedByScheduler;
         public string key;
         public int count;
         public float preDelay;
@@ -236,15 +256,199 @@ namespace ArknightsMap
         public string randomSpawnGroupKey;
         public string randomSpawnGroupPackKey;
         public RandomType randomType;
+        public RefreshType refreshType;
         public int weight; //权重
         public bool dontBlockWave;
         public bool isValid;
+        //extraMeta
+
+        public string ToSimpleString()
+        {
+            //EnemyData: gamedata/levels/enemydata/enemy_database.json
+
+            string text = actionType.ToString();
+            if (actionType == ActionType.SPAWN)
+            {
+                text += $" {key}";
+            }
+            return text;
+        }
+
+        public override string ToString()
+        {
+            return StringHelper.GetObjFieldValueString(this);
+        }
     }
 
     [Serializable]
     public class Branch
     {
         public List<Fragment> phases;
+    }
+
+
+    [Serializable]
+    public class EnemyDbRef
+    {
+        public bool useDb;
+        public string id;
+        public int level;
+        public DbData overwrittenData;
+    }
+
+    [Serializable]
+    public class DbData : IData
+    {
+        public abstract class Data
+        {
+            public bool m_defined;
+        }
+
+        [Serializable]
+        public class Data<T> : Data, IData
+        {
+            public T m_value;
+            public override string ToString()
+            {
+                return m_value.ToString();
+            }
+        }
+
+        [Serializable]
+        public class KeyValue : IData
+        {
+            public string key;
+            public float value;
+            public string valueStr;
+
+            public override string ToString()
+            {
+                return $"{key}: {valueStr ?? value.ToString()}";
+            }
+        }
+
+        [Serializable]
+        public class Attribute : IData
+        {
+            public Data<int> maxHp;
+            public Data<int> atk;
+            public Data<int> def;
+            public Data<float> magicResistance;
+            public Data<int> cost;
+            public Data<int> blockCnt;
+            public Data<float> moveSpeed;
+            public Data<float> attackSpeed;
+            public Data<float> baseAttackTime;
+            public Data<int> respawnTime;
+            public Data<float> hpRecoveryPerSec;
+            public Data<float> spRecoveryPerSec;
+            public Data<int> maxDeployCount;
+            public Data<int> massLevel;
+            public Data<int> baseForceLevel;
+            public Data<int> tauntLevel;
+            public Data<float> epDamageResistance;
+            public Data<float> epResistance;
+            public Data<float> damageHitratePhysical;
+            public Data<float> damageHitrateMagical;
+            public Data<bool> stunImmune;
+            public Data<bool> silenceImmune;
+            public Data<bool> sleepImmune;
+            public Data<bool> frozenImmune;
+            public Data<bool> levitateImmune;
+            public Data<bool> disarmedCombatImmune;
+            public Data<bool> fearedImmune;
+
+            public override string ToString()
+            {
+                return StringHelper.GetDbDataValueString(this);
+            }
+        }
+
+        [Serializable]
+        public class SkillData : IData
+        {
+            public string prefabKey;
+            public int priority;
+            public float cooldown;
+            public float initCooldown;
+            public int spCost;
+            public KeyValue[] blackboard;
+
+            public override string ToString()
+            {
+                string text =
+                    $"{nameof(prefabKey)}: {prefabKey}\n" +
+                    $"{nameof(priority)}: {priority}\n" +
+                    $"{nameof(cooldown)}: {cooldown}\n" +
+                    $"{nameof(initCooldown)}: {initCooldown}\n" +
+                    $"{nameof(spCost)}: {spCost}\n";
+
+                StringHelper.AppendArrayDataString(ref text, nameof(blackboard), blackboard);
+
+                return text;
+            }
+        }
+
+        [Serializable]
+        public class SpData
+        {
+            public string spType;
+            public int maxSp;
+            public int initSp;
+            public float increment;
+
+            public override string ToString()
+            {
+                return StringHelper.GetObjFieldValueString(this);
+            }
+        }
+
+        public Data<string> name;
+        public Data<string> description;
+        public Attribute attributes;
+        public Data<string> applyWay;
+        public Data<string> motion;
+        public Data<string[]> enemyTags;
+        public Data<int> lifePointReduce;
+        public Data<LevelType> levelType;
+        public Data<float> rangeRadius;
+        public Data<int> numOfExtraDrops;
+        public Data<float> viewRadius;
+        public Data<bool> notCountInTotal;
+        public KeyValue[] talentBlackboard;
+        public SkillData[] skills;
+        public SpData spData;
+
+        public override string ToString()
+        {
+            string text = "";
+            StringHelper.AppendDataString(ref text, nameof(name), name);
+            StringHelper.AppendDataString(ref text, nameof(description), description);
+            text += $"{attributes}";
+            StringHelper.AppendDataString(ref text, nameof(applyWay), applyWay);
+            StringHelper.AppendDataString(ref text, nameof(motion), motion);
+
+            if (enemyTags != null && enemyTags.m_defined)
+            {
+                StringHelper.AppendArrayDataString(ref text, nameof(enemyTags), enemyTags.m_value);
+            }
+
+            StringHelper.AppendDataString(ref text, nameof(lifePointReduce), lifePointReduce);
+            StringHelper.AppendDataString(ref text, nameof(levelType), levelType);
+            StringHelper.AppendDataString(ref text, nameof(rangeRadius), rangeRadius);
+            StringHelper.AppendDataString(ref text, nameof(numOfExtraDrops), numOfExtraDrops);
+            StringHelper.AppendDataString(ref text, nameof(viewRadius), viewRadius);
+
+            StringHelper.AppendArrayDataString(ref text, nameof(talentBlackboard), talentBlackboard);
+            StringHelper.AppendArrayDataString(ref text, nameof(skills), skills);
+
+            if (spData != null)
+            {
+                text += $"{nameof(spData)}:\n{spData}\n";
+            }
+
+            return text;
+        }
     }
 
     [Serializable]
@@ -358,6 +562,18 @@ namespace ArknightsMap
     public enum RandomType
     {
         ALWAYS,
+    }
+
+    public enum RefreshType
+    {
+        ALWAYS,
+    }
+
+    public enum LevelType
+    {
+        NORMAL,
+        ELITE,
+        BOSS,
     }
 
     #endregion

@@ -71,9 +71,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArknightsMap\Interface\IData.cs" />
     <Compile Include="ArknightsMap\Interface\IMapDrawer.cs" />
     <Compile Include="ArknightsMap\Interface\IDrawer.cs" />
     <Compile Include="ArknightsMap\Interface\IRouteDrawer.cs" />
+    <Compile Include="ArknightsMap\StringHelper.cs" />
+    <Compile Include="ArknightsMap\View\EnemySpawnView.cs" />
+    <Compile Include="ArknightsMap\View\SpawnActionView.cs" />
+    <Compile Include="ArknightsMap\View\SpawnView.cs" />
     <Compile Include="Drawer\WinformMapDrawer.cs" />
     <Compile Include="LogForm.cs">
       <SubType>Form</SubType>
@@ -149,6 +154,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy "$(ProjectDir)TileDefine.txt" "$(TargetDir)" /y</PostBuildEvent>
+    <PostBuildEvent>xcopy "$(ProjectDir)TileDefine.txt" "$(TargetDir)" /y
+xcopy "$(ProjectDir)enemy_database.json" "$(TargetDir)" /y</PostBuildEvent>
   </PropertyGroup>
 </Project>
