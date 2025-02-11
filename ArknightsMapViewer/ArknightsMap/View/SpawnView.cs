@@ -31,17 +31,17 @@ namespace ArknightsMap
                         string.IsNullOrEmpty(enemySpawnView.RandomSpawnGroupKey) &&
                         string.IsNullOrEmpty(enemySpawnView.RandomSpawnGroupPackKey))
                     {
-                        node.Text = $"#{SpawnsNode.Nodes.Count} {enemySpawnView.ToSimpleString()}";
                         SpawnsNode.Nodes.Add(node);
+                        node.Text = $"#{node.Index} {enemySpawnView.ToSimpleString()}";
                         continue;
                     }
 
-                    if (CheckShowNode(enemySpawnView.HiddenGroup)|| 
-                        CheckShowNode(enemySpawnView.RandomSpawnGroupKey) || 
+                    if (CheckShowNode(enemySpawnView.HiddenGroup) ||
+                        CheckShowNode(enemySpawnView.RandomSpawnGroupKey) ||
                         CheckShowNode(enemySpawnView.RandomSpawnGroupPackKey))
                     {
-                        node.Text = $"#{SpawnsNode.Nodes.Count} {enemySpawnView.ToSimpleString()}";
                         SpawnsNode.Nodes.Add(node);
+                        node.Text = $"#{node.Index} {enemySpawnView.ToSimpleString()}";
                     }
                 }
             }
