@@ -377,10 +377,10 @@ namespace ArknightsMap
             public override string ToString()
             {
                 string text =
-                    $"{nameof(prefabKey)}: {prefabKey}\n" +
-                    $"{nameof(priority)}: {priority}\n" +
-                    $"{nameof(cooldown)}: {cooldown}\n" +
-                    $"{nameof(initCooldown)}: {initCooldown}\n" +
+                    $"{nameof(prefabKey)}: {prefabKey}, " +
+                    $"{nameof(priority)}: {priority}, " +
+                    $"{nameof(cooldown)}: {cooldown}, " +
+                    $"{nameof(initCooldown)}: {initCooldown}, " +
                     $"{nameof(spCost)}: {spCost}\n";
 
                 StringHelper.AppendArrayDataString(ref text, nameof(blackboard), blackboard);
@@ -406,8 +406,8 @@ namespace ArknightsMap
         public Data<string> name;
         public Data<string> description;
         public Attribute attributes;
-        public Data<string> applyWay;
-        public Data<string> motion;
+        public Data<ApplyWayType> applyWay;
+        public Data<MotionType> motion;
         public Data<string[]> enemyTags;
         public Data<int> lifePointReduce;
         public Data<LevelType> levelType;
@@ -567,6 +567,20 @@ namespace ArknightsMap
     public enum RefreshType
     {
         ALWAYS,
+    }
+
+    public enum ApplyWayType
+    {
+        NONE,
+        MELEE,
+        RANGED,
+        ALL,
+    }
+
+    public enum MotionType
+    {
+        WALK,
+        FLY,
     }
 
     public enum LevelType
