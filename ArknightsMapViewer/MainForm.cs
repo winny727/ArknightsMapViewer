@@ -333,7 +333,8 @@ namespace ArknightsMapViewer
                         TreeNode actionNode = fragmentNode.Nodes.Add($"action #{k} {action.ToSimpleString()}");
                         if (action.actionType == ActionType.SPAWN && action.routeIndex >= 0 && action.routeIndex < levelData.routes.Count)
                         {
-                            IRouteDrawer routeDrawer = WinformRouteDrawer.Create(pictureBox1, levelData.routes[action.routeIndex], pathFinding, mapWidth, mapHeight);
+                            Route route = levelData.routes[action.routeIndex];
+                            IRouteDrawer routeDrawer = WinformRouteDrawer.Create(pictureBox1, route, pathFinding, mapWidth, mapHeight);
                             actionNode.Tag = new SpawnActionView()
                             {
                                 SpawnAction = action,
@@ -350,6 +351,7 @@ namespace ArknightsMapViewer
                                     //TODO action中其他字段作用（下载所有地图json查看）
                                     SpawnTime = spawnTime + action.preDelay + n * action.interval,
                                     TotalSpawnIndex = spawnIndex,
+                                    Route = route,
                                     RouteIndex = action.routeIndex,
                                     TotalWave = levelData.waves.Count,
                                     WaveIndex = i,
@@ -412,6 +414,18 @@ namespace ArknightsMapViewer
                 EnemySpawnView enemySpawnView = enemySpawnViews[i];
                 TreeNode spawnNode = spawnsNode.Nodes.Add($"#{i} {enemySpawnView.ToSimpleString()}");
                 spawnNode.Tag = enemySpawnView;
+
+                Route route = enemySpawnView.Route;
+                if (route.checkPoints != null)
+                {
+                    spawnNode.Nodes.Add($"startPosition: {route.startPosition}");
+                    for (int j = 0; j < route.checkPoints.Count; j++)
+                    {
+                        spawnNode.Nodes.Add($"checkPoint #{j} {route.checkPoints[j].ToSimpleString()}");
+                    }
+                    spawnNode.Nodes.Add($"endPosition: {route.endPosition}");
+                }
+
                 InsertGroup(enemySpawnView.HiddenGroup, spawnNode);
                 InsertGroup(enemySpawnView.RandomSpawnGroupKey, spawnNode);
                 InsertGroup(enemySpawnView.RandomSpawnGroupPackKey, spawnNode);
@@ -440,34 +454,45 @@ namespace ArknightsMapViewer
 
             while (treeNode != null)
             {
-                if (levelView == null && treeNode.Level == 0)
+                if (treeNode.Level == 0)
                 {
-                    levelView = treeNode.Tag as LevelView;
-                }
-                if (routeView == null && treeNode.Level == 2)
-                {
-                    routeView = treeNode.Tag as RouteView;
-                }
-                if (routeSubIndex < 0 && treeNode.Level == 3 && treeNode.Parent.Tag is RouteView)
-                {
-                    routeSubIndex = treeNode.Index;
-                }
-                if (spawnActionView == null && treeNode.Level == 4)
-                {
-                    spawnActionView = treeNode.Tag as SpawnActionView;
-                }
-                if (spawnView == null && treeNode.Level == 1)
-                {
-                    spawnView = treeNode.Tag as SpawnView;
-                }
-                if (enemySpawnView == null && treeNode.Level == 2)
-                {
-                    enemySpawnView = treeNode.Tag as EnemySpawnView;
-                    if (enemySpawnView != null)
+                    if (levelView == null)
                     {
-                        spawnView = treeNode.Parent.Tag as SpawnView;
+                        levelView = treeNode.Tag as LevelView;
                     }
                 }
+                else
+                {
+                    if (routeView == null)
+                    {
+                        routeView = treeNode.Tag as RouteView;
+                    }
+                    if (routeSubIndex < 0 && treeNode.Parent.Tag is RouteView)
+                    {
+                        routeSubIndex = treeNode.Index;
+                    }
+                    if (spawnActionView == null)
+                    {
+                        spawnActionView = treeNode.Tag as SpawnActionView;
+                    }
+                    if (spawnView == null)
+                    {
+                        spawnView = treeNode.Tag as SpawnView;
+                    }
+                    if (enemySpawnView == null)
+                    {
+                        enemySpawnView = treeNode.Tag as EnemySpawnView;
+                        if (enemySpawnView != null)
+                        {
+                            spawnView = treeNode.Parent.Tag as SpawnView;
+                        }
+                    }
+                    if (routeSubIndex < 0 && (treeNode.Parent.Tag is RouteView) || (treeNode.Parent.Tag is EnemySpawnView))
+                    {
+                        routeSubIndex = treeNode.Index;
+                    }
+                }
+
                 treeNode = treeNode.Parent;
             }
 
@@ -524,6 +549,27 @@ namespace ArknightsMapViewer
                 }
             }
 
+            void AppendCheckPointsInfo(Route route)
+            {
+                int checkPointIndex = routeSubIndex - 1;
+                if (checkPointIndex < 0)
+                {
+                    stringBuilder.AppendLine($"startPosition: {route.startPosition}");
+                    stringBuilder.AppendLine($"spawnOffset: {route.spawnOffset}");
+                    stringBuilder.AppendLine($"spawnRandomRange: {route.spawnRandomRange}");
+                }
+                else if (checkPointIndex < route.checkPoints.Count)
+                {
+                    CheckPoint checkPoint = route.checkPoints[checkPointIndex];
+                    stringBuilder.AppendLine($"checkPoint #{checkPointIndex}");
+                    stringBuilder.AppendLine(checkPoint.ToString());
+                }
+                else
+                {
+                    stringBuilder.AppendLine($"endPosition: {route.endPosition}");
+                }
+            }
+
             //Info
             IData data = treeView1.SelectedNode?.Tag as IData;
             if (levelView != null && routeView == null && spawnActionView == null && data == null)
@@ -547,23 +593,7 @@ namespace ArknightsMapViewer
                 }
                 else
                 {
-                    int checkPointIndex = routeSubIndex - 1;
-                    if (checkPointIndex < 0)
-                    {
-                        stringBuilder.AppendLine($"startPosition: {route.startPosition}");
-                        stringBuilder.AppendLine($"spawnOffset: {route.spawnOffset}");
-                        stringBuilder.AppendLine($"spawnRandomRange: {route.spawnRandomRange}");
-                    }
-                    else if (checkPointIndex < route.checkPoints.Count)
-                    {
-                        CheckPoint checkPoint = route.checkPoints[checkPointIndex];
-                        stringBuilder.AppendLine($"checkPoint #{checkPointIndex}");
-                        stringBuilder.AppendLine(checkPoint.ToString());
-                    }
-                    else
-                    {
-                        stringBuilder.AppendLine($"endPosition: {route.endPosition}");
-                    }
+                    AppendCheckPointsInfo(route);
                 }
             }
             else if (spawnActionView != null)
@@ -574,8 +604,16 @@ namespace ArknightsMapViewer
             }
             else if (enemySpawnView != null)
             {
+                Route route = enemySpawnView.Route;
                 stringBuilder.AppendLine($"[{treeView1.SelectedNode.Text}]");
-                stringBuilder.AppendLine(enemySpawnView.ToString(checkBox3.Checked));
+                if (routeSubIndex < 0)
+                {
+                    stringBuilder.AppendLine(enemySpawnView.ToString(checkBox3.Checked));
+                }
+                else
+                {
+                    AppendCheckPointsInfo(route);
+                }
             }
             else if (data != null)
             {

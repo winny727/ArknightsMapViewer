@@ -133,7 +133,7 @@ namespace ArknightsMapViewer
                     color = Color.FromArgb(color.A / 4, color.R, color.G, color.B);
                     needPathFinding = false;
                 }
-                else if (curCheckPoint.type != CheckPointType.MOVE)
+                else if (curCheckPoint.type != CheckPointType.MOVE && curCheckPoint.type != CheckPointType.PATROL_MOVE)
                 {
                     return;
                 }

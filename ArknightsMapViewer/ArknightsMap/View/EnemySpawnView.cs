@@ -10,6 +10,7 @@ namespace ArknightsMap
 
         public float SpawnTime { get; set; }
         public float TotalSpawnIndex { get; set; }
+        public Route Route { get; set; }
         public float RouteIndex { get; set; }
 
         public int TotalWave { get; set; }
