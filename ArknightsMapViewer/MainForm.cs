@@ -18,6 +18,7 @@ namespace ArknightsMapViewer
 
         private LevelView curLevelView;
         private SpawnView curSpawnView;
+        private bool readingMultiFiles;
 
         public MainForm()
         {
@@ -131,6 +132,15 @@ namespace ArknightsMapViewer
             }
         }
 
+        private void removeAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show($"Confirm Remove All?", "Continue?", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+            {
+                treeView1.Nodes.Clear();
+                UpdateView();
+            }
+        }
+
         private void expendToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (treeView1.SelectedNode == null)
@@ -179,10 +189,30 @@ namespace ArknightsMapViewer
                 return;
             }
 
+            readingMultiFiles = true;
             foreach (string path in paths)
             {
                 ReadMapFile(path);
             }
+            readingMultiFiles = false;
+
+            if (treeView1.Nodes.Count > 0)
+            {
+                TreeNode lastRootNode = treeView1.Nodes[treeView1.Nodes.Count - 1];
+                lastRootNode.EnsureVisible();
+                lastRootNode.Expand();
+
+                foreach (TreeNode node in lastRootNode.Nodes)
+                {
+                    //Expand SpawnsNode
+                    if (node.Tag is SpawnView)
+                    {
+                        node.Expand();
+                        break;
+                    }
+                }
+            }
+            UpdateView();
         }
 
         private void ReadMapFile(string path)
@@ -192,6 +222,14 @@ namespace ArknightsMapViewer
 
             if (string.IsNullOrEmpty(path))
             {
+                return;
+            }
+
+            var fileAttr = File.GetAttributes(path);
+            if ((fileAttr & FileAttributes.Directory) == FileAttributes.Directory)
+            {
+                string[] files = Directory.GetFiles(path, "*.json", SearchOption.AllDirectories);
+                ReadMapFiles(files);
                 return;
             }
 
@@ -289,7 +327,7 @@ namespace ArknightsMapViewer
                         Route = route,
                         RouteDrawer = WinformRouteDrawer.Create(pictureBox1, route, pathFinding, mapWidth, mapHeight),
                     };
-                    if (route.checkPoints != null)
+                    if (route != null && route.checkPoints != null)
                     {
                         routeNode.Nodes.Add($"startPosition: {route.startPosition}");
                         for (int j = 0; j < route.checkPoints.Count; j++)
@@ -299,7 +337,6 @@ namespace ArknightsMapViewer
                         routeNode.Nodes.Add($"endPosition: {route.endPosition}");
                     }
                 }
-                //routesNode.Expand();
             }
 
             //AddRouteList
@@ -310,84 +347,84 @@ namespace ArknightsMapViewer
             int spawnIndex = 0;
             float spawnTime = 0;
             List<EnemySpawnView> enemySpawnViews = new List<EnemySpawnView>();
-            TreeNode wavesNode = rootNode.Nodes.Add(nameof(levelData.waves));
-            for (int i = 0; i < levelData.waves.Count; i++)
+
+            if (levelData.waves != null)
             {
-                Wave wave = levelData.waves[i];
-                TreeNode waveNode = wavesNode.Nodes.Add($"wave #{i}");
-                waveNode.Tag = wave;
-
-                int waveSpawnIndex = 0;
-                spawnTime += wave.preDelay;
-                for (int j = 0; j < wave.fragments.Count; j++)
+                TreeNode wavesNode = rootNode.Nodes.Add(nameof(levelData.waves));
+                for (int i = 0; i < levelData.waves.Count; i++)
                 {
-                    Fragment fragment = wave.fragments[j];
-                    TreeNode fragmentNode = waveNode.Nodes.Add($"fragment #{j}");
-                    fragmentNode.Tag = fragment;
+                    Wave wave = levelData.waves[i];
+                    TreeNode waveNode = wavesNode.Nodes.Add($"wave #{i}");
+                    waveNode.Tag = wave;
 
-                    float fragmentSpawnTime = 0;
-                    spawnTime += fragment.preDelay;
-                    for (int k = 0; k < fragment.actions.Count; k++)
+                    int waveSpawnIndex = 0;
+                    spawnTime += wave.preDelay;
+                    for (int j = 0; j < wave.fragments.Count; j++)
                     {
-                        Action action = fragment.actions[k];
-                        TreeNode actionNode = fragmentNode.Nodes.Add($"action #{k} {action.ToSimpleString()}");
-                        if (action.actionType == ActionType.SPAWN && action.routeIndex >= 0 && action.routeIndex < levelData.routes.Count)
-                        {
-                            Route route = levelData.routes[action.routeIndex];
-                            IRouteDrawer routeDrawer = WinformRouteDrawer.Create(pictureBox1, route, pathFinding, mapWidth, mapHeight);
-                            actionNode.Tag = new SpawnActionView()
-                            {
-                                SpawnAction = action,
-                                RouteDrawer = routeDrawer,
-                            };
+                        Fragment fragment = wave.fragments[j];
+                        TreeNode fragmentNode = waveNode.Nodes.Add($"fragment #{j}");
+                        fragmentNode.Tag = fragment;
 
-                            for (int n = 0; n < action.count; n++)
+                        float fragmentSpawnTime = 0;
+                        spawnTime += fragment.preDelay;
+                        for (int k = 0; k < fragment.actions.Count; k++)
+                        {
+                            Action action = fragment.actions[k];
+                            TreeNode actionNode = fragmentNode.Nodes.Add($"action #{k} {action.ToSimpleString()}");
+                            if (action.actionType == ActionType.SPAWN && levelData.routes != null && action.routeIndex >= 0 && action.routeIndex < levelData.routes.Count)
                             {
-                                levelData.enemyDbRefs.TryGetValue(action.key, out DbData enemyData);
-                                EnemySpawnView enemySpawnView = new EnemySpawnView()
+                                Route route = levelData.routes[action.routeIndex];
+                                IRouteDrawer routeDrawer = WinformRouteDrawer.Create(pictureBox1, route, pathFinding, mapWidth, mapHeight);
+                                actionNode.Tag = new SpawnActionView()
                                 {
-                                    EnemyKey = action.key,
-                                    EnemyData = enemyData,
-                                    //TODO action中其他字段作用（下载所有地图json查看）
-                                    SpawnTime = spawnTime + action.preDelay + n * action.interval,
-                                    TotalSpawnIndex = spawnIndex,
-                                    Route = route,
-                                    RouteIndex = action.routeIndex,
-                                    TotalWave = levelData.waves.Count,
-                                    WaveIndex = i,
-                                    SpawnIndexInWave = waveSpawnIndex,
-                                    HiddenGroup = action.hiddenGroup,
-                                    RandomSpawnGroupKey = action.randomSpawnGroupKey,
-                                    RandomSpawnGroupPackKey = action.randomSpawnGroupPackKey,
-                                    Weight = action.weight,
-                                    BlockFragment = action.blockFragment,
-                                    BlockWave = !action.dontBlockWave,
-                                    MaxTimeWaitingForNextWave = wave.maxTimeWaitingForNextWave,
+                                    SpawnAction = action,
                                     RouteDrawer = routeDrawer,
                                 };
-                                enemySpawnViews.Add(enemySpawnView);
 
-                                if (enemySpawnView.SpawnTime > fragmentSpawnTime)
+                                for (int n = 0; n < action.count; n++)
                                 {
-                                    fragmentSpawnTime = enemySpawnView.SpawnTime;
+                                    levelData.enemyDbRefs.TryGetValue(action.key, out DbData enemyData);
+                                    EnemySpawnView enemySpawnView = new EnemySpawnView()
+                                    {
+                                        EnemyKey = action.key,
+                                        EnemyData = enemyData,
+                                        SpawnTime = spawnTime + action.preDelay + n * action.interval,
+                                        TotalSpawnIndex = spawnIndex,
+                                        Route = route,
+                                        RouteIndex = action.routeIndex,
+                                        TotalWave = levelData.waves.Count,
+                                        WaveIndex = i,
+                                        SpawnIndexInWave = waveSpawnIndex,
+                                        HiddenGroup = action.hiddenGroup,
+                                        RandomSpawnGroupKey = action.randomSpawnGroupKey,
+                                        RandomSpawnGroupPackKey = action.randomSpawnGroupPackKey,
+                                        Weight = action.weight,
+                                        BlockFragment = action.blockFragment,
+                                        BlockWave = !action.dontBlockWave,
+                                        MaxTimeWaitingForNextWave = wave.maxTimeWaitingForNextWave,
+                                        RouteDrawer = routeDrawer,
+                                    };
+                                    enemySpawnViews.Add(enemySpawnView);
+
+                                    if (enemySpawnView.SpawnTime > fragmentSpawnTime)
+                                    {
+                                        fragmentSpawnTime = enemySpawnView.SpawnTime;
+                                    }
                                 }
+
+                                waveSpawnIndex++;
+                                spawnIndex++;
                             }
-
-                            waveSpawnIndex++;
-                            spawnIndex++;
+                            else
+                            {
+                                actionNode.Tag = action;
+                            }
                         }
-                        else
-                        {
-                            actionNode.Tag = action;
-                        }
+                        spawnTime = fragmentSpawnTime;
                     }
-                    spawnTime = fragmentSpawnTime;
+                    spawnTime += wave.postDelay;
                 }
-                spawnTime += wave.postDelay;
-
-                //waveNode.Expand();
             }
-            //wavesNode.Expand();
 
             //AddSpawnList
             TreeNode spawnsNode = rootNode.Nodes.Add("spawns");
@@ -416,7 +453,7 @@ namespace ArknightsMapViewer
                 spawnNode.Tag = enemySpawnView;
 
                 Route route = enemySpawnView.Route;
-                if (route.checkPoints != null)
+                if (route != null && route.checkPoints != null)
                 {
                     spawnNode.Nodes.Add($"startPosition: {route.startPosition}");
                     for (int j = 0; j < route.checkPoints.Count; j++)
@@ -430,15 +467,23 @@ namespace ArknightsMapViewer
                 InsertGroup(enemySpawnView.RandomSpawnGroupKey, spawnNode);
                 InsertGroup(enemySpawnView.RandomSpawnGroupPackKey, spawnNode);
             }
-            spawnsNode.Expand();
 
-            rootNode.Expand();
+            if (!readingMultiFiles)
+            {
+                spawnsNode.Expand();
+                rootNode.Expand();
+            }
             rootNode.EnsureVisible();
             treeView1.SelectedNode = rootNode;
         }
 
         private void UpdateView()
         {
+            if (readingMultiFiles)
+            {
+                return;
+            }
+
             TreeNode treeNode = treeView1.SelectedNode;
 
             StringBuilder stringBuilder = new StringBuilder();
@@ -551,6 +596,11 @@ namespace ArknightsMapViewer
 
             void AppendCheckPointsInfo(Route route)
             {
+                if (route == null)
+                {
+                    return;
+                }
+
                 int checkPointIndex = routeSubIndex - 1;
                 if (checkPointIndex < 0)
                 {
@@ -579,9 +629,9 @@ namespace ArknightsMapViewer
                 stringBuilder.AppendLine(levelData.options.ToString());
                 stringBuilder.AppendLine($"width: {levelData.map.GetLength(0)}");
                 stringBuilder.AppendLine($"height: {levelData.map.GetLength(1)}");
-                stringBuilder.AppendLine($"routes: {levelData.routes.Count}");
-                stringBuilder.AppendLine($"waves: {levelData.waves.Count}");
-                stringBuilder.AppendLine($"extraRoutes: {levelData.extraRoutes.Count}");
+                if (levelData.routes != null) stringBuilder.AppendLine($"routes: {levelData.routes.Count}");
+                if (levelData.waves != null) stringBuilder.AppendLine($"waves: {levelData.waves.Count}");
+                if (levelData.extraRoutes != null) stringBuilder.AppendLine($"extraRoutes: {levelData.extraRoutes.Count}");
             }
             else if (routeView != null)
             {
@@ -589,7 +639,10 @@ namespace ArknightsMapViewer
                 stringBuilder.AppendLine($"[{treeView1.SelectedNode.Text}]");
                 if (routeSubIndex < 0)
                 {
-                    stringBuilder.AppendLine(route.ToString());
+                    if (route != null)
+                    {
+                        stringBuilder.AppendLine(route.ToString());
+                    }
                 }
                 else
                 {

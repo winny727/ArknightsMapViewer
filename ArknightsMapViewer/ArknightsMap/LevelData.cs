@@ -25,40 +25,30 @@ namespace ArknightsMap
                 }
             }
 
-
-            routes = new List<Route>();
-            for (int i = 0; i < rawLevelData.routes.Count; i++)
-            {
-                routes.Add(rawLevelData.routes[i]);
-            }
-
-            extraRoutes = new List<Route>();
-            for (int i = 0; i < rawLevelData.extraRoutes.Count; i++)
-            {
-                extraRoutes.Add(rawLevelData.extraRoutes[i]);
-            }
+            routes = rawLevelData.routes;
+            extraRoutes = rawLevelData.extraRoutes;
 
             enemyDbRefs = new Dictionary<string, DbData>();
-            for (int i = 0; i < rawLevelData.enemyDbRefs.Count; i++)
+            if (rawLevelData.enemyDbRefs != null)
             {
-                DbData data;
-                EnemyDbRef enemyDbRef = rawLevelData.enemyDbRefs[i];
-                if (enemyDbRef.useDb)
+                for (int i = 0; i < rawLevelData.enemyDbRefs.Count; i++)
                 {
-                    data = ArknightsMapViewer.GlobalDefine.EnemyDBData[enemyDbRef.id][enemyDbRef.level];
+                    DbData data;
+                    EnemyDbRef enemyDbRef = rawLevelData.enemyDbRefs[i];
+                    if (enemyDbRef.useDb)
+                    {
+                        data = ArknightsMapViewer.GlobalDefine.EnemyDBData[enemyDbRef.id][enemyDbRef.level];
+                    }
+                    else
+                    {
+                        data = enemyDbRef.overwrittenData;
+                    }
+                    enemyDbRefs.Add(enemyDbRef.id, data);
                 }
-                else
-                {
-                    data = enemyDbRef.overwrittenData;
-                }
-                enemyDbRefs.Add(enemyDbRef.id, data);
             }
 
-            waves = new List<Wave>(rawLevelData.waves);
-            if (rawLevelData.branches != null)
-            {
-                branches = new Dictionary<string, Branch>(rawLevelData.branches);
-            }
+            waves = rawLevelData.waves;
+            branches = rawLevelData.branches;
         }
 
         public Options options;
@@ -574,7 +564,9 @@ namespace ArknightsMap
         PLAY_OPERA          = 7, //播放画面特效
         TRIGGER_PREDEFINED  = 8, //预部署单位生效(装置)
         BATTLE_EVENTS       = 9,
-        WITHDRAW_PREDEFINED = 10, //预撤回单位生效
+
+        WITHDRAW_PREDEFINED, //预撤回单位生效
+        DIALOG, //对话
 
         E_NUM,
     }

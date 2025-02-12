@@ -26,9 +26,9 @@ namespace ArknightsMapViewer
 
         public static WinformRouteDrawer Create(PictureBox pictureBox, Route route, PathFinding pathFinding, int mapWidth, int mapHeight)
         {
-            if (route.checkPoints == null)
+            if (route == null || route.checkPoints == null)
             {
-                MainForm.Instance.Log("Create WinformRouteDrawer Failed, Invalid Route.checkPoints", MainForm.LogType.Warning);
+                MainForm.Instance.Log("Create WinformRouteDrawer Failed, Invalid Route", MainForm.LogType.Warning);
                 return null;
             }
 
