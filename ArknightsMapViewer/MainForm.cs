@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.IO;
-using ArknightsMap;
 using System.Text;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Linq;
+using System.Diagnostics;
+using ArknightsMap;
 using Action = ArknightsMap.Action;
 
 namespace ArknightsMapViewer
@@ -93,6 +93,19 @@ namespace ArknightsMapViewer
             e.Node.ContextMenuStrip = contextMenuStrip1;
         }
 
+        private void treeView1_KeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.Delete:
+                    removeToolStripMenuItem_Click(sender, e);
+                    e.Handled = true;
+                    break;
+                default:
+                    break;
+            }
+        }
+
         private void openToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             OpenFile();
@@ -174,6 +187,9 @@ namespace ArknightsMapViewer
 
         private void ReadMapFile(string path)
         {
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            stopwatch.Start();
+
             if (string.IsNullOrEmpty(path))
             {
                 return;
@@ -198,8 +214,9 @@ namespace ArknightsMapViewer
 
                 if (levelReader.IsValid)
                 {
-                    Log($"[{Path.GetFileName(path)}] Open Success");
                     AddLevelDataToView(path, levelReader.LevelData);
+                    stopwatch.Stop();
+                    Log($"[{Path.GetFileName(path)}] Open Success ({stopwatch.Elapsed.TotalMilliseconds} ms)");
                 }
                 else
                 {
