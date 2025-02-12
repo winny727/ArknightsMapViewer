@@ -189,30 +189,21 @@ namespace ArknightsMapViewer
                 return;
             }
 
-            readingMultiFiles = true;
+            if (paths.Length > 1)
+            {
+                readingMultiFiles = true;
+            }
+
             foreach (string path in paths)
             {
                 ReadMapFile(path);
             }
-            readingMultiFiles = false;
 
-            if (treeView1.Nodes.Count > 0)
+            if (readingMultiFiles)
             {
-                TreeNode lastRootNode = treeView1.Nodes[treeView1.Nodes.Count - 1];
-                lastRootNode.EnsureVisible();
-                lastRootNode.Expand();
-
-                foreach (TreeNode node in lastRootNode.Nodes)
-                {
-                    //Expand SpawnsNode
-                    if (node.Tag is SpawnView)
-                    {
-                        node.Expand();
-                        break;
-                    }
-                }
+                readingMultiFiles = false;
+                UpdateView();
             }
-            UpdateView();
         }
 
         private void ReadMapFile(string path)
@@ -472,9 +463,9 @@ namespace ArknightsMapViewer
             {
                 spawnsNode.Expand();
                 rootNode.Expand();
+                treeView1.SelectedNode = rootNode;
             }
             rootNode.EnsureVisible();
-            treeView1.SelectedNode = rootNode;
         }
 
         private void UpdateView()
