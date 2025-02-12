@@ -189,6 +189,10 @@ namespace ArknightsMapViewer
                             {
                                 int level = jArray[i]["level"].ToObject<int>();
                                 DbData data = jArray[i]["enemyData"].ToObject<DbData>();
+                                if (i > 0)
+                                {
+                                    data.InheritData(dbDatas[0]);
+                                }
                                 dbDatas.Add(level, data);
                             }
                         }

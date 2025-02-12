@@ -29,7 +29,7 @@ namespace ArknightsMap
             routes = new List<Route>();
             for (int i = 0; i < rawLevelData.routes.Count; i++)
             {
-                if (rawLevelData.routes[i].motionMode != MotionMode.E_NUM)
+                if (rawLevelData.routes[i].motionMode != MotionType.E_NUM)
                 {
                     routes.Add(rawLevelData.routes[i]);
                 }
@@ -38,7 +38,7 @@ namespace ArknightsMap
             extraRoutes = new List<Route>();
             for (int i = 0; i < rawLevelData.extraRoutes.Count; i++)
             {
-                if (rawLevelData.extraRoutes[i].motionMode != MotionMode.E_NUM)
+                if (rawLevelData.extraRoutes[i].motionMode != MotionType.E_NUM)
                 {
                     extraRoutes.Add(rawLevelData.extraRoutes[i]);
                 }
@@ -130,7 +130,7 @@ namespace ArknightsMap
     [Serializable]
     public class Route : IData
     {
-        public MotionMode motionMode;
+        public MotionType motionMode;
         public Position startPosition;
         public Position endPosition;
         public Offset spawnRandomRange;
@@ -406,7 +406,7 @@ namespace ArknightsMap
         public Data<string> name;
         public Data<string> description;
         public Attribute attributes;
-        public Data<ApplyWayType> applyWay;
+        public Data<BuildableType> applyWay;
         public Data<MotionType> motion;
         public Data<string[]> enemyTags;
         public Data<int> lifePointReduce;
@@ -448,6 +448,26 @@ namespace ArknightsMap
             }
 
             return text;
+        }
+
+        public void InheritData(DbData data)
+        {
+            if (!name.m_defined && data.name.m_defined) name = data.name;
+            if (!description.m_defined && data.description.m_defined) description = data.description;
+            if (attributes == null && data.attributes != null) attributes = data.attributes;
+            if (!applyWay.m_defined && data.applyWay.m_defined) applyWay = data.applyWay;
+            if (!motion.m_defined && data.motion.m_defined) motion = data.motion;
+            if (!enemyTags.m_defined && data.enemyTags.m_defined) enemyTags = data.enemyTags;
+            if (!lifePointReduce.m_defined && data.lifePointReduce.m_defined) lifePointReduce = data.lifePointReduce;
+            if (!levelType.m_defined && data.levelType.m_defined) levelType = data.levelType;
+            if (!rangeRadius.m_defined && data.rangeRadius.m_defined) rangeRadius = data.rangeRadius;
+            if (!numOfExtraDrops.m_defined && data.numOfExtraDrops.m_defined) numOfExtraDrops = data.numOfExtraDrops;
+            if (!viewRadius.m_defined && data.viewRadius.m_defined) viewRadius = data.viewRadius;
+            if (!viewRadius.m_defined && data.viewRadius.m_defined) viewRadius = data.viewRadius;
+            if (!notCountInTotal.m_defined && data.notCountInTotal.m_defined) notCountInTotal = data.notCountInTotal;
+            if (talentBlackboard == null && data.talentBlackboard != null) talentBlackboard = data.talentBlackboard;
+            if (skills == null && data.skills != null) skills = data.skills;
+            if (spData == null && data.spData != null) spData = data.spData;
         }
     }
 
@@ -516,7 +536,7 @@ namespace ArknightsMap
         E_NUM,
     }
 
-    public enum MotionMode
+    public enum MotionType
     {
         WALK    = 0,
         FLY     = 1,
@@ -567,20 +587,6 @@ namespace ArknightsMap
     public enum RefreshType
     {
         ALWAYS,
-    }
-
-    public enum ApplyWayType
-    {
-        NONE,
-        MELEE,
-        RANGED,
-        ALL,
-    }
-
-    public enum MotionType
-    {
-        WALK,
-        FLY,
     }
 
     public enum LevelType

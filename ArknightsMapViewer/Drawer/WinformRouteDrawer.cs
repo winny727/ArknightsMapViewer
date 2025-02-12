@@ -91,7 +91,7 @@ namespace ArknightsMapViewer
             Bitmap bitmap = (Bitmap)PictureBox.Image;
 
             int prevIndex = GetPrevMoveIndex(checkPointIndex);
-            bool needPathFinding = Route.motionMode == MotionMode.WALK;
+            bool needPathFinding = Route.motionMode == MotionType.WALK;
             Color color = GlobalDefine.LINE_COLOR;
 
             Position prevPosition;

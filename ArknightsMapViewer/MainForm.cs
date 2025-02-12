@@ -327,7 +327,7 @@ namespace ArknightsMapViewer
                                 {
                                     EnemyKey = action.key,
                                     EnemyData = enemyData,
-                                    //TODO 多波敌人的地图 测试 7-18？, action中其他字段作用（下载所有地图json查看）
+                                    //TODO action中其他字段作用（下载所有地图json查看）
                                     SpawnTime = spawnTime + action.preDelay + n * action.interval,
                                     TotalSpawnIndex = spawnIndex,
                                     TotalWave = levelData.waves.Count,

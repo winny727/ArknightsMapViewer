@@ -4,6 +4,8 @@ Version: 0.3
 By winny727
 2025.2.11
 
+https://github.com/winny727/ArknightsMapViewer
+
 若后续明日方舟官方又更新了地图文件或者敌人数据文件的格式，可能会因为格式不兼容导致本工具无法解析。
 如有bug可以带上问题截图和日志（菜单栏->Help->ShowLow）来b站私聊找我。
 

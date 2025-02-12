@@ -80,11 +80,15 @@ namespace ArknightsMap
             }
             if (!string.IsNullOrEmpty(RandomSpawnGroupKey))
             {
-                text += $" {RandomSpawnGroupKey}/w:{Weight}";
+                text += $" {RandomSpawnGroupKey}";
             }
             if (!string.IsNullOrEmpty(RandomSpawnGroupPackKey))
             {
-                text += $" {RandomSpawnGroupPackKey}/w:{Weight}";
+                text += $" {RandomSpawnGroupPackKey}";
+            }
+            if (Weight > 0)
+            {
+                text += $" {Weight}%";
             }
             return text;
         }
