@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Windows.Forms;
 using ArknightsMap;
 using System.Drawing;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using static ArknightsMap.DbData;
-using System.Reflection;
 
 namespace ArknightsMapViewer
 {
