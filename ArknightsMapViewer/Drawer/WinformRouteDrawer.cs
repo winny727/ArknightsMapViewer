@@ -15,13 +15,24 @@ namespace ArknightsMapViewer
         public int MapWidth { get; private set; }
         public int MapHeight { get; private set; }
 
-        public WinformRouteDrawer(PictureBox pictureBox, Route route, PathFinding pathFinding, int mapWidth, int mapHeight)
+        private WinformRouteDrawer(PictureBox pictureBox, Route route, PathFinding pathFinding, int mapWidth, int mapHeight)
         {
             PictureBox = pictureBox;
             Route = route;
             PathFinding = pathFinding;
             MapWidth = mapWidth;
             MapHeight = mapHeight;
+        }
+
+        public static WinformRouteDrawer Create(PictureBox pictureBox, Route route, PathFinding pathFinding, int mapWidth, int mapHeight)
+        {
+            if (route.checkPoints == null)
+            {
+                MainForm.Instance.Log("Create WinformRouteDrawer Failed, Invalid Route.checkPoints", MainForm.LogType.Warning);
+                return null;
+            }
+
+            return new WinformRouteDrawer(pictureBox, route, pathFinding, mapWidth, mapHeight);
         }
 
         public void InitCanvas()

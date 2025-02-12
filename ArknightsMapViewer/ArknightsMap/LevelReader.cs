@@ -58,17 +58,17 @@ namespace ArknightsMap
             }
 
             MapData mapData = rawLevelData.mapData;
-            if (mapData == null || mapData.tiles == null || mapData.tiles.Count <= 0)
+            if (mapData == null || mapData.tiles == null)
             {
                 return false;
             }
 
-            if (rawLevelData.routes == null || rawLevelData.routes.Count <= 0)
+            if (rawLevelData.routes == null)
             {
                 return false;
             }
 
-            if (rawLevelData.waves == null || rawLevelData.waves.Count <= 0)
+            if (rawLevelData.waves == null)
             {
                 return false;
             }

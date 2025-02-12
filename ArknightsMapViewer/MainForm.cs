@@ -17,7 +17,7 @@ namespace ArknightsMapViewer
         public string logText { get; private set; }
 
         private LevelView curLevelView;
-        private RouteView curRouteView;
+        private SpawnView curSpawnView;
 
         public MainForm()
         {
@@ -270,14 +270,17 @@ namespace ArknightsMapViewer
                     {
                         RouteIndex = i,
                         Route = route,
-                        RouteDrawer = new WinformRouteDrawer(pictureBox1, route, pathFinding, mapWidth, mapHeight),
+                        RouteDrawer = WinformRouteDrawer.Create(pictureBox1, route, pathFinding, mapWidth, mapHeight),
                     };
-                    routeNode.Nodes.Add($"startPosition: {route.startPosition}");
-                    for (int j = 0; j < route.checkPoints.Count; j++)
+                    if (route.checkPoints != null)
                     {
-                        routeNode.Nodes.Add($"checkPoint #{j} {route.checkPoints[j].ToSimpleString()}");
+                        routeNode.Nodes.Add($"startPosition: {route.startPosition}");
+                        for (int j = 0; j < route.checkPoints.Count; j++)
+                        {
+                            routeNode.Nodes.Add($"checkPoint #{j} {route.checkPoints[j].ToSimpleString()}");
+                        }
+                        routeNode.Nodes.Add($"endPosition: {route.endPosition}");
                     }
-                    routeNode.Nodes.Add($"endPosition: {route.endPosition}");
                 }
                 //routesNode.Expand();
             }
@@ -313,7 +316,7 @@ namespace ArknightsMapViewer
                         TreeNode actionNode = fragmentNode.Nodes.Add($"action #{k} {action.ToSimpleString()}");
                         if (action.actionType == ActionType.SPAWN && action.routeIndex >= 0 && action.routeIndex < levelData.routes.Count)
                         {
-                            IRouteDrawer routeDrawer = new WinformRouteDrawer(pictureBox1, levelData.routes[action.routeIndex], pathFinding, mapWidth, mapHeight);
+                            IRouteDrawer routeDrawer = WinformRouteDrawer.Create(pictureBox1, levelData.routes[action.routeIndex], pathFinding, mapWidth, mapHeight);
                             actionNode.Tag = new SpawnActionView()
                             {
                                 SpawnAction = action,
@@ -330,6 +333,7 @@ namespace ArknightsMapViewer
                                     //TODO action中其他字段作用（下载所有地图json查看）
                                     SpawnTime = spawnTime + action.preDelay + n * action.interval,
                                     TotalSpawnIndex = spawnIndex,
+                                    RouteIndex = action.routeIndex,
                                     TotalWave = levelData.waves.Count,
                                     WaveIndex = i,
                                     SpawnIndexInWave = waveSpawnIndex,
@@ -416,7 +420,6 @@ namespace ArknightsMapViewer
             checkBox1.Visible = false;
             checkBox2.Visible = false;
             checkBox3.Visible = false;
-            flowLayoutPanel2.Controls.Clear();
 
             while (treeNode != null)
             {
@@ -461,7 +464,6 @@ namespace ArknightsMapViewer
 
             pictureBox1.Image?.Dispose();
             pictureBox1.Image = null;
-            curRouteView = routeView;
 
             IRouteDrawer routeDrawer = null;
             if (routeView != null)
@@ -564,22 +566,28 @@ namespace ArknightsMapViewer
                 stringBuilder.AppendLine(data.ToString());
             }
 
-            if (spawnView != null)
+            if (curSpawnView != spawnView)
             {
-                foreach (var item in spawnView.SpawnGroups)
+                curSpawnView = spawnView;
+                flowLayoutPanel2.Controls.Clear();
+                if (spawnView != null)
                 {
-                    CheckBox checkBox = new CheckBox
+                    foreach (var item in spawnView.SpawnGroups)
                     {
-                        Text = item.Key,
-                        Checked = item.Value,
-                    };
-                    checkBox.CheckedChanged += (s, e) =>
-                    {
-                        spawnView.SpawnGroups[checkBox.Text] = checkBox.Checked;
-                        spawnView.UpdateNodes();
-                        UpdateView();
-                    };
-                    flowLayoutPanel2.Controls.Add(checkBox);
+                        CheckBox checkBox = new CheckBox
+                        {
+                            Text = item.Key,
+                            Checked = item.Value,
+                        };
+                        checkBox.CheckedChanged += (s, e) =>
+                        {
+                            spawnView.SpawnGroups[checkBox.Text] = checkBox.Checked;
+                            spawnView.UpdateNodes();
+                            UpdateView();
+                        };
+                        flowLayoutPanel2.Controls.Add(checkBox);
+                    }
+
                 }
             }
 

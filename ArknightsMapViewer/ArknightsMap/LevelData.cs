@@ -29,19 +29,13 @@ namespace ArknightsMap
             routes = new List<Route>();
             for (int i = 0; i < rawLevelData.routes.Count; i++)
             {
-                if (rawLevelData.routes[i].motionMode != MotionType.E_NUM)
-                {
-                    routes.Add(rawLevelData.routes[i]);
-                }
+                routes.Add(rawLevelData.routes[i]);
             }
 
             extraRoutes = new List<Route>();
             for (int i = 0; i < rawLevelData.extraRoutes.Count; i++)
             {
-                if (rawLevelData.extraRoutes[i].motionMode != MotionType.E_NUM)
-                {
-                    extraRoutes.Add(rawLevelData.extraRoutes[i]);
-                }
+                extraRoutes.Add(rawLevelData.extraRoutes[i]);
             }
 
             enemyDbRefs = new Dictionary<string, DbData>();
@@ -136,6 +130,9 @@ namespace ArknightsMap
         public Offset spawnRandomRange;
         public Offset spawnOffset;
         public List<CheckPoint> checkPoints;
+        public bool visitEveryTileCenter;
+        public bool visitEveryNodeCenter;
+        public bool visitEveryCheckPoint;
 
         public override string ToString()
         {
@@ -145,7 +142,10 @@ namespace ArknightsMap
                 $"{nameof(endPosition)}: {endPosition}\n" +
                 $"{nameof(spawnRandomRange)}: {spawnRandomRange}\n" +
                 $"{nameof(spawnOffset)}: {spawnOffset}\n" +
-                $"{nameof(checkPoints)}: {checkPoints.Count}";
+                $"{(checkPoints != null ? $"{nameof(checkPoints)}: {checkPoints.Count}\n)" : "")}" +
+                $"{nameof(visitEveryTileCenter)}: {visitEveryTileCenter}\n" +
+                $"{nameof(visitEveryNodeCenter)}: {visitEveryNodeCenter}\n" +
+                $"{nameof(visitEveryCheckPoint)}: {visitEveryCheckPoint}";
         }
     }
 
@@ -574,6 +574,7 @@ namespace ArknightsMap
         PLAY_OPERA          = 7, //播放画面特效
         TRIGGER_PREDEFINED  = 8, //预部署单位生效(装置)
         BATTLE_EVENTS       = 9,
+        WITHDRAW_PREDEFINED = 10, //预撤回单位生效
 
         E_NUM,
     }
@@ -581,11 +582,19 @@ namespace ArknightsMap
     //出现统计：0,1,2
     public enum RandomType
     {
+        NEVER,
+        PER_DAY,
+        PER_SETTLE_DAY,
+        PER_SEASON,
         ALWAYS,
     }
 
     public enum RefreshType
     {
+        NEVER,
+        PER_DAY,
+        PER_SETTLE_DAY,
+        PER_SEASON,
         ALWAYS,
     }
 

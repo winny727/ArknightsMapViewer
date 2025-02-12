@@ -10,6 +10,7 @@ namespace ArknightsMap
 
         public float SpawnTime { get; set; }
         public float TotalSpawnIndex { get; set; }
+        public float RouteIndex { get; set; }
 
         public int TotalWave { get; set; }
         public int WaveIndex { get; set; }
@@ -69,7 +70,7 @@ namespace ArknightsMap
 
         public string ToSimpleString()
         {
-            string text = $"{EnemyData.name.m_value} {SpawnTime}s";
+            string text = $"{(EnemyData != null ? EnemyData.name.m_value : EnemyKey)} {SpawnTime}s";
             if (TotalWave > 1)
             {
                 text = $"[{WaveIndex}_{SpawnIndexInWave}] " + text;
@@ -99,7 +100,7 @@ namespace ArknightsMap
                 $"EnemyKey: {EnemyKey}\n";
 
 
-            if (showEnemyData)
+            if (showEnemyData && EnemyData != null)
             {
                 text += $"EnemyData:\n{EnemyData}\n\n";
             }
@@ -107,6 +108,7 @@ namespace ArknightsMap
             text += 
                 $"SpawnTime: {SpawnTime}\n" +
                 $"SpawnIndex: {TotalSpawnIndex}\n" +
+                $"RouteIndex: {RouteIndex}\n" +
                 $"HiddenGroup: {HiddenGroup}\n" +
                 $"RandomSpawnGroupKey: {RandomSpawnGroupKey}\n" +
                 $"RandomSpawnGroupPackKey: {RandomSpawnGroupPackKey}\n" +
