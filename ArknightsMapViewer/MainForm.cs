@@ -400,6 +400,7 @@ namespace ArknightsMapViewer
                                 actionNode.Tag = new SpawnActionView()
                                 {
                                     SpawnAction = action,
+                                    IsExtraRoute = false,
                                     RouteDrawer = routeDrawer,
                                 };
 
@@ -448,51 +449,95 @@ namespace ArknightsMapViewer
                 }
             }
 
-            //AddSpawnList
-            TreeNode spawnsNode = rootNode.Nodes.Add("spawns");
-            SpawnView spawnView = new SpawnView()
+            //AddBranchList
+            if (levelData.branches != null)
             {
-                SpawnsNode = spawnsNode,
-            };
-            spawnsNode.Tag = spawnView;
-            enemySpawnViews.Sort((a, b) => a.CompareTo(b));
-
-            void InsertGroup(string groupName, TreeNode treeNode)
-            {
-                if (!string.IsNullOrEmpty(groupName))
+                TreeNode branchesNode = rootNode.Nodes.Add(nameof(levelData.branches));
+                foreach (var item in levelData.branches)
                 {
-                    if (!spawnView.SpawnGroups.ContainsKey(groupName))
+                    string key = item.Key;
+                    List<Fragment> phases = item.Value.phases;
+                    TreeNode brancheNode = branchesNode.Nodes.Add(key);
+                    for (int i = 0; i < phases.Count; i++)
                     {
-                        spawnView.SpawnGroups.Add(groupName, true);
+                        Fragment phase = phases[i];
+                        TreeNode phaseNode = brancheNode.Nodes.Add($"phase #{i}");
+                        phaseNode.Tag = phase;
+
+                        for (int j = 0; j < phase.actions.Count; j++)
+                        {
+                            Action action = phase.actions[j];
+                            TreeNode actionNode = phaseNode.Nodes.Add($"action #{j} {action.ToSimpleString()}");
+                            if (action.actionType == ActionType.SPAWN && levelData.extraRoutes != null && action.routeIndex >= 0 && action.routeIndex < levelData.extraRoutes.Count)
+                            {
+                                actionNode.Tag = new SpawnActionView()
+                                {
+                                    SpawnAction = action,
+                                    IsExtraRoute = true,
+                                    RouteDrawer = WinformRouteDrawer.Create(pictureBox1, levelData.extraRoutes[action.routeIndex], pathFinding, mapWidth, mapHeight),
+                                };
+                            }
+                            else
+                            {
+                                actionNode.Tag = action;
+                            }
+                        }
                     }
                 }
             }
 
-            for (int i = 0; i < enemySpawnViews.Count; i++)
+            //AddSpawnList
+            if (enemySpawnViews.Count > 0)
             {
-                EnemySpawnView enemySpawnView = enemySpawnViews[i];
-                TreeNode spawnNode = spawnsNode.Nodes.Add($"#{i} {enemySpawnView.ToSimpleString()}");
-                spawnNode.Tag = enemySpawnView;
-
-                Route route = enemySpawnView.Route;
-                if (route != null && route.checkPoints != null)
+                TreeNode spawnsNode = rootNode.Nodes.Add("spawns");
+                SpawnView spawnView = new SpawnView()
                 {
-                    spawnNode.Nodes.Add($"startPosition: {route.startPosition}");
-                    for (int j = 0; j < route.checkPoints.Count; j++)
+                    SpawnsNode = spawnsNode,
+                };
+                spawnsNode.Tag = spawnView;
+                enemySpawnViews.Sort((a, b) => a.CompareTo(b));
+
+                void InsertGroup(string groupName, TreeNode treeNode)
+                {
+                    if (!string.IsNullOrEmpty(groupName))
                     {
-                        spawnNode.Nodes.Add($"checkPoint #{j} {route.checkPoints[j].ToSimpleString()}");
+                        if (!spawnView.SpawnGroups.ContainsKey(groupName))
+                        {
+                            spawnView.SpawnGroups.Add(groupName, true);
+                        }
                     }
-                    spawnNode.Nodes.Add($"endPosition: {route.endPosition}");
                 }
 
-                InsertGroup(enemySpawnView.HiddenGroup, spawnNode);
-                InsertGroup(enemySpawnView.RandomSpawnGroupKey, spawnNode);
-                InsertGroup(enemySpawnView.RandomSpawnGroupPackKey, spawnNode);
+                for (int i = 0; i < enemySpawnViews.Count; i++)
+                {
+                    EnemySpawnView enemySpawnView = enemySpawnViews[i];
+                    TreeNode spawnNode = spawnsNode.Nodes.Add($"#{i} {enemySpawnView.ToSimpleString()}");
+                    spawnNode.Tag = enemySpawnView;
+
+                    Route route = enemySpawnView.Route;
+                    if (route != null && route.checkPoints != null)
+                    {
+                        spawnNode.Nodes.Add($"startPosition: {route.startPosition}");
+                        for (int j = 0; j < route.checkPoints.Count; j++)
+                        {
+                            spawnNode.Nodes.Add($"checkPoint #{j} {route.checkPoints[j].ToSimpleString()}");
+                        }
+                        spawnNode.Nodes.Add($"endPosition: {route.endPosition}");
+                    }
+
+                    InsertGroup(enemySpawnView.HiddenGroup, spawnNode);
+                    InsertGroup(enemySpawnView.RandomSpawnGroupKey, spawnNode);
+                    InsertGroup(enemySpawnView.RandomSpawnGroupPackKey, spawnNode);
+                }
+
+                if (!readingMultiFiles)
+                {
+                    spawnsNode.Expand();
+                }
             }
 
             if (!readingMultiFiles)
             {
-                spawnsNode.Expand();
                 rootNode.Expand();
                 treeView1.SelectedNode = rootNode;
             }
@@ -647,7 +692,13 @@ namespace ArknightsMapViewer
             {
                 Action action = spawnActionView.SpawnAction;
                 stringBuilder.AppendLine($"[{treeView1.SelectedNode.Text}]");
-                stringBuilder.AppendLine(action.ToString());
+
+                string text = action.ToString();
+                if (spawnActionView.IsExtraRoute)
+                {
+                    text = text.Replace("routeIndex", "routeIndex (extra)");
+                }
+                stringBuilder.AppendLine(text);
             }
             else if (enemySpawnView != null)
             {
