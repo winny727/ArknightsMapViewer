@@ -12,7 +12,7 @@ namespace ArknightsMapViewer
     {
         public static string[] LoadLatestFilePath()
         {
-            string path = Path.Combine(Directory.GetCurrentDirectory(), "latestFilePath.ini");
+            string path = Path.Combine(Directory.GetCurrentDirectory(), "Temp", "latest_files.ini");
             if (!File.Exists(path))
             {
                 return null;
@@ -24,7 +24,7 @@ namespace ArknightsMapViewer
             }
             catch (Exception ex)
             {
-                string errorMsg = $"latestFilePath.ini Read Error, {ex.Message}";
+                string errorMsg = $"latest_files.ini Read Error, {ex.Message}";
                 MainForm.Instance.Log(errorMsg, MainForm.LogType.Error);
             }
 
@@ -33,7 +33,13 @@ namespace ArknightsMapViewer
 
         public static void SaveLatestFilePath(IEnumerable<string> latestFilePath)
         {
-            string path = Path.Combine(Directory.GetCurrentDirectory(), "latestFilePath.ini");
+            string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "Temp");
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+
+            string path = Path.Combine(folderPath, "latest_files.ini");
 
             try
             {
@@ -41,7 +47,7 @@ namespace ArknightsMapViewer
             }
             catch (Exception ex)
             {
-                string errorMsg = $"latestFilePath.ini Write Error, {ex.Message}";
+                string errorMsg = $"latest_files.ini Write Error, {ex.Message}";
                 MainForm.Instance.Log(errorMsg, MainForm.LogType.Error);
             }
         }
@@ -49,7 +55,7 @@ namespace ArknightsMapViewer
         public static void InitDrawConfig()
         {
             DrawConfig drawConfig = null;
-            string path = Path.Combine(Directory.GetCurrentDirectory(), "drawConfig.json");
+            string path = Path.Combine(Directory.GetCurrentDirectory(), "Config", "draw_config.json");
             if (File.Exists(path))
             {
                 try
@@ -59,7 +65,7 @@ namespace ArknightsMapViewer
                 }
                 catch (Exception ex)
                 {
-                    string errorMsg = $"drawConfig.txt Parse Error, {ex.Message}";
+                    string errorMsg = $"draw_config.json Parse Error, {ex.Message}";
                     MainForm.Instance.Log(errorMsg, MainForm.LogType.Error);
                 }
             }
@@ -74,7 +80,7 @@ namespace ArknightsMapViewer
                 }
                 catch (Exception ex)
                 {
-                    string errorMsg = $"drawConfig.json Write Error, {ex.Message}";
+                    string errorMsg = $"draw_config.json Write Error, {ex.Message}";
                     MainForm.Instance.Log(errorMsg, MainForm.LogType.Error);
                 }
             }
@@ -100,62 +106,61 @@ namespace ArknightsMapViewer
             GlobalDefine.LENGTH_COLOR = ColorTranslator.FromHtml(drawConfig.Color.lengthColor);
         }
 
-        public static void InitTileDefineConfig()
+        public static void InitTileInfoConfig()
         {
-            Color ParseColor(string value)
+            Color? ParseColor(string value)
             {
-                Color color = Color.White;
+                if (string.IsNullOrEmpty(value))
+                {
+                    return null;
+                }
+
                 try
                 {
-                    color = ColorTranslator.FromHtml(value);
+                    return ColorTranslator.FromHtml(value);
                 }
                 catch (Exception ex)
                 {
                     MainForm.Instance.Log($"Invalid Tile Color: {value}", MainForm.LogType.Warning);
                 }
-                return color;
+
+                return null;
             }
 
-            string path = Path.Combine(Directory.GetCurrentDirectory(), "TileDefine.txt");
+            string path = Path.Combine(Directory.GetCurrentDirectory(), "Config", "tile_info.csv");
 
             try
             {
-                TableReader tableReader = new TableReader(path);
-                tableReader.ForEach((key, line) =>
+                TableReader tableReader = new TableReader(path, ',');
+                tableReader.ForEach((tileKey, line) =>
                 {
-                    string tileKey = key;
-                    Color tileColor = ParseColor(line["tileColor"]);
-                    string tileText = line["tileText"];
-                    Color textColor = ParseColor(line["textColor"]);
-
                     if (!string.IsNullOrEmpty(tileKey))
                     {
-                        if (!GlobalDefine.TileColor.ContainsKey(tileKey))
+                        if (!GlobalDefine.TileInfo.ContainsKey(tileKey))
                         {
-                            GlobalDefine.TileColor.Add(tileKey, tileColor);
+                            GlobalDefine.TileInfo.Add(tileKey, new TileInfo()
+                            {
+                                tileKey = tileKey,
+                                name = line["name"],
+                                description = line["description"],
+                                isFunctional = Convert.ToBoolean(line["isFunctional"]),
+                                tileColor = ParseColor(line["tileColor"]),
+                                tileText = line["tileText"],
+                                textColor = ParseColor(line["textColor"]),
+                                comment = line["comment"],
+                            });
                         }
                         else
                         {
-                            GlobalDefine.TileColor[tileKey] = tileColor;
-                        }
-                    }
-
-                    if (!string.IsNullOrEmpty(tileText))
-                    {
-                        if (!GlobalDefine.TileString.ContainsKey(tileKey))
-                        {
-                            GlobalDefine.TileString.Add(tileKey, (tileText, textColor));
-                        }
-                        else
-                        {
-                            GlobalDefine.TileString[tileKey] = (tileText, textColor);
+                            string errorMsg = $"tile_info.json Parse Warning, tileKey is already exist. {tileKey}";
+                            MainForm.Instance.Log(errorMsg, MainForm.LogType.Warning);
                         }
                     }
                 });
             }
             catch(Exception ex)
             {
-                string errorMsg = $"TileDefine.txt Read Error, {ex.Message}";
+                string errorMsg = $"tile_info.csv Read Error, {ex.Message}";
                 MainForm.Instance.Log(errorMsg, MainForm.LogType.Warning);
                 //MessageBox.Show(errorMsg, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
@@ -163,7 +168,7 @@ namespace ArknightsMapViewer
 
         public static void InitEnemyDatabase()
         {
-            string path = Path.Combine(Directory.GetCurrentDirectory(), "enemy_database.json");
+            string path = Path.Combine(Directory.GetCurrentDirectory(), "Config", "enemy_database.json");
             if (!File.Exists(path))
             {
                 return;

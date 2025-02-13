@@ -49,6 +49,19 @@ namespace ArknightsMapViewer
         public ColorConfig Color = new ColorConfig();
     }
 
+    [Serializable]
+    public class TileInfo
+    {
+        public string tileKey;
+        public string name;
+        public string description;
+        public bool isFunctional;
+        public Color? tileColor;
+        public string tileText;
+        public Color? textColor;
+        public string comment;
+    }
+
 
     public static class GlobalDefine
     {
@@ -68,11 +81,10 @@ namespace ArknightsMapViewer
         public static Color CIRCLE_COLOR = Color.FromArgb(255, 118, 118, 118);
         public static Color LENGTH_COLOR = Color.Green;
 
-        //TileDefine.txt
-        public readonly static Dictionary<string, Color> TileColor = new Dictionary<string, Color>();
-        public readonly static Dictionary<string, (string, Color)> TileString = new Dictionary<string, (string, Color)>();
+        //tileInfo
+        public readonly static Dictionary<string, TileInfo> TileInfo = new Dictionary<string, TileInfo>();
 
-        //EnemyData
+        //EnemyDatabase
         public readonly static Dictionary<string, Dictionary<int, DbData>> EnemyDBData = new Dictionary<string, Dictionary<int, DbData>>();
     }
 }

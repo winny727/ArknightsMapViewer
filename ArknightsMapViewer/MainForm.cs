@@ -35,7 +35,7 @@ namespace ArknightsMapViewer
         {
             logText = "";
             Helper.InitDrawConfig();
-            Helper.InitTileDefineConfig();
+            Helper.InitTileInfoConfig();
             Helper.InitEnemyDatabase();
             UpdateView();
 
@@ -216,28 +216,27 @@ namespace ArknightsMapViewer
                 return;
             }
 
-            var fileAttr = File.GetAttributes(path);
-            if ((fileAttr & FileAttributes.Directory) == FileAttributes.Directory)
-            {
-                string[] files = Directory.GetFiles(path, "*.json", SearchOption.AllDirectories);
-                ReadMapFiles(files);
-                return;
-            }
-
-            if (!File.Exists(path))
-            {
-                Log($"Open File Failed, File does not exist.\n{path}", LogType.Error);
-                return;
-            }
-
-            if (!path.ToLower().EndsWith(".json") || (!File.Exists(path) && Directory.Exists(path)))
-            {
-                Log($"File Type Error, Request Json Files(*.json)\n{path}", LogType.Error);
-                return;
-            }
-
             try
             {
+                if (!File.Exists(path))
+                {
+                    if (Directory.Exists(path))
+                    {
+                        string[] files = Directory.GetFiles(path, "*.json", SearchOption.AllDirectories);
+                        ReadMapFiles(files);
+                        return;
+                    }
+
+                    Log($"Open File Failed, File does not exist.\n{path}", LogType.Error);
+                    return;
+                }
+
+                if (!path.ToLower().EndsWith(".json") || (!File.Exists(path) && Directory.Exists(path)))
+                {
+                    Log($"File Type Error, Request Json Files(*.json)\n{path}", LogType.Error);
+                    return;
+                }
+
                 string levelJson = File.ReadAllText(path);
                 LevelReader levelReader = new LevelReader(levelJson);
 
@@ -742,11 +741,6 @@ namespace ArknightsMapViewer
             Tile tile = map[position.col, position.row];
 
             string text = $"[Tile: {position}]\n" + tile.ToString();
-
-            if (!GlobalDefine.TileColor.ContainsKey(tile.tileKey))
-            {
-                text += "\n(Warning: Undefined Tile)";
-            }
 
             label1.Text = text;
         }

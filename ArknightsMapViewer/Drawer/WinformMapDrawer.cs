@@ -53,25 +53,31 @@ namespace ArknightsMapViewer
         private void DrawTile(int rowIndex, int colIndex)
         {
             Tile tile = Map[colIndex, rowIndex];
-            if (!GlobalDefine.TileColor.TryGetValue(tile.tileKey, out Color color))
+            TileInfo tileInfo = tile.GetTileInfo();
+
+            Color tileColor = Color.White;
+            if (tileInfo != null && tileInfo.tileColor != null)
             {
-                MainForm.Instance.Log("Undefined Tile: " + tile.tileKey, MainForm.LogType.Warning);
-                color = Color.White;
+                tileColor = tileInfo.tileColor.Value;
             }
-            GlobalDefine.TileString.TryGetValue(tile.tileKey, out (string, Color) tileString);
+            else
+            {
+                MainForm.Instance.Log("Undefined TileColor: " + tile.tileKey, MainForm.LogType.Warning);
+            }
 
             Bitmap bitmap = (Bitmap)PictureBox.BackgroundImage;
 
             int length = GlobalDefine.TILE_PIXLE;
             Rectangle rectangle = new Rectangle(colIndex * length, (MapHeight - rowIndex - 1) * length, length, length);
 
-            DrawUtil.FillRectangle(bitmap, rectangle, color);
+            DrawUtil.FillRectangle(bitmap, rectangle, tileColor);
             DrawUtil.DrawRectangle(bitmap, rectangle);
 
             //Draw TileText
-            if (!string.IsNullOrEmpty(tileString.Item1))
+            if (tileInfo != null && !string.IsNullOrEmpty(tileInfo.tileText))
             {
-                DrawUtil.DrawString(bitmap, tileString.Item1, rectangle, GlobalDefine.TEXT_FONT, tileString.Item2);
+                Color textColor = tileInfo.textColor ?? Color.Black;
+                DrawUtil.DrawString(bitmap, tileInfo.tileText, rectangle, GlobalDefine.TEXT_FONT, textColor);
             }
 
             //Draw Index

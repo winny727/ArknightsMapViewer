@@ -54,6 +54,7 @@ public class TableReader
         }
     }
 
+    private char separator;
     private Dictionary<string, TableLine> datas;
     private Dictionary<string, int> colIndexDict;
 
@@ -79,8 +80,9 @@ public class TableReader
     }
 
 
-    public TableReader(string filePath)
+    public TableReader(string filePath, char separator = '\t')
     {
+        this.separator = separator;
         string[] lines = ReadFile(filePath);
         InitDatas(lines);
     }
@@ -123,7 +125,7 @@ public class TableReader
             throw new ArgumentException("Line Count Error");
         }
 
-        string[] GetValues(string line) => line.Split('\t');
+        string[] GetValues(string line) => line.Split(separator);
 
         //Init titles
         colIndexDict = new Dictionary<string, int>();

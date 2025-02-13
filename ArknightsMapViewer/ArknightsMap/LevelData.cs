@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ArknightsMapViewer;
 
 namespace ArknightsMap
 {
@@ -35,7 +36,7 @@ namespace ArknightsMap
                     EnemyDbRef enemyDbRef = rawLevelData.enemyDbRefs[i];
                     if (enemyDbRef.useDb)
                     {
-                        data = ArknightsMapViewer.GlobalDefine.EnemyDBData[enemyDbRef.id][enemyDbRef.level];
+                        data = GlobalDefine.EnemyDBData[enemyDbRef.id][enemyDbRef.level];
                     }
                     else
                     {
@@ -105,7 +106,36 @@ namespace ArknightsMap
 
         public override string ToString()
         {
-            return StringHelper.GetObjFieldValueString(this);
+            string text = $"{nameof(tileKey)}: {tileKey}";
+
+            TileInfo tileInfo = GetTileInfo();
+            if (tileInfo != null)
+            {
+                text +=
+                    $"\n{nameof(tileInfo.name)}: {tileInfo.name}\n" +
+                    $"{nameof(tileInfo.description)}: {tileInfo.description}\n" +
+                    $"{nameof(tileInfo.isFunctional)}: {tileInfo.isFunctional}\n";
+            }
+            else
+            {
+                text += " (Undefined Tile)\n";
+            }
+
+            text +=
+                $"{nameof(heightType)}: {heightType}\n" +
+                $"{nameof(buildableType)}: {buildableType}\n" +
+                $"{nameof(passableMask)}: {passableMask}\n";
+
+            return text;
+        }
+
+        public TileInfo GetTileInfo()
+        {
+            if (!string.IsNullOrEmpty(tileKey) && GlobalDefine.TileInfo.TryGetValue(tileKey, out TileInfo tileInfo))
+            {
+                return tileInfo;
+            }
+            return null;
         }
     }
 

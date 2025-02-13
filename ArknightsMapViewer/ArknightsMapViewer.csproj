@@ -154,6 +154,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy "$(ProjectDir)TileDefine.txt" "$(TargetDir)" /y</PostBuildEvent>
+    <PostBuildEvent>xcopy "$(ProjectDir)\..\Config" "$(TargetDir)\Config\" /y
+xcopy "$(ProjectDir)\..\Readme.txt" "$(TargetDir)" /y</PostBuildEvent>
   </PropertyGroup>
 </Project>
