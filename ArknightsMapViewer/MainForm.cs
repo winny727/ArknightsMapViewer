@@ -14,8 +14,8 @@ namespace ArknightsMapViewer
     public partial class MainForm : Form
     {
         public static MainForm Instance { get; private set; }
-        public string logText { get; private set; }
-        Dictionary<Control, RectangleF> controlsBoundScaled = new Dictionary<Control, RectangleF>();
+        public string LogText { get; private set; }
+        private Dictionary<Control, RectangleF> controlsBoundScaled = new Dictionary<Control, RectangleF>();
 
         private LevelView curLevelView;
         private SpawnView curSpawnView;
@@ -65,7 +65,7 @@ namespace ArknightsMapViewer
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            logText = "";
+            LogText = "";
             Helper.InitDrawConfig();
             Helper.InitTileInfoConfig();
             Helper.InitEnemyDatabase();
@@ -625,12 +625,7 @@ namespace ArknightsMapViewer
             {
                 LevelData levelData = levelView.LevelData;
                 stringBuilder.AppendLine($"[{levelView.Name}]");
-                stringBuilder.AppendLine(levelData.options.ToString());
-                stringBuilder.AppendLine($"width: {levelData.map.GetLength(0)}");
-                stringBuilder.AppendLine($"height: {levelData.map.GetLength(1)}");
-                if (levelData.routes != null) stringBuilder.AppendLine($"routes: {levelData.routes.Count}");
-                if (levelData.waves != null) stringBuilder.AppendLine($"waves: {levelData.waves.Count}");
-                if (levelData.extraRoutes != null) stringBuilder.AppendLine($"extraRoutes: {levelData.extraRoutes.Count}");
+                stringBuilder.AppendLine(levelData.ToString());
             }
             else if (routeView != null)
             {
@@ -720,14 +715,14 @@ namespace ArknightsMapViewer
             {
                 MessageBox.Show(msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            logText += $"[{logType.ToString().ToUpper()}][{DateTime.Now:yyyy-MM-dd HH:mm:ss:ff}] {msg} \n";
+            LogText += $"[{logType.ToString().ToUpper()}][{DateTime.Now:yyyy-MM-dd HH:mm:ss:ff}] {msg} \n";
         }
 
         private void ShowLog()
         {
             //MessageBox.Show(log);
             LogForm logForm = new LogForm();
-            logForm.UpdateLog(logText);
+            logForm.UpdateLog(LogText);
             logForm.ShowDialog();
         }
 

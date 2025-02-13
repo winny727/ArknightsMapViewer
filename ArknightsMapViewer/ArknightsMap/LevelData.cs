@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using ArknightsMapViewer;
 
 namespace ArknightsMap
@@ -24,6 +25,7 @@ namespace ArknightsMap
                 }
             }
 
+            runes = rawLevelData.runes;
             routes = rawLevelData.routes;
             extraRoutes = rawLevelData.extraRoutes;
 
@@ -52,11 +54,37 @@ namespace ArknightsMap
 
         public Options options;
         public Tile[,] map;
+        public List<Rune> runes;
         public List<Route> routes;
         public List<Route> extraRoutes;
         public Dictionary<string, DbData> enemyDbRefs;
         public List<Wave> waves;
         public Dictionary<string, Branch> branches;
+
+        public override string ToString()
+        {
+            string text = "";
+
+            text += options.ToString();
+
+            if (runes != null)
+            {
+                text += "\nrunes:\n";
+                foreach (Rune rune in runes)
+                {
+                    text += rune.ToString();
+                }
+                text += "\n";
+            }
+
+            text += $"width: {map.GetLength(0)}\n";
+            text += $"height: {map.GetLength(1)}\n";
+            if (routes != null) text += $"routes: {routes.Count}\n";
+            if (waves != null) text += $"waves: {waves.Count}\n";
+            if (extraRoutes != null) text += $"extraRoutes: {extraRoutes.Count}\n";
+
+            return text;
+        }
     }
 
     [Serializable]
@@ -64,6 +92,7 @@ namespace ArknightsMap
     {
         public Options options;
         public MapData mapData;
+        public List<Rune> runes;
         public List<Route> routes;
         public List<Route> extraRoutes;
         public List<EnemyDbRef> enemyDbRefs;
@@ -88,12 +117,27 @@ namespace ArknightsMap
     }
 
     [Serializable]
+    public class Rune : IData
+    {
+        public string key;
+        public KeyValue[] blackboard;
+
+        public override string ToString()
+        {
+            string text = $"{key}: ";
+            StringHelper.AppendArrayDataString(ref text, null, blackboard);
+            return text;
+        }
+    }
+
+    [Serializable]
     public class MapData
     {
         public int[][] map;
         public List<Tile> tiles;
         public int width;
         public int height;
+        public string[] tags;
     }
 
     [Serializable]
@@ -127,6 +171,7 @@ namespace ArknightsMap
                 $"{nameof(passableMask)}: {passableMask}\n";
 
             StringHelper.AppendArrayDataString(ref text, nameof(blackboard), blackboard);
+            text += "\n";
 
             return text;
         }
@@ -391,6 +436,7 @@ namespace ArknightsMap
                     $"{nameof(spCost)}: {spCost}\n";
 
                 StringHelper.AppendArrayDataString(ref text, nameof(blackboard), blackboard);
+                text += "\n";
 
                 return text;
             }
@@ -438,6 +484,7 @@ namespace ArknightsMap
             if (enemyTags != null && enemyTags.m_defined)
             {
                 StringHelper.AppendArrayDataString(ref text, nameof(enemyTags), enemyTags.m_value);
+                text += "\n";
             }
 
             StringHelper.AppendDataString(ref text, nameof(lifePointReduce), lifePointReduce);
@@ -447,7 +494,9 @@ namespace ArknightsMap
             StringHelper.AppendDataString(ref text, nameof(viewRadius), viewRadius);
 
             StringHelper.AppendArrayDataString(ref text, nameof(talentBlackboard), talentBlackboard);
+            text += "\n";
             StringHelper.AppendArrayDataString(ref text, nameof(skills), skills);
+            text += "\n";
 
             if (spData != null)
             {
