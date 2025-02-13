@@ -560,9 +560,10 @@ namespace ArknightsMapViewer
             SpawnView spawnView = null;
             EnemySpawnView enemySpawnView = null;
             int routeSubIndex = -1;
-            checkBox1.Visible = false;
-            checkBox2.Visible = false;
-            checkBox3.Visible = false;
+
+            bool showCheckBox1 = false;
+            bool showCheckBox2 = false;
+            bool showCheckBox3 = false;
 
             while (treeNode != null)
             {
@@ -607,13 +608,13 @@ namespace ArknightsMapViewer
             }
             else if (enemySpawnView != null)
             {
-                checkBox3.Visible = true;
+                showCheckBox3 = true;
                 routeDrawer = enemySpawnView.RouteDrawer;
             }
 
             if (routeDrawer != null)
             {
-                checkBox2.Visible = true;
+                showCheckBox2 = true;
                 routeDrawer.ShowRouteLength = checkBox2.Checked;
                 if (routeSubIndex < 0)
                 {
@@ -621,7 +622,7 @@ namespace ArknightsMapViewer
                 }
                 else
                 {
-                    checkBox1.Visible = true;
+                    showCheckBox1 = true;
                     int checkPointIndex = routeSubIndex - 1;
                     int startIndex = checkBox1.Checked ? checkPointIndex : -1; //-1表示从startPosition开始
 
@@ -735,7 +736,9 @@ namespace ArknightsMapViewer
                         checkBox.CheckedChanged += (s, e) =>
                         {
                             spawnView.SpawnGroups[checkBox.Text] = checkBox.Checked;
+                            treeView1.BeginUpdate(); //避免修改节点Text时频繁触发treeView的Update
                             spawnView.UpdateNodes();
+                            treeView1.EndUpdate();
                             UpdateView();
                         };
                         flowLayoutPanel2.Controls.Add(checkBox);
@@ -744,6 +747,9 @@ namespace ArknightsMapViewer
                 }
             }
 
+            checkBox1.Visible = showCheckBox1;
+            checkBox2.Visible = showCheckBox2;
+            checkBox3.Visible = showCheckBox3;
             label1.Text = stringBuilder.ToString();
         }
 
