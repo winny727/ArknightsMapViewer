@@ -34,7 +34,6 @@ tile_yinyang_wall
 tile_smog
 tile_fence_bound
 tile_rcm_operator
-tile_bind
 tile_poison
 tile_volcano_emp
 tile_creepf
@@ -44,9 +43,6 @@ tile_magic_circle
 tile_rarope
 tile_merope
 tile_volspread
-tile_col_begin
-tile_col_end
-tile_col_end_2
 tile_corrosion_2
 tile_achand
 tile_acshop
@@ -54,7 +50,6 @@ tile_mire
 tile_reed
 tile_reedw
 tile_reedf
-tile_reed|tile_reedf|tile_reedw
 tile_stairs
 tile_passable_wall
 tile_passable_wall_forbidden
@@ -84,10 +79,6 @@ tile_flower
 tile_pollution_road
 tile_pollution_wall
 tile_pollution_roadf
-tile_col_begin_stage_2
-tile_col_end_stage_2
-tile_col_begin_stage_1
-tile_col_end_stage_1
 tile_xbdpsea
 tile_puddle
 tile_steam

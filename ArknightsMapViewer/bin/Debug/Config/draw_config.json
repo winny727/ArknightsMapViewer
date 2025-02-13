@@ -24,6 +24,10 @@
     "textColor": "#ffffff",
     "lineColor": "#ff0000",
     "circleColor": "#767676",
-    "lengthColor": "#00ff00"
+    "lengthColor": "#00ff00",
+    "defaultRoadColor": "#767676",
+    "defaultWallColor": "#bbbbbb",
+    "defaultFloorColor": "#343434",
+    "defaultForbiddenColor": "#161616"
   }
 }

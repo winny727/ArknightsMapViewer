@@ -56,7 +56,7 @@ class Program
         {
             Console.WriteLine($"Parsing File: {path}");
             string text = File.ReadAllText(path);
-            var matches = Regex.Matches(text, "\"(tile_.+?)\"");
+            var matches = Regex.Matches(text, "\"tileKey\": \"(.+?)\"");
             foreach (Match match in matches)
             {
                 string key = match.Groups[1].ToString();

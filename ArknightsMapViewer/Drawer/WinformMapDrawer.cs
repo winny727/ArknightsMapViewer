@@ -62,7 +62,30 @@ namespace ArknightsMapViewer
             }
             else
             {
-                MainForm.Instance.Log("Undefined TileColor: " + tile.tileKey, MainForm.LogType.Warning);
+                if (tile.heightType == HeightType.LOWLAND)
+                {
+                    if (tile.buildableType != BuildableType.NONE && tile.buildableType != BuildableType.E_NUM)
+                    {
+                        tileColor = GlobalDefine.DEFAULT_ROAD_COLOR;
+                    }
+                    else
+                    {
+                        tileColor = GlobalDefine.DEFAULT_FLOOR_COLOR;
+                    }
+                }
+                else if (tile.heightType == HeightType.HIGHLAND)
+                {
+                    if (tile.buildableType != BuildableType.NONE && tile.buildableType != BuildableType.E_NUM)
+                    {
+                        tileColor = GlobalDefine.DEFAULT_WALL_COLOR;
+                    }
+                    else
+                    {
+                        tileColor = GlobalDefine.DEFAULT_FORBIDDEN_COLOR;
+                    }
+                }
+
+                MainForm.Instance.Log("Undefined Tile: " + tile.tileKey, MainForm.LogType.Warning);
             }
 
             Bitmap bitmap = (Bitmap)PictureBox.BackgroundImage;

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using ArknightsMap;
+using Newtonsoft.Json.Linq;
 
 namespace ArknightsMapViewer
 {
@@ -42,6 +43,11 @@ namespace ArknightsMapViewer
             public string lineColor = "#ff0000";
             public string circleColor = "#767676";
             public string lengthColor = "#00ff00";
+
+            public string defaultRoadColor = "#767676";
+            public string defaultWallColor = "#bbbbbb";
+            public string defaultFloorColor = "#343434";
+            public string defaultForbiddenColor = "#161616";
         }
 
         public SizeConfig Size = new SizeConfig();
@@ -79,6 +85,11 @@ namespace ArknightsMapViewer
         public static Color LINE_COLOR = Color.Red;
         public static Color CIRCLE_COLOR = Color.FromArgb(255, 118, 118, 118);
         public static Color LENGTH_COLOR = Color.Green;
+
+        public static Color DEFAULT_ROAD_COLOR = ColorTranslator.FromHtml("#767676");
+        public static Color DEFAULT_WALL_COLOR = ColorTranslator.FromHtml("#bbbbbb");
+        public static Color DEFAULT_FLOOR_COLOR = ColorTranslator.FromHtml("#343434");
+        public static Color DEFAULT_FORBIDDEN_COLOR = ColorTranslator.FromHtml("#161616");
 
         //tileInfo
         public readonly static Dictionary<string, TileInfo> TileInfo = new Dictionary<string, TileInfo>();

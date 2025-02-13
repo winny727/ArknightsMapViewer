@@ -103,6 +103,7 @@ namespace ArknightsMap
         public HeightType heightType; //高台/地面
         public BuildableType buildableType; //可部署类型
         public PassableMask passableMask; //可通过类型
+        public KeyValue[] blackboard;
 
         public override string ToString()
         {
@@ -124,6 +125,8 @@ namespace ArknightsMap
                 $"{nameof(heightType)}: {heightType}\n" +
                 $"{nameof(buildableType)}: {buildableType}\n" +
                 $"{nameof(passableMask)}: {passableMask}\n";
+
+            StringHelper.AppendArrayDataString(ref text, nameof(blackboard), blackboard);
 
             return text;
         }
@@ -332,19 +335,6 @@ namespace ArknightsMap
         }
 
         [Serializable]
-        public class KeyValue : IData
-        {
-            public string key;
-            public float value;
-            public string valueStr;
-
-            public override string ToString()
-            {
-                return $"{key}: {valueStr ?? value.ToString()}";
-            }
-        }
-
-        [Serializable]
         public class Attribute : IData
         {
             public Data<int> maxHp;
@@ -523,6 +513,19 @@ namespace ArknightsMap
     }
 
     #region Enum
+
+    [Serializable]
+    public class KeyValue : IData
+    {
+        public string key;
+        public float value;
+        public string valueStr;
+
+        public override string ToString()
+        {
+            return $"{key}: {valueStr ?? value.ToString()}";
+        }
+    }
 
     public enum HeightType
     {

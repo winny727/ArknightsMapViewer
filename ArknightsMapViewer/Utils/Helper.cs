@@ -104,6 +104,10 @@ namespace ArknightsMapViewer
             GlobalDefine.LINE_COLOR = ColorTranslator.FromHtml(drawConfig.Color.lineColor);
             GlobalDefine.CIRCLE_COLOR = ColorTranslator.FromHtml(drawConfig.Color.circleColor);
             GlobalDefine.LENGTH_COLOR = ColorTranslator.FromHtml(drawConfig.Color.lengthColor);
+            GlobalDefine.DEFAULT_ROAD_COLOR = ColorTranslator.FromHtml(drawConfig.Color.defaultRoadColor);
+            GlobalDefine.DEFAULT_WALL_COLOR = ColorTranslator.FromHtml(drawConfig.Color.defaultWallColor);
+            GlobalDefine.DEFAULT_FLOOR_COLOR = ColorTranslator.FromHtml(drawConfig.Color.defaultFloorColor);
+            GlobalDefine.DEFAULT_FORBIDDEN_COLOR = ColorTranslator.FromHtml(drawConfig.Color.defaultForbiddenColor);
         }
 
         public static void InitTileInfoConfig()
@@ -127,6 +131,7 @@ namespace ArknightsMapViewer
                 return null;
             }
 
+            //注意tile_info.csv要保存为UTF-8格式的否则中文无法读取
             string path = Path.Combine(Directory.GetCurrentDirectory(), "Config", "tile_info.csv");
 
             try
