@@ -15,6 +15,7 @@ namespace ArknightsMapViewer
     {
         public static MainForm Instance { get; private set; }
         public string logText { get; private set; }
+        Dictionary<Control, RectangleF> controlsBoundScaled = new Dictionary<Control, RectangleF>();
 
         private LevelView curLevelView;
         private SpawnView curSpawnView;
@@ -24,11 +25,42 @@ namespace ArknightsMapViewer
         {
             Instance = this;
             InitializeComponent();
+            InitControlsBoundsScale();
         }
 
         ~MainForm()
         {
             Instance = null;
+        }
+
+        private void InitControlsBoundsScale()
+        {
+            controlsBoundScaled.Clear();
+            Control[] controls = new Control[] { tabControl1, flowLayoutPanel3, groupBox1 }; //要自动调整比例的控件
+
+            foreach (Control control in controls)
+            {
+                float x = (float)control.Left / ClientSize.Width;
+                float y = (float)control.Top / ClientSize.Height;
+                float width = (float)control.Width / ClientSize.Width;
+                float height = (float)control.Height / ClientSize.Height;
+                RectangleF rect = new RectangleF(x, y, width, height);
+                controlsBoundScaled.Add(control, rect);
+            }
+        }
+
+        private void MainForm_Resize(object sender, EventArgs e)
+        {
+            foreach (Control control in Controls)
+            {
+                if (controlsBoundScaled.TryGetValue(control, out RectangleF rect))
+                {
+                    control.Left = (int)(rect.X * ClientSize.Width);
+                    control.Top = (int)(rect.Y * ClientSize.Height);
+                    control.Width = (int)(rect.Width * ClientSize.Width);
+                    control.Height = (int)(rect.Height * ClientSize.Height);
+                }
+            }
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -491,38 +523,15 @@ namespace ArknightsMapViewer
             {
                 if (treeNode.Level == 0)
                 {
-                    if (levelView == null)
-                    {
-                        levelView = treeNode.Tag as LevelView;
-                    }
+                    levelView ??= treeNode.Tag as LevelView;
                 }
                 else
                 {
-                    if (routeView == null)
-                    {
-                        routeView = treeNode.Tag as RouteView;
-                    }
-                    if (routeSubIndex < 0 && treeNode.Parent.Tag is RouteView)
-                    {
-                        routeSubIndex = treeNode.Index;
-                    }
-                    if (spawnActionView == null)
-                    {
-                        spawnActionView = treeNode.Tag as SpawnActionView;
-                    }
-                    if (spawnView == null)
-                    {
-                        spawnView = treeNode.Tag as SpawnView;
-                    }
-                    if (enemySpawnView == null)
-                    {
-                        enemySpawnView = treeNode.Tag as EnemySpawnView;
-                        if (enemySpawnView != null)
-                        {
-                            spawnView = treeNode.Parent.Tag as SpawnView;
-                        }
-                    }
-                    if (routeSubIndex < 0 && (treeNode.Parent.Tag is RouteView) || (treeNode.Parent.Tag is EnemySpawnView))
+                    routeView ??= treeNode.Tag as RouteView;
+                    spawnActionView ??= treeNode.Tag as SpawnActionView;
+                    spawnView ??= treeNode.Tag as SpawnView;
+                    enemySpawnView ??= treeNode.Tag as EnemySpawnView;
+                    if (routeSubIndex < 0 && (treeNode.Parent.Tag is RouteView || treeNode.Parent.Tag is EnemySpawnView))
                     {
                         routeSubIndex = treeNode.Index;
                     }
@@ -805,6 +814,7 @@ namespace ArknightsMapViewer
                 Directory.CreateDirectory(path);
             }
 
+            bool saved = false;
             bool backGroundSaved = false;
             void ForEachRouteNode(TreeNode treeNode)
             {
@@ -813,30 +823,43 @@ namespace ArknightsMapViewer
                     return;
                 }
 
+                int routeIndex = -1;
                 if (treeNode.Tag is RouteView routeView)
+                {
+                    routeIndex = routeView.RouteIndex;
+                }
+                else if (treeNode.Tag is EnemySpawnView enemySpawnView)
+                {
+                    routeIndex = enemySpawnView.RouteIndex;
+                }
+
+                if (routeIndex >= 0)
                 {
                     treeView1.SelectedNode = treeNode;
                     UpdateView();
 
-                    if (saveBackground && !backGroundSaved)
+                    if (saveBackground && !backGroundSaved && pictureBox1.BackgroundImage != null)
                     {
                         string fullPath = Path.Combine(path, $"{curLevelView.Name}_Background.png");
                         pictureBox1.BackgroundImage.Save(fullPath, ImageFormat.Png);
+                        saved = true;
                         backGroundSaved = true;
                     }
 
-                    if (saveRoute)
+                    if (saveRoute && pictureBox1.Image != null)
                     {
-                        string fullPath = Path.Combine(path, $"{curLevelView.Name}_{treeNode.Parent.Text}_R{routeView.RouteIndex}.png");
+                        string fullPath = Path.Combine(path, $"{curLevelView.Name}_{treeNode.Parent.Text}_R{treeNode.Index}.png");
                         pictureBox1.Image.Save(fullPath, ImageFormat.Png);
+                        saved = true;
                     }
 
                     if (saveFull)
                     {
-                        string fullPath = Path.Combine(path, $"{curLevelView.Name}_{treeNode.Parent.Text}_F{routeView.RouteIndex}.png");
+                        string fullPath = Path.Combine(path, $"{curLevelView.Name}_{treeNode.Parent.Text}_F{treeNode.Index}.png");
                         Bitmap bitmap = new Bitmap(pictureBox1.Width, pictureBox1.Height);
                         pictureBox1.DrawToBitmap(bitmap, new Rectangle(0, 0, pictureBox1.Width, pictureBox1.Height));
                         bitmap.Save(fullPath, ImageFormat.Png);
+                        saved = true;
                     }
                 }
 
@@ -852,7 +875,11 @@ namespace ArknightsMapViewer
             treeView1.SelectedNode = selectedNode;
             UpdateView();
 
-            MessageBox.Show("Export Image Completed.");
+            if (saved)
+            {
+                MessageBox.Show("Export Image Completed.");
+                Process.Start(path);
+            }
         }
     }
 }

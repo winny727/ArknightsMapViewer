@@ -113,8 +113,7 @@ namespace ArknightsMap
             {
                 text +=
                     $"\n{nameof(tileInfo.name)}: {tileInfo.name}\n" +
-                    $"{nameof(tileInfo.description)}: {tileInfo.description}\n" +
-                    $"{nameof(tileInfo.isFunctional)}: {tileInfo.isFunctional}\n";
+                    $"{nameof(tileInfo.description)}: {tileInfo.description}\n";
             }
             else
             {

@@ -9,13 +9,13 @@ namespace ArknightsMap
         public DbData EnemyData { get; set; }
 
         public float SpawnTime { get; set; }
-        public float TotalSpawnIndex { get; set; }
+        public int TotalSpawnIndex { get; set; }
         public Route Route { get; set; }
-        public float RouteIndex { get; set; }
+        public int RouteIndex { get; set; }
 
         public int TotalWave { get; set; }
         public int WaveIndex { get; set; }
-        public float SpawnIndexInWave { get; set; }
+        public int SpawnIndexInWave { get; set; }
 
         public string HiddenGroup { get; set; } //Filter
         public string RandomSpawnGroupKey { get; set; } //Filter

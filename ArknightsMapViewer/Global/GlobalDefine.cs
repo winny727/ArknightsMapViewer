@@ -55,7 +55,6 @@ namespace ArknightsMapViewer
         public string tileKey;
         public string name;
         public string description;
-        public bool isFunctional;
         public Color? tileColor;
         public string tileText;
         public Color? textColor;

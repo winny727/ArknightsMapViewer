@@ -143,7 +143,6 @@ namespace ArknightsMapViewer
                                 tileKey = tileKey,
                                 name = line["name"],
                                 description = line["description"],
-                                isFunctional = Convert.ToBoolean(line["isFunctional"]),
                                 tileColor = ParseColor(line["tileColor"]),
                                 tileText = line["tileText"],
                                 textColor = ParseColor(line["textColor"]),
