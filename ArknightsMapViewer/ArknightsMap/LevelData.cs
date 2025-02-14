@@ -101,7 +101,7 @@ namespace ArknightsMap
         public Dictionary<string, Branch> branches;
         public Predefine predefines;
 
-        //TODO predefines & ACTIVATE_PREDEFINED, SpawnList中新增勾选框，是否包含预设，是否同时显示所有预设ActivatePredefinedView
+        //TODO SpawnList中显示装置刷新相关信息，并且插入到随机分组中
     }
 
     [Serializable]
@@ -595,7 +595,17 @@ namespace ArknightsMap
 
         public override string ToString()
         {
-            return StringHelper.GetObjFieldValueString(this);
+            string text = $"{nameof(name)}: {name}";
+            if (!string.IsNullOrEmpty(appellation))
+            {
+                text += $" ({appellation})";
+            }
+            if (!string.IsNullOrEmpty(description))
+            {
+                text += $"\n{nameof(description)}: {description}";
+            }
+            text += "\n";
+            return text;
         }
     }
 
