@@ -51,10 +51,22 @@ namespace ArknightsMapViewer
             FillCircle(bitmap, origin, width, color);
         }
 
-        public static void DrawString(Bitmap bitmap, string text, Rectangle rectangle, Font font, Color? color = null, TextFormatFlags textFormatFlags = TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter)
+        //public static void DrawString(Bitmap bitmap, string text, Rectangle rectangle, Font font, Color? color = null, TextFormatFlags textFormatFlags = TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter)
+        //{
+        //    using Graphics graphics = GetGraphics(bitmap);
+        //    TextRenderer.DrawText(graphics, text, font, rectangle, color ?? Color.Black, textFormatFlags); //单词绘制耗时3ms，较高
+        //}
+
+        public static void DrawString(Bitmap bitmap, string text, Rectangle rectangle, Font font, Color? color = null, StringFormat format = null)
         {
             using Graphics graphics = GetGraphics(bitmap);
-            TextRenderer.DrawText(graphics, text, font, rectangle, color ?? Color.Black, textFormatFlags);
+            using Brush brush = GetBrush(color);
+            format ??= new StringFormat
+            {
+                Alignment = StringAlignment.Center,
+                LineAlignment = StringAlignment.Center,
+            };
+            graphics.DrawString(text, font, brush, rectangle, format);
         }
 
         private static Graphics GetGraphics(Bitmap bitmap)

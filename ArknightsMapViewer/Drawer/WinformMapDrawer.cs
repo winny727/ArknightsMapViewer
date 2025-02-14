@@ -14,6 +14,12 @@ namespace ArknightsMapViewer
         public int MapWidth { get; private set; }
         public int MapHeight { get; private set; }
 
+        private readonly StringFormat stringFormat = new StringFormat
+        {
+            Alignment = StringAlignment.Far,
+            LineAlignment = StringAlignment.Far,
+        };
+
         public WinformMapDrawer(PictureBox pictureBox, Tile[,] map)
         {
             PictureBox = pictureBox;
@@ -105,7 +111,7 @@ namespace ArknightsMapViewer
 
             //Draw Index
             string indexText = GetIndexText(colIndex, rowIndex);
-            DrawUtil.DrawString(bitmap, indexText, rectangle, GlobalDefine.INDEX_FONT, GlobalDefine.TEXT_COLOR, TextFormatFlags.Right | TextFormatFlags.Bottom);
+            DrawUtil.DrawString(bitmap, indexText, rectangle, GlobalDefine.INDEX_FONT, GlobalDefine.TEXT_COLOR, stringFormat);
         }
 
         private string GetIndexText(int colIndex, int rowIndex)

@@ -701,7 +701,6 @@ namespace ArknightsMapViewer
 
         private void UpdatePredefine(TreeNode predefineRootNode, IDrawerView<IPredefineDrawer> predefineDrawerView)
         {
-            bool showCheckBox4 = false;
             bool showCheckBox5 = false;
 
             foreach (var item in mapPredefines)
@@ -710,7 +709,7 @@ namespace ArknightsMapViewer
             }
 
             IPredefineDrawer predefineDrawer = predefineDrawerView?.GetDrawer();
-            if (predefineDrawer != null)
+            if (predefineDrawer != null && !checkBox4.Checked)
             {
                 predefineDrawer.DrawPredefine();
                 predefineDrawer.RefreshCanvas();
@@ -726,36 +725,32 @@ namespace ArknightsMapViewer
                     mapPredefines[predefineDrawer.Predefine.position].Add(data);
                 }
             }
-            else
+            else if (predefineRootNode != null && checkBox4.Checked)
             {
-                showCheckBox4 = predefineRootNode != null && predefineRootNode.Nodes.Count > 0;
-                if (predefineRootNode != null && checkBox4.Checked)
+                foreach (TreeNode predefineNode in predefineRootNode.Nodes)
                 {
-                    foreach (TreeNode predefineNode in predefineRootNode.Nodes)
+                    if (predefineNode.Tag is PredefineView predefineView)
                     {
-                        if (predefineNode.Tag is PredefineView predefineView)
+                        if (predefineView.Predefine.hidden)
                         {
-                            if (predefineView.Predefine.hidden)
-                            {
-                                showCheckBox5 = true;
-                            }
-                            if (checkBox5.Checked || !predefineView.Predefine.hidden)
-                            {
-                                predefineView.PredefineDrawer?.DrawPredefine();
+                            showCheckBox5 = true;
+                        }
+                        if (checkBox5.Checked || !predefineView.Predefine.hidden)
+                        {
+                            predefineView.PredefineDrawer?.DrawPredefine();
 
-                                if (!mapPredefines.ContainsKey(predefineView.Predefine.position))
-                                {
-                                    mapPredefines.Add(predefineView.Predefine.position, new List<IData>());
-                                }
-                                mapPredefines[predefineView.Predefine.position].Add(predefineView);
+                            if (!mapPredefines.ContainsKey(predefineView.Predefine.position))
+                            {
+                                mapPredefines.Add(predefineView.Predefine.position, new List<IData>());
                             }
+                            mapPredefines[predefineView.Predefine.position].Add(predefineView);
                         }
                     }
-                    pictureBox1.Refresh();
                 }
+                pictureBox1.Refresh();
             }
 
-            checkBox4.Visible = showCheckBox4;
+            checkBox4.Visible = predefineRootNode != null && predefineRootNode.Nodes.Count > 0;
             checkBox5.Visible = showCheckBox5;
         }
 
