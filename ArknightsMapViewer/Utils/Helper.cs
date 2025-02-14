@@ -87,11 +87,14 @@ namespace ArknightsMapViewer
                 }
             }
 
-            GlobalDefine.TILE_PIXLE = drawConfig.Size.tilePixle;
-            GlobalDefine.LINE_WIDTH = drawConfig.Size.lineWidth;
-            GlobalDefine.CIRCLE_EDGE_WIDTH = drawConfig.Size.circleEdgeWidth;
-            GlobalDefine.CIRCLE_RADIUS = drawConfig.Size.circleRadius;
-            GlobalDefine.POINT_RADIUS = drawConfig.Size.pointRadius;
+            Graphics g = Graphics.FromHwnd(IntPtr.Zero);
+            float dpi = g.DpiX * 0.01f;
+
+            GlobalDefine.TILE_PIXLE = (int)(drawConfig.Size.tilePixle * dpi);
+            GlobalDefine.LINE_WIDTH = (int)(drawConfig.Size.lineWidth * dpi);
+            GlobalDefine.CIRCLE_EDGE_WIDTH = (int)(drawConfig.Size.circleEdgeWidth * dpi);
+            GlobalDefine.CIRCLE_RADIUS = (int)(drawConfig.Size.circleRadius * dpi);
+            GlobalDefine.POINT_RADIUS = (int)(drawConfig.Size.pointRadius * dpi);
 
             Enum.TryParse(drawConfig.Font.textFontStyle, out FontStyle textFontStyle);
             Enum.TryParse(drawConfig.Font.indexFontStyle, out FontStyle indexFontStyle);

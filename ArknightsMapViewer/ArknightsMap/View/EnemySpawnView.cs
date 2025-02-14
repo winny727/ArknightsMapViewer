@@ -94,7 +94,7 @@ namespace ArknightsMap
             }
             if (Weight > 0)
             {
-                text += $" {Weight}%";
+                text += $" w:{Weight}";
             }
             return text;
         }
