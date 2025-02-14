@@ -885,6 +885,7 @@ namespace ArknightsMapViewer
                         {
                             Text = item.Key,
                             Checked = item.Value,
+                            AutoSize = true
                         };
                         checkBox.CheckedChanged += (s, e) =>
                         {
