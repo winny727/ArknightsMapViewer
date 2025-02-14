@@ -9,7 +9,11 @@ namespace ArknightsMap
             string text = "";
             foreach (FieldInfo field in obj.GetType().GetFields())
             {
-                text += $"{field.Name}: {field.GetValue(obj)}\n";
+                object val = field.GetValue(obj);
+                if (val != null)
+                {
+                    text += $"{field.Name}: {val}\n";
+                }
             }
             return text;
         }

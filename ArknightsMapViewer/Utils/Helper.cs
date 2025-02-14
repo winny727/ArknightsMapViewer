@@ -5,6 +5,8 @@ using ArknightsMap;
 using System.Drawing;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Text.RegularExpressions;
+using System.Text;
 
 namespace ArknightsMapViewer
 {
@@ -219,6 +221,83 @@ namespace ArknightsMapViewer
                 string errorMsg = $"enemy_database.json Parse Error, {ex.Message}";
                 MainForm.Instance.Log(errorMsg, MainForm.LogType.Error);
             }
+        }
+
+        public static void InitTrapDatabase()
+        {
+            string path = Path.Combine(Directory.GetCurrentDirectory(), "Config", "character_table.json");
+            if (!File.Exists(path))
+            {
+                return;
+            }
+
+            try
+            {
+                string json = File.ReadAllText(path);
+                var charcterDatabase = JsonConvert.DeserializeObject<Dictionary<string, JObject>>(json);
+                if (charcterDatabase != null)
+                {
+                    foreach (var item in charcterDatabase)
+                    {
+                        string key = item.Key;
+                        JObject data = item.Value;
+
+                        if (data["profession"]?.ToString() == "TRAP")
+                        {
+                            TrapData trapData = new TrapData()
+                            {
+                                name = data["name"]?.ToString(),
+                                description = data["description"]?.ToString(),
+                                appellation = data["appellation"]?.ToString(),
+                            };
+
+                            if (!string.IsNullOrEmpty(key) && !GlobalDefine.TrapDBData.ContainsKey(key))
+                            {
+                                GlobalDefine.TrapDBData.Add(key, trapData);
+                            }
+                            else
+                            {
+                                string errorMsg = $"character_table.json Parse Error, ErrorKey: {key}";
+                                MainForm.Instance.Log(errorMsg, MainForm.LogType.Warning);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                string errorMsg = $"character_table.json Parse Error, {ex.Message}";
+                MainForm.Instance.Log(errorMsg, MainForm.LogType.Error);
+            }
+        }
+
+        /// <summary>
+        /// 获取缩写
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static string GetAbbreviation(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return string.Empty;
+
+            // 使用正则表达式分割所有空白字符
+            string[] words = Regex.Split(input.Trim(), @"\s+");
+            StringBuilder abbreviation = new StringBuilder();
+
+            foreach (string word in words)
+            {
+                foreach (char c in word)
+                {
+                    if (char.IsLetter(c))
+                    {
+                        abbreviation.Append(char.ToUpper(c));
+                        break; // 只取第一个字母字符
+                    }
+                }
+            }
+
+            return abbreviation.ToString();
         }
 
         public static bool[,] GetIsBarrierArray(LevelData levelData)

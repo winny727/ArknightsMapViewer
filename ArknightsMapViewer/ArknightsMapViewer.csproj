@@ -72,14 +72,21 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArknightsMap\Interface\IData.cs" />
+    <Compile Include="ArknightsMap\Interface\IDataView.cs" />
+    <Compile Include="ArknightsMap\Interface\IDrawerView.cs" />
     <Compile Include="ArknightsMap\Interface\IMapDrawer.cs" />
     <Compile Include="ArknightsMap\Interface\IDrawer.cs" />
+    <Compile Include="ArknightsMap\Interface\IPredefineDrawer.cs" />
     <Compile Include="ArknightsMap\Interface\IRouteDrawer.cs" />
     <Compile Include="ArknightsMap\StringHelper.cs" />
+    <Compile Include="ArknightsMap\View\ActionView\ActionView.cs" />
     <Compile Include="ArknightsMap\View\EnemySpawnView.cs" />
-    <Compile Include="ArknightsMap\View\SpawnActionView.cs" />
+    <Compile Include="ArknightsMap\View\ActionView\PredefineActionView.cs" />
+    <Compile Include="ArknightsMap\View\RouteView.cs" />
+    <Compile Include="ArknightsMap\View\ActionView\SpawnActionView.cs" />
     <Compile Include="ArknightsMap\View\SpawnView.cs" />
     <Compile Include="Drawer\WinformMapDrawer.cs" />
+    <Compile Include="Drawer\WinformRouteDrawer.cs" />
     <Compile Include="LogForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -99,7 +106,7 @@
     <Compile Include="ArknightsMap\LevelReader.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Drawer\WinformRouteDrawer.cs" />
+    <Compile Include="Drawer\WinformPredefineDrawer.cs" />
     <Compile Include="Utils\PathFinding.cs" />
     <Compile Include="Utils\TableReader.cs" />
     <Compile Include="Utils\TreeViewExt.cs">
@@ -107,7 +114,7 @@
     </Compile>
     <Compile Include="Utils\TypeUtility.cs" />
     <Compile Include="Utils\Vector2.cs" />
-    <Compile Include="ArknightsMap\View\RouteView.cs" />
+    <Compile Include="ArknightsMap\View\PredefineView.cs" />
     <Compile Include="ArknightsMap\View\LevelView.cs" />
     <EmbeddedResource Include="LogForm.resx">
       <DependentUpon>LogForm.cs</DependentUpon>

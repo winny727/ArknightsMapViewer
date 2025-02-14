@@ -69,6 +69,7 @@ namespace ArknightsMapViewer
             Helper.InitDrawConfig();
             Helper.InitTileInfoConfig();
             Helper.InitEnemyDatabase();
+            Helper.InitTrapDatabase();
             UpdateView();
 
             string[] latestFilePath = Helper.LoadLatestFilePath();
@@ -393,50 +394,72 @@ namespace ArknightsMapViewer
                         {
                             Action action = fragment.actions[k];
                             TreeNode actionNode = fragmentNode.Nodes.Add($"action #{k} {action.ToSimpleString()}");
-                            if (action.actionType == ActionType.SPAWN && levelData.routes != null && action.routeIndex >= 0 && action.routeIndex < levelData.routes.Count)
+                            if (action.actionType == ActionType.SPAWN)
                             {
-                                Route route = levelData.routes[action.routeIndex];
-                                IRouteDrawer routeDrawer = WinformRouteDrawer.Create(pictureBox1, route, pathFinding, mapWidth, mapHeight);
-                                actionNode.Tag = new SpawnActionView()
+                                if (levelData.routes != null && action.routeIndex >= 0 && action.routeIndex < levelData.routes.Count)
                                 {
-                                    SpawnAction = action,
-                                    IsExtraRoute = false,
-                                    RouteDrawer = routeDrawer,
-                                };
-
-                                for (int n = 0; n < action.count; n++)
-                                {
-                                    levelData.enemyDbRefs.TryGetValue(action.key, out DbData enemyData);
-                                    EnemySpawnView enemySpawnView = new EnemySpawnView()
+                                    Route route = levelData.routes[action.routeIndex];
+                                    IRouteDrawer routeDrawer = WinformRouteDrawer.Create(pictureBox1, route, pathFinding, mapWidth, mapHeight);
+                                    actionNode.Tag = new SpawnActionView()
                                     {
-                                        EnemyKey = action.key,
-                                        EnemyData = enemyData,
-                                        SpawnTime = spawnTime + action.preDelay + n * action.interval,
-                                        TotalSpawnIndex = spawnIndex,
-                                        Route = route,
-                                        RouteIndex = action.routeIndex,
-                                        TotalWave = levelData.waves.Count,
-                                        WaveIndex = i,
-                                        SpawnIndexInWave = waveSpawnIndex,
-                                        HiddenGroup = action.hiddenGroup,
-                                        RandomSpawnGroupKey = action.randomSpawnGroupKey,
-                                        RandomSpawnGroupPackKey = action.randomSpawnGroupPackKey,
-                                        Weight = action.weight,
-                                        BlockFragment = action.blockFragment,
-                                        BlockWave = !action.dontBlockWave,
-                                        MaxTimeWaitingForNextWave = wave.maxTimeWaitingForNextWave,
-                                        RouteDrawer = routeDrawer,
+                                        Action = action,
+                                        Drawer = routeDrawer,
+                                        IsExtraRoute = false,
                                     };
-                                    enemySpawnViews.Add(enemySpawnView);
 
-                                    if (enemySpawnView.SpawnTime > fragmentSpawnTime)
+                                    for (int n = 0; n < action.count; n++)
                                     {
-                                        fragmentSpawnTime = enemySpawnView.SpawnTime;
+                                        levelData.enemyDbRefs.TryGetValue(action.key, out DbData enemyData);
+                                        EnemySpawnView enemySpawnView = new EnemySpawnView()
+                                        {
+                                            EnemyKey = action.key,
+                                            EnemyData = enemyData,
+                                            SpawnTime = spawnTime + action.preDelay + n * action.interval,
+                                            TotalSpawnIndex = spawnIndex,
+                                            Route = route,
+                                            RouteIndex = action.routeIndex,
+                                            TotalWave = levelData.waves.Count,
+                                            WaveIndex = i,
+                                            SpawnIndexInWave = waveSpawnIndex,
+                                            HiddenGroup = action.hiddenGroup,
+                                            RandomSpawnGroupKey = action.randomSpawnGroupKey,
+                                            RandomSpawnGroupPackKey = action.randomSpawnGroupPackKey,
+                                            Weight = action.weight,
+                                            BlockFragment = action.blockFragment,
+                                            BlockWave = !action.dontBlockWave,
+                                            MaxTimeWaitingForNextWave = wave.maxTimeWaitingForNextWave,
+                                            RouteDrawer = routeDrawer,
+                                        };
+                                        enemySpawnViews.Add(enemySpawnView);
+
+                                        if (enemySpawnView.SpawnTime > fragmentSpawnTime)
+                                        {
+                                            fragmentSpawnTime = enemySpawnView.SpawnTime;
+                                        }
                                     }
                                 }
 
                                 waveSpawnIndex++;
                                 spawnIndex++;
+                            }
+                            else if (action.actionType == ActionType.ACTIVATE_PREDEFINED)
+                            {
+                                if (levelData.predefines != null)
+                                {
+                                    Predefine.PredefineInst predefine =
+                                        levelData.predefines.tokenInsts?.Find(x => (x.alias ?? x.inst.characterKey) == action.key) ??
+                                        levelData.predefines.characterInsts?.Find(x => (x.alias ?? x.inst.characterKey) == action.key);
+
+                                    if (predefine != null)
+                                    {
+                                        IPredefineDrawer predefineDrawer = new WinformPredefineDrawer(pictureBox1, predefine, mapWidth, mapHeight);
+                                        actionNode.Tag = new PredefineActionView()
+                                        {
+                                            Action = action,
+                                            Drawer = predefineDrawer,
+                                        };
+                                    }
+                                }
                             }
                             else
                             {
@@ -472,9 +495,9 @@ namespace ArknightsMapViewer
                             {
                                 actionNode.Tag = new SpawnActionView()
                                 {
-                                    SpawnAction = action,
+                                    Action = action,
+                                    Drawer = WinformRouteDrawer.Create(pictureBox1, levelData.extraRoutes[action.routeIndex], pathFinding, mapWidth, mapHeight),
                                     IsExtraRoute = true,
-                                    RouteDrawer = WinformRouteDrawer.Create(pictureBox1, levelData.extraRoutes[action.routeIndex], pathFinding, mapWidth, mapHeight),
                                 };
                             }
                             else
@@ -484,6 +507,24 @@ namespace ArknightsMapViewer
                         }
                     }
                 }
+            }
+
+            //AddTrapList
+            if (levelData.predefines != null && levelData.predefines.tokenInsts != null)
+            {
+                TreeNode tokensNode = rootNode.Nodes.Add("traps");
+                for (int i = 0; i < levelData.predefines.tokenInsts.Count; i++)
+                {
+                    Predefine.PredefineInst predefine = levelData.predefines.tokenInsts[i];
+                    TreeNode predefineNode = tokensNode.Nodes.Add($"trap #{i} {predefine.alias ?? predefine.inst.characterKey}");
+                    predefineNode.Tag = new PredefineView()
+                    {
+                        Predefine = predefine,
+                        PredefineDrawer = new WinformPredefineDrawer(pictureBox1, predefine, mapWidth, mapHeight),
+                    };
+                }
+
+
             }
 
             //AddSpawnList
@@ -551,20 +592,16 @@ namespace ArknightsMapViewer
                 return;
             }
 
-            TreeNode treeNode = treeView1.SelectedNode;
-
-            StringBuilder stringBuilder = new StringBuilder();
             LevelView levelView = null;
-            RouteView routeView = null;
             SpawnActionView spawnActionView = null;
             SpawnView spawnView = null;
             EnemySpawnView enemySpawnView = null;
             int routeSubIndex = -1;
 
-            bool showCheckBox1 = false;
-            bool showCheckBox2 = false;
-            bool showCheckBox3 = false;
+            IRouteDrawer routeDrawer = null;
+            IPredefineDrawer predefineDrawer = null;
 
+            TreeNode treeNode = treeView1.SelectedNode;
             while (treeNode != null)
             {
                 if (treeNode.Level == 0)
@@ -573,11 +610,13 @@ namespace ArknightsMapViewer
                 }
                 else
                 {
-                    routeView ??= treeNode.Tag as RouteView;
                     spawnActionView ??= treeNode.Tag as SpawnActionView;
                     spawnView ??= treeNode.Tag as SpawnView;
                     enemySpawnView ??= treeNode.Tag as EnemySpawnView;
-                    if (routeSubIndex < 0 && (treeNode.Parent.Tag is RouteView || treeNode.Parent.Tag is EnemySpawnView))
+                    routeDrawer ??= (treeNode.Tag as IDrawerView<IRouteDrawer>)?.GetDrawer();
+                    predefineDrawer ??= (treeNode.Tag as IDrawerView<IPredefineDrawer>)?.GetDrawer();
+
+                    if (routeSubIndex < 0 && (treeNode.Parent.Tag is IDataView<Route>))
                     {
                         routeSubIndex = treeNode.Index;
                     }
@@ -586,31 +625,70 @@ namespace ArknightsMapViewer
                 treeNode = treeNode.Parent;
             }
 
+            UpdateLevelView(levelView);
+            ClearCanvas();
+            UpdatePredefine(predefineDrawer);
+            UpdateRoute(routeDrawer, routeSubIndex);
+            UpdateLabelInfo(routeSubIndex);
+            UpdateGroupCheckBoxes(spawnView);
+
+            checkBox3.Visible = enemySpawnView != null;
+        }
+
+        private void UpdateLevelView(LevelView levelView)
+        {
             if (curLevelView != levelView)
             {
                 curLevelView = levelView;
                 pictureBox1.BackgroundImage?.Dispose();
                 pictureBox1.BackgroundImage = null;
-                levelView?.MapDrawer?.DrawMap();
+                curLevelView?.MapDrawer?.DrawMap();
             }
+        }
 
+        private void ClearCanvas()
+        {
             pictureBox1.Image?.Dispose();
             pictureBox1.Image = null;
 
-            IRouteDrawer routeDrawer = null;
-            if (routeView != null)
+            if (pictureBox1.BackgroundImage != null)
             {
-                routeDrawer = routeView.RouteDrawer;
+                pictureBox1.Image = new Bitmap(pictureBox1.BackgroundImage.Width, pictureBox1.BackgroundImage.Height);
             }
-            else if (spawnActionView != null)
+        }
+
+        private void UpdatePredefine(IPredefineDrawer predefineDrawer)
+        {
+            bool showCheckBox4 = false;
+            if (treeView1.SelectedNode != null)
             {
-                routeDrawer = spawnActionView.RouteDrawer;
+                foreach (TreeNode predefineNode in treeView1.SelectedNode.Nodes)
+                {
+                    if (predefineNode.Tag is PredefineView predefineView)
+                    {
+                        showCheckBox4 = true;
+                        if (checkBox4.Checked || !predefineView.Predefine.hidden)
+                        {
+                            predefineView.PredefineDrawer?.DrawPredefine();
+                        }
+                    }
+                }
+                pictureBox1.Refresh();
             }
-            else if (enemySpawnView != null)
+
+            if (predefineDrawer != null)
             {
-                showCheckBox3 = true;
-                routeDrawer = enemySpawnView.RouteDrawer;
+                predefineDrawer.DrawPredefine();
+                predefineDrawer.RefreshCanvas();
             }
+
+            checkBox4.Visible = showCheckBox4;
+        }
+
+        private void UpdateRoute(IRouteDrawer routeDrawer, int routeSubIndex)
+        {
+            bool showCheckBox1 = false;
+            bool showCheckBox2 = false;
 
             if (routeDrawer != null)
             {
@@ -626,7 +704,6 @@ namespace ArknightsMapViewer
                     int checkPointIndex = routeSubIndex - 1;
                     int startIndex = checkBox1.Checked ? checkPointIndex : -1; //-1表示从startPosition开始
 
-                    routeDrawer.InitCanvas();
                     for (int i = startIndex; i <= checkPointIndex; i++)
                     {
                         routeDrawer.DrawMoveLine(i);
@@ -639,87 +716,86 @@ namespace ArknightsMapViewer
                 }
             }
 
-            void AppendCheckPointsInfo(Route route)
-            {
-                if (route == null)
-                {
-                    return;
-                }
+            checkBox1.Visible = showCheckBox1;
+            checkBox2.Visible = showCheckBox2;
+        }
 
-                int checkPointIndex = routeSubIndex - 1;
-                if (checkPointIndex < 0)
-                {
-                    stringBuilder.AppendLine($"startPosition: {route.startPosition}");
-                    stringBuilder.AppendLine($"spawnOffset: {route.spawnOffset}");
-                    stringBuilder.AppendLine($"spawnRandomRange: {route.spawnRandomRange}");
-                }
-                else if (checkPointIndex < route.checkPoints.Count)
-                {
-                    CheckPoint checkPoint = route.checkPoints[checkPointIndex];
-                    stringBuilder.AppendLine($"checkPoint #{checkPointIndex}");
-                    stringBuilder.AppendLine(checkPoint.ToString());
-                }
-                else
-                {
-                    stringBuilder.AppendLine($"endPosition: {route.endPosition}");
-                }
-            }
+        private void UpdateLabelInfo(int routeSubIndex)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
 
-            //Info
-            IData data = treeView1.SelectedNode?.Tag as IData;
-            if (levelView != null && routeView == null && spawnActionView == null && data == null)
+            TreeNode treeNode = treeView1.SelectedNode;
+            while (treeNode != null)
             {
-                LevelData levelData = levelView.LevelData;
-                stringBuilder.AppendLine($"[{levelView.Name}]");
-                stringBuilder.AppendLine(levelData.ToString());
-            }
-            else if (routeView != null)
-            {
-                Route route = routeView.Route;
-                stringBuilder.AppendLine($"[{treeView1.SelectedNode.Text}]");
-                if (routeSubIndex < 0)
+                if (treeNode.Tag is IDataView<Route> routeDataView)
                 {
-                    if (route != null)
+                    Route route = routeDataView?.GetData();
+                    stringBuilder.AppendLine($"[{treeView1.SelectedNode.Text}]");
+                    if (routeSubIndex < 0)
                     {
-                        stringBuilder.AppendLine(route.ToString());
+                        if (routeDataView is EnemySpawnView enemySpawnView)
+                        {
+                            stringBuilder.AppendLine(enemySpawnView.ToString(checkBox3.Checked));
+                            break;
+
+                        }
+                        else if (route != null)
+                        {
+                            stringBuilder.AppendLine(route.ToString());
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        int checkPointIndex = routeSubIndex - 1;
+                        if (checkPointIndex < 0)
+                        {
+                            stringBuilder.AppendLine($"startPosition: {route.startPosition}");
+                            stringBuilder.AppendLine($"spawnOffset: {route.spawnOffset}");
+                            stringBuilder.AppendLine($"spawnRandomRange: {route.spawnRandomRange}");
+                        }
+                        else if (checkPointIndex < route.checkPoints.Count)
+                        {
+                            CheckPoint checkPoint = route.checkPoints[checkPointIndex];
+                            stringBuilder.AppendLine($"checkPoint #{checkPointIndex}");
+                            stringBuilder.AppendLine(checkPoint.ToString());
+                        }
+                        else
+                        {
+                            stringBuilder.AppendLine($"endPosition: {route.endPosition}");
+                        }
+                        break;
                     }
                 }
-                else
-                {
-                    AppendCheckPointsInfo(route);
-                }
-            }
-            else if (spawnActionView != null)
-            {
-                Action action = spawnActionView.SpawnAction;
-                stringBuilder.AppendLine($"[{treeView1.SelectedNode.Text}]");
 
-                string text = action.ToString();
-                if (spawnActionView.IsExtraRoute)
+                IData data = treeNode.Tag as IData ?? (IData)((treeNode.Tag as ActionView)?.Action) ?? (IData)((treeNode.Tag as PredefineView)?.Predefine);
+                if (data != null)
                 {
-                    text = text.Replace("routeIndex", "routeIndex (extra)");
+                    stringBuilder.AppendLine($"[{treeView1.SelectedNode.Text}]");
+                    string text = data.ToString();
+                    if (data is SpawnActionView spawnActionView && spawnActionView.IsExtraRoute)
+                    {
+                        text = text.Replace("routeIndex", "routeIndex (extra)");
+                    }
+                    stringBuilder.AppendLine(text);
+                    break;
                 }
-                stringBuilder.AppendLine(text);
-            }
-            else if (enemySpawnView != null)
-            {
-                Route route = enemySpawnView.Route;
-                stringBuilder.AppendLine($"[{treeView1.SelectedNode.Text}]");
-                if (routeSubIndex < 0)
-                {
-                    stringBuilder.AppendLine(enemySpawnView.ToString(checkBox3.Checked));
-                }
-                else
-                {
-                    AppendCheckPointsInfo(route);
-                }
-            }
-            else if (data != null)
-            {
-                stringBuilder.AppendLine($"[{treeView1.SelectedNode.Text}]");
-                stringBuilder.AppendLine(data.ToString());
+
+                treeNode = treeNode.Parent;
             }
 
+            if (stringBuilder.Length <= 0 && curLevelView != null)
+            {
+                LevelData levelData = curLevelView.LevelData;
+                stringBuilder.AppendLine($"[{curLevelView.Name}]");
+                stringBuilder.AppendLine(levelData.ToString());
+            }
+
+            label1.Text = stringBuilder.ToString();
+        }
+
+        private void UpdateGroupCheckBoxes(SpawnView spawnView)
+        {
             if (curSpawnView != spawnView)
             {
                 curSpawnView = spawnView;
@@ -743,14 +819,8 @@ namespace ArknightsMapViewer
                         };
                         flowLayoutPanel2.Controls.Add(checkBox);
                     }
-
                 }
             }
-
-            checkBox1.Visible = showCheckBox1;
-            checkBox2.Visible = showCheckBox2;
-            checkBox3.Visible = showCheckBox3;
-            label1.Text = stringBuilder.ToString();
         }
 
         public enum LogType
@@ -817,6 +887,11 @@ namespace ArknightsMapViewer
         }
 
         private void checkBox3_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateView();
+        }
+
+        private void checkBox4_CheckedChanged(object sender, EventArgs e)
         {
             UpdateView();
         }

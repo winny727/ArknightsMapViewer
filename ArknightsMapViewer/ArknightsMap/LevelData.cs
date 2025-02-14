@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using ArknightsMapViewer;
 
 namespace ArknightsMap
@@ -50,6 +49,7 @@ namespace ArknightsMap
 
             waves = rawLevelData.waves;
             branches = rawLevelData.branches;
+            predefines = rawLevelData.predefines;
         }
 
         public Options options;
@@ -60,6 +60,7 @@ namespace ArknightsMap
         public Dictionary<string, DbData> enemyDbRefs;
         public List<Wave> waves;
         public Dictionary<string, Branch> branches;
+        public Predefine predefines;
 
         public override string ToString()
         {
@@ -98,6 +99,9 @@ namespace ArknightsMap
         public List<EnemyDbRef> enemyDbRefs;
         public List<Wave> waves;
         public Dictionary<string, Branch> branches;
+        public Predefine predefines;
+
+        //TODO predefines & ACTIVATE_PREDEFINED, SpawnList中新增勾选框，是否包含预设，是否同时显示所有预设ActivatePredefinedView
     }
 
     [Serializable]
@@ -171,7 +175,6 @@ namespace ArknightsMap
                 $"{nameof(passableMask)}: {passableMask}\n";
 
             StringHelper.AppendArrayDataString(ref text, nameof(blackboard), blackboard);
-            text += "\n";
 
             return text;
         }
@@ -207,7 +210,7 @@ namespace ArknightsMap
                 $"{nameof(endPosition)}: {endPosition}\n" +
                 $"{nameof(spawnRandomRange)}: {spawnRandomRange}\n" +
                 $"{nameof(spawnOffset)}: {spawnOffset}\n" +
-                $"{(checkPoints != null ? $"{nameof(checkPoints)}: {checkPoints.Count}\n)" : "")}" +
+                $"{(checkPoints != null ? $"{nameof(checkPoints)}: {checkPoints.Count}\n" : "")}" +
                 $"{nameof(visitEveryTileCenter)}: {visitEveryTileCenter}\n" +
                 $"{nameof(visitEveryNodeCenter)}: {visitEveryNodeCenter}\n" +
                 $"{nameof(visitEveryCheckPoint)}: {visitEveryCheckPoint}";
@@ -332,7 +335,7 @@ namespace ArknightsMap
             //EnemyData: gamedata/levels/enemydata/enemy_database.json
 
             string text = actionType.ToString();
-            if (actionType == ActionType.SPAWN)
+            if (actionType == ActionType.SPAWN || actionType == ActionType.ACTIVATE_PREDEFINED)
             {
                 text += $" {key}";
             }
@@ -349,6 +352,66 @@ namespace ArknightsMap
     public class Branch
     {
         public List<Fragment> phases;
+    }
+
+    [Serializable]
+    public class Predefine
+    {
+        [Serializable]
+        public class PredefineInst : IData
+        {
+            [Serializable]
+            public class Inst
+            {
+                public string characterKey;
+                public int level;
+                public string phase;
+                public int favorPoint;
+                public int potentialRank;
+            }
+
+            public Position position;
+            public Direction direction;
+            public bool hidden;
+            public string alias;
+            public Inst inst;
+            public KeyValue[] overrideSkillBlackboard;
+
+            public override string ToString()
+            {
+                string text = "";
+
+                if (alias != null)
+                {
+                    text += $"{nameof(alias)}: {alias}\n";
+                }
+
+                text +=
+                    $"{nameof(position)}: {position}\n" +
+                    $"{nameof(direction)}: {direction}\n" +
+                    $"{nameof(hidden)}: {hidden}\n" +
+                    $"{nameof(inst.characterKey)}: {inst.characterKey}\n";
+
+                if (GlobalDefine.TrapDBData.TryGetValue(inst.characterKey, out TrapData trapData))
+                {
+                    text += trapData.ToString();
+                }
+
+                    //$"{nameof(inst.level)}: {inst.level}\n" +
+                    //$"{nameof(inst.phase)}: {inst.phase}\n" +
+                    //$"{nameof(inst.favorPoint)}: {inst.favorPoint}\n" +
+                    //$"{nameof(inst.potentialRank)}: {inst.potentialRank}\n";
+
+                if (overrideSkillBlackboard != null)
+                {
+                    StringHelper.AppendArrayDataString(ref text, nameof(overrideSkillBlackboard), overrideSkillBlackboard);
+                }
+                return text;
+            }
+        }
+
+        public List<PredefineInst> characterInsts;
+        public List<PredefineInst> tokenInsts;
     }
 
 
@@ -436,7 +499,6 @@ namespace ArknightsMap
                     $"{nameof(spCost)}: {spCost}\n";
 
                 StringHelper.AppendArrayDataString(ref text, nameof(blackboard), blackboard);
-                text += "\n";
 
                 return text;
             }
@@ -484,7 +546,6 @@ namespace ArknightsMap
             if (enemyTags != null && enemyTags.m_defined)
             {
                 StringHelper.AppendArrayDataString(ref text, nameof(enemyTags), enemyTags.m_value);
-                text += "\n";
             }
 
             StringHelper.AppendDataString(ref text, nameof(lifePointReduce), lifePointReduce);
@@ -494,9 +555,7 @@ namespace ArknightsMap
             StringHelper.AppendDataString(ref text, nameof(viewRadius), viewRadius);
 
             StringHelper.AppendArrayDataString(ref text, nameof(talentBlackboard), talentBlackboard);
-            text += "\n";
             StringHelper.AppendArrayDataString(ref text, nameof(skills), skills);
-            text += "\n";
 
             if (spData != null)
             {
@@ -524,6 +583,19 @@ namespace ArknightsMap
             if (talentBlackboard == null && data.talentBlackboard != null) talentBlackboard = data.talentBlackboard;
             if (skills == null && data.skills != null) skills = data.skills;
             if (spData == null && data.spData != null) spData = data.spData;
+        }
+    }
+
+    [Serializable]
+    public class TrapData : IData
+    {
+        public string name;
+        public string description;
+        public string appellation;
+
+        public override string ToString()
+        {
+            return StringHelper.GetObjFieldValueString(this);
         }
     }
 
@@ -674,6 +746,14 @@ namespace ArknightsMap
         NORMAL,
         ELITE,
         BOSS,
+    }
+
+    public enum Direction
+    {
+        UP = 0,
+        RIGHT = 1,
+        DOWN = 2,
+        LEFT = 3,
     }
 
     #endregion

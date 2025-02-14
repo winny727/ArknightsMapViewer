@@ -49,7 +49,6 @@ namespace ArknightsMapViewer
 
         public void DrawRoute()
         {
-            InitCanvas();
             for (int i = -1; i <= Route.checkPoints.Count; i++)
             {
                 DrawMoveLine(i);
