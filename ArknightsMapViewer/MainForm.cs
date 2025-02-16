@@ -667,18 +667,11 @@ namespace ArknightsMapViewer
                 treeNode = treeNode.Parent;
             }
 
-            UpdateLevelView(levelView);
-            ClearCanvas();
-            UpdatePredefine(predefineRootNode, predefineDrawerView);
-            UpdateRoute(routeDrawerView, routeSubIndex);
-            UpdateLabelInfo(routeSubIndex);
-            UpdateGroupCheckBoxes(spawnView);
 
-            checkBox3.Visible = enemySpawnView != null;
-        }
+            //TODO
+            Graphics g = Graphics.FromHwnd(IntPtr.Zero);
+            float dpi = Math.Max(g.DpiX, g.DpiY) * 0.01f;
 
-        private void UpdateLevelView(LevelView levelView)
-        {
             if (curLevelView != levelView)
             {
                 curLevelView = levelView;
@@ -686,10 +679,7 @@ namespace ArknightsMapViewer
                 pictureBox1.BackgroundImage = null;
                 curLevelView?.MapDrawer?.DrawMap();
             }
-        }
 
-        private void ClearCanvas()
-        {
             pictureBox1.Image?.Dispose();
             pictureBox1.Image = null;
 
@@ -697,6 +687,24 @@ namespace ArknightsMapViewer
             {
                 pictureBox1.Image = new Bitmap(pictureBox1.BackgroundImage.Width, pictureBox1.BackgroundImage.Height);
             }
+
+            UpdatePredefine(predefineRootNode, predefineDrawerView);
+            UpdateRoute(routeDrawerView, routeSubIndex);
+            UpdateLabelInfo(routeSubIndex);
+            UpdateGroupCheckBoxes(spawnView);
+
+            ////TODO 将各个Drawer中的pictureBox改为Bitmap
+            //if (pictureBox1.BackgroundImage != null && pictureBox1.Image != null)
+            //{
+            //    Bitmap scaledBackgroundImage = DrawUtil.ScaleBitmap((Bitmap)pictureBox1.BackgroundImage, (int)(pictureBox1.BackgroundImage.Width * 0.5f), (int)(pictureBox1.BackgroundImage.Height * 0.5f));
+            //    Bitmap scaledImage = DrawUtil.ScaleBitmap((Bitmap)pictureBox1.Image, (int)(pictureBox1.Image.Width * 0.5f), (int)(pictureBox1.Image.Height * 0.5f));
+            //    pictureBox1.BackgroundImage.Dispose();
+            //    pictureBox1.Image.Dispose();
+            //    pictureBox1.BackgroundImage = scaledBackgroundImage;
+            //    pictureBox1.Image = scaledImage;
+            //}
+
+            checkBox3.Visible = enemySpawnView != null;
         }
 
         private void UpdatePredefine(TreeNode predefineRootNode, IDrawerView<IPredefineDrawer> predefineDrawerView)

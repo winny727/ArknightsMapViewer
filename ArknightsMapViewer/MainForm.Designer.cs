@@ -81,7 +81,6 @@
             // 
             // menuStrip1
             // 
-            this.menuStrip1.GripMargin = new System.Windows.Forms.Padding(2, 2, 0, 2);
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.menuToolStripMenuItem,
@@ -386,9 +385,9 @@
             this.checkBox5.Location = new System.Drawing.Point(4, 124);
             this.checkBox5.Margin = new System.Windows.Forms.Padding(4);
             this.checkBox5.Name = "checkBox5";
-            this.checkBox5.Size = new System.Drawing.Size(178, 22);
+            this.checkBox5.Size = new System.Drawing.Size(142, 22);
             this.checkBox5.TabIndex = 5;
-            this.checkBox5.Text = "显示初始隐藏装置";
+            this.checkBox5.Text = "显示隐藏装置";
             this.checkBox5.UseVisualStyleBackColor = true;
             this.checkBox5.CheckedChanged += new System.EventHandler(this.checkBox5_CheckedChanged);
             // 

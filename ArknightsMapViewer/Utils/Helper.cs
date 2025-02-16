@@ -88,7 +88,7 @@ namespace ArknightsMapViewer
             }
 
             Graphics g = Graphics.FromHwnd(IntPtr.Zero);
-            float dpi = g.DpiX * 0.01f;
+            float dpi = Math.Max(g.DpiX, g.DpiY) * 0.01f;
 
             GlobalDefine.TILE_PIXLE = (int)(drawConfig.Size.tilePixle * dpi);
             GlobalDefine.LINE_WIDTH = (int)(drawConfig.Size.lineWidth * dpi);

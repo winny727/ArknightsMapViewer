@@ -9,6 +9,34 @@ namespace ArknightsMapViewer
 {
     public static class DrawUtil
     {
+        public static Bitmap ScaleBitmap(Bitmap original, int targetMaxWidth, int targetMaxHeight)
+        {
+            if (original == null)
+            {
+                return null;
+            }
+
+            // 计算缩放比例
+            float scale = Math.Min(
+                (float)targetMaxWidth / original.Width,
+                (float)targetMaxHeight / original.Height
+            );
+
+            // 计算新尺寸
+            int newWidth = (int)(original.Width * scale);
+            int newHeight = (int)(original.Height * scale);
+
+            // 创建新 Bitmap 并绘制
+            Bitmap scaledBitmap = new Bitmap(newWidth, newHeight);
+            using (Graphics g = Graphics.FromImage(scaledBitmap))
+            {
+                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                g.DrawImage(original, 0, 0, newWidth, newHeight);
+            }
+
+            return scaledBitmap;
+        }
+
         public static void DrawLine(Bitmap bitmap, Point startPoint, Point endPoint, Color? color = null, float width = 1)
         {
             using Pen pen = GetPen(color, width);
