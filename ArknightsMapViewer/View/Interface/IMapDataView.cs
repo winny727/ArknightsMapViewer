@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ArknightsMap
+namespace ArknightsMapViewer
 {
-
-    public interface IDataView<T> where T : IData
+    public interface IMapDataView<T> where T : IMapData
     {
         public T GetData();
     }

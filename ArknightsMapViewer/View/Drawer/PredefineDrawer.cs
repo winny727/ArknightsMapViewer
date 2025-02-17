@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using ArknightsMap;
 using System.Windows.Forms;
 using System.Drawing;
 using System.Text.RegularExpressions;
 
 namespace ArknightsMapViewer
 {
-    public class WinformPredefineDrawer : IPredefineDrawer
+    public class PredefineDrawer : IDrawer
     {
         public PictureBox PictureBox { get; private set; }
         public Predefine.PredefineInst Predefine { get; private set; }
         public int MapWidth { get; private set; }
         public int MapHeight { get; private set; }
 
-        public WinformPredefineDrawer(PictureBox pictureBox, Predefine.PredefineInst predefine, int mapWidth, int mapHeight)
+        public PredefineDrawer(PictureBox pictureBox, Predefine.PredefineInst predefine, int mapWidth, int mapHeight)
         {
             PictureBox = pictureBox;
             Predefine = predefine;

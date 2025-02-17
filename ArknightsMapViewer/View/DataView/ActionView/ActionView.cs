@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ArknightsMap
+namespace ArknightsMapViewer
 {
-    public abstract class ActionView : IDataView<Action>
+    public abstract class ActionView : IMapDataView<Action>
     {
         public Action Action { get; set; }
         public IDrawer Drawer { get; set; }

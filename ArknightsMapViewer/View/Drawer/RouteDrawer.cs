@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using ArknightsMap;
 using System.Windows.Forms;
 using System.Drawing;
 
 namespace ArknightsMapViewer
 {
-    public class WinformRouteDrawer : IRouteDrawer
+    public class RouteDrawer : IDrawer
     {
         public PictureBox PictureBox { get; private set; }
         public Route Route { get; private set; }
@@ -15,7 +14,7 @@ namespace ArknightsMapViewer
         public int MapWidth { get; private set; }
         public int MapHeight { get; private set; }
 
-        private WinformRouteDrawer(PictureBox pictureBox, Route route, PathFinding pathFinding, int mapWidth, int mapHeight)
+        private RouteDrawer(PictureBox pictureBox, Route route, PathFinding pathFinding, int mapWidth, int mapHeight)
         {
             PictureBox = pictureBox;
             Route = route;
@@ -24,7 +23,7 @@ namespace ArknightsMapViewer
             MapHeight = mapHeight;
         }
 
-        public static WinformRouteDrawer Create(PictureBox pictureBox, Route route, PathFinding pathFinding, int mapWidth, int mapHeight)
+        public static RouteDrawer Create(PictureBox pictureBox, Route route, PathFinding pathFinding, int mapWidth, int mapHeight)
         {
             if (route == null || route.checkPoints == null)
             {
@@ -32,7 +31,7 @@ namespace ArknightsMapViewer
                 return null;
             }
 
-            return new WinformRouteDrawer(pictureBox, route, pathFinding, mapWidth, mapHeight);
+            return new RouteDrawer(pictureBox, route, pathFinding, mapWidth, mapHeight);
         }
 
         public void InitCanvas()

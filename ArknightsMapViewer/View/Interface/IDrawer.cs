@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ArknightsMap
+namespace ArknightsMapViewer
 {
-
     public interface IDrawer
     {
-        public void InitCanvas();
-        public void RefreshCanvas();
+
     }
 }

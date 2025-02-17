@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using ArknightsMapViewer;
 
-namespace ArknightsMap
+namespace ArknightsMapViewer
 {
     [Serializable]
     public class LevelData
@@ -33,17 +32,17 @@ namespace ArknightsMap
             {
                 for (int i = 0; i < rawLevelData.enemyDbRefs.Count; i++)
                 {
-                    DbData data;
+                    DbData dbData;
                     EnemyDbRef enemyDbRef = rawLevelData.enemyDbRefs[i];
                     if (enemyDbRef.useDb)
                     {
-                        data = GlobalDefine.EnemyDBData[enemyDbRef.id][enemyDbRef.level];
+                        dbData = GlobalDefine.EnemyDBData[enemyDbRef.id][enemyDbRef.level];
                     }
                     else
                     {
-                        data = enemyDbRef.overwrittenData;
+                        dbData = enemyDbRef.overwrittenData;
                     }
-                    enemyDbRefs.Add(enemyDbRef.id, data);
+                    enemyDbRefs.Add(enemyDbRef.id, dbData);
                 }
             }
 
@@ -105,7 +104,7 @@ namespace ArknightsMap
     }
 
     [Serializable]
-    public class Options : IData
+    public class Options : IMapData
     {
         public int characterLimit;
         public int maxLifePoint;
@@ -121,7 +120,7 @@ namespace ArknightsMap
     }
 
     [Serializable]
-    public class Rune : IData
+    public class Rune : IMapData
     {
         public string key;
         public KeyValue[] blackboard;
@@ -145,7 +144,7 @@ namespace ArknightsMap
     }
 
     [Serializable]
-    public class Tile : IData
+    public class Tile : IMapData
     {
         public string tileKey; //格子类型
         public HeightType heightType; //高台/地面
@@ -190,7 +189,7 @@ namespace ArknightsMap
     }
 
     [Serializable]
-    public class Route : IData
+    public class Route : IMapData
     {
         public MotionType motionMode;
         public Position startPosition;
@@ -218,7 +217,7 @@ namespace ArknightsMap
     }
 
     [Serializable]
-    public class CheckPoint : IData
+    public class CheckPoint : IMapData
     {
         public enum Type
         {
@@ -279,7 +278,7 @@ namespace ArknightsMap
     }
 
     [Serializable]
-    public class Wave : IData
+    public class Wave : IMapData
     {
         public float preDelay;
         public float postDelay;
@@ -296,7 +295,7 @@ namespace ArknightsMap
     }
 
     [Serializable]
-    public class Fragment : IData
+    public class Fragment : IMapData
     {
         public float preDelay;
         public List<Action> actions;
@@ -309,7 +308,7 @@ namespace ArknightsMap
     }
 
     [Serializable]
-    public class Action : IData
+    public class Action : IMapData
     {
         public ActionType actionType;
         public bool managedByScheduler;
@@ -358,7 +357,7 @@ namespace ArknightsMap
     public class Predefine
     {
         [Serializable]
-        public class PredefineInst : IData
+        public class PredefineInst : IMapData
         {
             [Serializable]
             public class Inst
@@ -425,7 +424,7 @@ namespace ArknightsMap
     }
 
     [Serializable]
-    public class DbData : IData
+    public class DbData : IMapData
     {
         public abstract class Data
         {
@@ -433,7 +432,7 @@ namespace ArknightsMap
         }
 
         [Serializable]
-        public class Data<T> : Data, IData
+        public class Data<T> : Data, IMapData
         {
             public T m_value;
             public override string ToString()
@@ -443,7 +442,7 @@ namespace ArknightsMap
         }
 
         [Serializable]
-        public class Attribute : IData
+        public class Attribute : IMapData
         {
             public Data<int> maxHp;
             public Data<int> atk;
@@ -480,7 +479,7 @@ namespace ArknightsMap
         }
 
         [Serializable]
-        public class SkillData : IData
+        public class SkillData : IMapData
         {
             public string prefabKey;
             public int priority;
@@ -565,29 +564,29 @@ namespace ArknightsMap
             return text;
         }
 
-        public void InheritData(DbData data)
+        public void InheritDbData(DbData dbData)
         {
-            if (!name.m_defined && data.name.m_defined) name = data.name;
-            if (!description.m_defined && data.description.m_defined) description = data.description;
-            if (attributes == null && data.attributes != null) attributes = data.attributes;
-            if (!applyWay.m_defined && data.applyWay.m_defined) applyWay = data.applyWay;
-            if (!motion.m_defined && data.motion.m_defined) motion = data.motion;
-            if (!enemyTags.m_defined && data.enemyTags.m_defined) enemyTags = data.enemyTags;
-            if (!lifePointReduce.m_defined && data.lifePointReduce.m_defined) lifePointReduce = data.lifePointReduce;
-            if (!levelType.m_defined && data.levelType.m_defined) levelType = data.levelType;
-            if (!rangeRadius.m_defined && data.rangeRadius.m_defined) rangeRadius = data.rangeRadius;
-            if (!numOfExtraDrops.m_defined && data.numOfExtraDrops.m_defined) numOfExtraDrops = data.numOfExtraDrops;
-            if (!viewRadius.m_defined && data.viewRadius.m_defined) viewRadius = data.viewRadius;
-            if (!viewRadius.m_defined && data.viewRadius.m_defined) viewRadius = data.viewRadius;
-            if (!notCountInTotal.m_defined && data.notCountInTotal.m_defined) notCountInTotal = data.notCountInTotal;
-            if (talentBlackboard == null && data.talentBlackboard != null) talentBlackboard = data.talentBlackboard;
-            if (skills == null && data.skills != null) skills = data.skills;
-            if (spData == null && data.spData != null) spData = data.spData;
+            if (!name.m_defined && dbData.name.m_defined) name = dbData.name;
+            if (!description.m_defined && dbData.description.m_defined) description = dbData.description;
+            if (attributes == null && dbData.attributes != null) attributes = dbData.attributes;
+            if (!applyWay.m_defined && dbData.applyWay.m_defined) applyWay = dbData.applyWay;
+            if (!motion.m_defined && dbData.motion.m_defined) motion = dbData.motion;
+            if (!enemyTags.m_defined && dbData.enemyTags.m_defined) enemyTags = dbData.enemyTags;
+            if (!lifePointReduce.m_defined && dbData.lifePointReduce.m_defined) lifePointReduce = dbData.lifePointReduce;
+            if (!levelType.m_defined && dbData.levelType.m_defined) levelType = dbData.levelType;
+            if (!rangeRadius.m_defined && dbData.rangeRadius.m_defined) rangeRadius = dbData.rangeRadius;
+            if (!numOfExtraDrops.m_defined && dbData.numOfExtraDrops.m_defined) numOfExtraDrops = dbData.numOfExtraDrops;
+            if (!viewRadius.m_defined && dbData.viewRadius.m_defined) viewRadius = dbData.viewRadius;
+            if (!viewRadius.m_defined && dbData.viewRadius.m_defined) viewRadius = dbData.viewRadius;
+            if (!notCountInTotal.m_defined && dbData.notCountInTotal.m_defined) notCountInTotal = dbData.notCountInTotal;
+            if (talentBlackboard == null && dbData.talentBlackboard != null) talentBlackboard = dbData.talentBlackboard;
+            if (skills == null && dbData.skills != null) skills = dbData.skills;
+            if (spData == null && dbData.spData != null) spData = dbData.spData;
         }
     }
 
     [Serializable]
-    public class TrapData : IData
+    public class TrapData : IMapData
     {
         public string name;
         public string description;
@@ -646,7 +645,7 @@ namespace ArknightsMap
     #region Enum
 
     [Serializable]
-    public class KeyValue : IData
+    public class KeyValue : IMapData
     {
         public string key;
         public float value;

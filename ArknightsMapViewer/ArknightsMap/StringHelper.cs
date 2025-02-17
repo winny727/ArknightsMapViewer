@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace ArknightsMap
+namespace ArknightsMapViewer
 {
     public static class StringHelper
     {

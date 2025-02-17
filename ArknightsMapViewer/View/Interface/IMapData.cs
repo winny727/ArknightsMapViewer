@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ArknightsMap
+namespace ArknightsMapViewer
 {
-
-    public interface IData
+    public interface IMapData
     {
         public string ToString();
     }

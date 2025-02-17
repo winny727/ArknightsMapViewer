@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Data;
 
-namespace ArknightsMap
+namespace ArknightsMapViewer
 {
-    public class EnemySpawnView : IData, IDrawerView<IRouteDrawer>, IDataView<Route>
+    public class EnemySpawnView : IMapData, IDrawerView<RouteDrawer>, IMapDataView<Route>
     {
         public string EnemyKey { get; set; }
         public DbData EnemyData { get; set; }
@@ -29,10 +29,10 @@ namespace ArknightsMap
         public bool LastEnemyInFragment { get; set; }
         public float MaxTimeWaitingForNextWave { get; set; }
 
-        public IRouteDrawer RouteDrawer { get; set; }
+        public RouteDrawer RouteDrawer { get; set; }
 
         public Route GetData() => Route;
-        public IRouteDrawer GetDrawer() => RouteDrawer;
+        public RouteDrawer GetDrawer() => RouteDrawer;
 
         public int CompareTo(EnemySpawnView other)
         {

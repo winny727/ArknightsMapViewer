@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using ArknightsMap;
 using Newtonsoft.Json.Linq;
 
 namespace ArknightsMapViewer

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using ArknightsMap;
 using System.Drawing;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -199,12 +198,12 @@ namespace ArknightsMapViewer
                             for (int i = 0; i < jArray.Count; i++)
                             {
                                 int level = jArray[i]["level"].ToObject<int>();
-                                DbData data = jArray[i]["enemyData"].ToObject<DbData>();
+                                DbData dbData = jArray[i]["enemyData"].ToObject<DbData>();
                                 if (i > 0)
                                 {
-                                    data.InheritData(dbDatas[0]);
+                                    dbData.InheritDbData(dbDatas[0]);
                                 }
-                                dbDatas.Add(level, data);
+                                dbDatas.Add(level, dbData);
                             }
                         }
                         if (!string.IsNullOrEmpty(key) && !GlobalDefine.EnemyDBData.ContainsKey(key))

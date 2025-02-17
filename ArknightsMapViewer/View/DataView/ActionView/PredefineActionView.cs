@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ArknightsMap
+namespace ArknightsMapViewer
 {
-    public class PredefineActionView : ActionView, IData, IDrawerView<IPredefineDrawer>
+    public class PredefineActionView : ActionView, IMapData, IDrawerView<PredefineDrawer>
     {
-        public IPredefineDrawer GetDrawer() => (IPredefineDrawer)Drawer;
+        public PredefineDrawer GetDrawer() => (PredefineDrawer)Drawer;
 
         public override string ToString()
         {
@@ -15,7 +15,7 @@ namespace ArknightsMap
                 $"{nameof(Action.randomSpawnGroupKey)}: {Action.randomSpawnGroupKey}\n" +
                 $"{nameof(Action.randomSpawnGroupPackKey)}: {Action.randomSpawnGroupPackKey}\n" +
                 $"{nameof(Action.weight)}: {Action.weight}\n" +
-                $"{((IPredefineDrawer)Drawer).Predefine}";
+                $"{((PredefineDrawer)Drawer).Predefine}";
 
             return text;
         }

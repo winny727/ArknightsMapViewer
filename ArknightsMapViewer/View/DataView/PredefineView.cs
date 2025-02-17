@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ArknightsMap
+namespace ArknightsMapViewer
 {
-    public class PredefineView : IData, IDrawerView<IPredefineDrawer>, IDataView<Predefine.PredefineInst>
+    public class PredefineView : IMapData, IDrawerView<PredefineDrawer>, IMapDataView<Predefine.PredefineInst>
     {
         public Predefine.PredefineInst Predefine { get; set; }
         public string PredefineKey { get; set; }
@@ -12,10 +12,10 @@ namespace ArknightsMap
         public string RandomSpawnGroupKey { get; set; }
         public string RandomSpawnGroupPackKey { get; set; }
         public int Weight { get; set; }
-        public IPredefineDrawer PredefineDrawer { get; set; }
+        public PredefineDrawer PredefineDrawer { get; set; }
 
         public Predefine.PredefineInst GetData() => Predefine;
-        public IPredefineDrawer GetDrawer() => PredefineDrawer;
+        public PredefineDrawer GetDrawer() => PredefineDrawer;
 
         public string ToSimpleString()
         {

@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using ArknightsMap;
 using System.Windows.Forms;
 using System.Drawing;
 
 namespace ArknightsMapViewer
 {
-    public class WinformMapDrawer : IMapDrawer
+    public class MapDrawer : IDrawer
     {
         public PictureBox PictureBox { get; private set; }
         public Tile[,] Map { get; private set; }
@@ -20,7 +19,7 @@ namespace ArknightsMapViewer
             LineAlignment = StringAlignment.Far,
         };
 
-        public WinformMapDrawer(PictureBox pictureBox, Tile[,] map)
+        public MapDrawer(PictureBox pictureBox, Tile[,] map)
         {
             PictureBox = pictureBox;
             Map = map;
