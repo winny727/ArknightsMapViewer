@@ -7,6 +7,7 @@ namespace ArknightsMapViewer
     public class SpawnView
     {
         public TreeNode SpawnsNode;
+        public bool ShowPredefined;
         public Dictionary<string, bool> SpawnGroups = new Dictionary<string, bool>();
 
         private List<TreeNode> originNodes;
@@ -25,23 +26,28 @@ namespace ArknightsMapViewer
             SpawnsNode.Nodes.Clear();
             foreach (TreeNode node in originNodes)
             {
-                if (node.Tag is EnemySpawnView enemySpawnView)
+                if (node.Tag is ISpawnAction spawnAction)
                 {
-                    if (string.IsNullOrEmpty(enemySpawnView.HiddenGroup) &&
-                        string.IsNullOrEmpty(enemySpawnView.RandomSpawnGroupKey) &&
-                        string.IsNullOrEmpty(enemySpawnView.RandomSpawnGroupPackKey))
+                    if (spawnAction is PredefineView && !ShowPredefined)
                     {
-                        SpawnsNode.Nodes.Add(node);
-                        node.Text = $"#{node.Index} {enemySpawnView.ToSimpleString()}";
                         continue;
                     }
 
-                    if (CheckShowNode(enemySpawnView.HiddenGroup) ||
-                        CheckShowNode(enemySpawnView.RandomSpawnGroupKey) ||
-                        CheckShowNode(enemySpawnView.RandomSpawnGroupPackKey))
+                    if (string.IsNullOrEmpty(spawnAction.HiddenGroup) &&
+                        string.IsNullOrEmpty(spawnAction.RandomSpawnGroupKey) &&
+                        string.IsNullOrEmpty(spawnAction.RandomSpawnGroupPackKey))
                     {
                         SpawnsNode.Nodes.Add(node);
-                        node.Text = $"#{node.Index} {enemySpawnView.ToSimpleString()}";
+                        node.Text = $"#{node.Index} {spawnAction.ToSimpleString()}";
+                        continue;
+                    }
+
+                    if (CheckShowNode(spawnAction.HiddenGroup) ||
+                        CheckShowNode(spawnAction.RandomSpawnGroupKey) ||
+                        CheckShowNode(spawnAction.RandomSpawnGroupPackKey))
+                    {
+                        SpawnsNode.Nodes.Add(node);
+                        node.Text = $"#{node.Index} {spawnAction.ToSimpleString()}";
                     }
                 }
             }

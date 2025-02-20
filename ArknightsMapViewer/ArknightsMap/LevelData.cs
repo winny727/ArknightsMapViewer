@@ -11,8 +11,8 @@ namespace ArknightsMapViewer
             options = rawLevelData.options;
 
             var rawMap = rawLevelData.mapData.map;
-            int mapHeight = rawMap.Length;
-            int mapWidth = rawMap.Length > 0 ? rawMap[0].Length : 0;
+            mapHeight = rawMap.Length;
+            mapWidth = rawMap.Length > 0 ? rawMap[0].Length : 0;
 
             map = new Tile[mapWidth, mapHeight];
             for (int row = 0; row < mapHeight; row++)
@@ -53,6 +53,8 @@ namespace ArknightsMapViewer
 
         public Options options;
         public Tile[,] map;
+        public int mapWidth;
+        public int mapHeight;
         public List<Rune> runes;
         public List<Route> routes;
         public List<Route> extraRoutes;
@@ -77,8 +79,8 @@ namespace ArknightsMapViewer
                 text += "\n";
             }
 
-            text += $"width: {map.GetLength(0)}\n";
-            text += $"height: {map.GetLength(1)}\n";
+            text += $"width: {mapWidth}\n";
+            text += $"height: {mapHeight}\n";
             if (routes != null) text += $"routes: {routes.Count}\n";
             if (waves != null) text += $"waves: {waves.Count}\n";
             if (extraRoutes != null) text += $"extraRoutes: {extraRoutes.Count}\n";
@@ -437,7 +439,12 @@ namespace ArknightsMapViewer
             public T m_value;
             public override string ToString()
             {
-                return m_value.ToString();
+                return m_value?.ToString();
+            }
+
+            public static implicit operator string(Data<T> data)
+            {
+                return data.ToString();
             }
         }
 
@@ -617,6 +624,14 @@ namespace ArknightsMapViewer
         public override string ToString()
         {
             return $"({col},{row})";
+        }
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj);
+        }
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
 
         public static bool operator ==(Position pos1, Position pos2)

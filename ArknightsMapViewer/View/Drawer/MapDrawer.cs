@@ -7,55 +7,39 @@ namespace ArknightsMapViewer
 {
     public class MapDrawer : IDrawer
     {
-        public PictureBox PictureBox { get; private set; }
         public Tile[,] Map { get; private set; }
-
+        public bool HaveUndefinedTiles { get; private set; }
+        public bool MarkUndefinedTile { get; set; }
         public int MapWidth { get; private set; }
         public int MapHeight { get; private set; }
 
-        private readonly StringFormat stringFormat = new StringFormat
+        private static readonly StringFormat stringFormat = new StringFormat
         {
             Alignment = StringAlignment.Far,
             LineAlignment = StringAlignment.Far,
         };
 
-        public MapDrawer(PictureBox pictureBox, Tile[,] map)
+        public MapDrawer(Tile[,] map)
         {
-            PictureBox = pictureBox;
             Map = map;
 
+            HaveUndefinedTiles = false;
             MapWidth = map.GetLength(0);
             MapHeight = map.GetLength(1);
         }
 
-        public void InitCanvas()
+        public void Draw(Bitmap bitmap)
         {
-            Bitmap bitmap = new Bitmap(MapWidth * GlobalDefine.TILE_PIXLE, MapHeight * GlobalDefine.TILE_PIXLE);
-            PictureBox.BackgroundImage?.Dispose();
-            PictureBox.BackgroundImage = bitmap;
-            PictureBox.Width = bitmap.Width;
-            PictureBox.Height = bitmap.Height;
-        }
-
-        public void RefreshCanvas()
-        {
-            PictureBox.Refresh();
-        }
-
-        public void DrawMap()
-        {
-            InitCanvas();
             for (int row = 0; row < MapHeight; row++)
             {
                 for (int col = 0; col < MapWidth; col++)
                 {
-                    DrawTile(row, col);
+                    DrawTile(bitmap, row, col);
                 }
             }
-            RefreshCanvas();
         }
 
-        private void DrawTile(int rowIndex, int colIndex)
+        private void DrawTile(Bitmap bitmap, int rowIndex, int colIndex)
         {
             Tile tile = Map[colIndex, rowIndex];
             TileInfo tileInfo = tile.GetTileInfo();
@@ -90,16 +74,21 @@ namespace ArknightsMapViewer
                     }
                 }
 
+                HaveUndefinedTiles = true;
                 MainForm.Instance.Log("Undefined Tile: " + tile.tileKey, MainForm.LogType.Warning);
             }
-
-            Bitmap bitmap = (Bitmap)PictureBox.BackgroundImage;
 
             int length = GlobalDefine.TILE_PIXLE;
             Rectangle rectangle = new Rectangle(colIndex * length, (MapHeight - rowIndex - 1) * length, length, length);
 
             DrawUtil.FillRectangle(bitmap, rectangle, tileColor);
             DrawUtil.DrawRectangle(bitmap, rectangle);
+
+            //DrawHatch
+            if (MarkUndefinedTile && tileInfo != null && tileInfo.tileColor == null && string.IsNullOrEmpty(tileInfo.tileText))
+            {
+                DrawUtil.FillRectangleHatch(bitmap, rectangle);
+            }
 
             //Draw TileText
             if (tileInfo != null && !string.IsNullOrEmpty(tileInfo.tileText))

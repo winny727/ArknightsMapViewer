@@ -127,7 +127,7 @@ namespace ArknightsMapViewer
                 {
                     return ColorTranslator.FromHtml(value);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     MainForm.Instance.Log($"Invalid Tile Color: {value}", MainForm.LogType.Warning);
                 }
@@ -135,12 +135,11 @@ namespace ArknightsMapViewer
                 return null;
             }
 
-            //注意tile_info.csv要保存为UTF-8格式的否则中文无法读取
             string path = Path.Combine(Directory.GetCurrentDirectory(), "Config", "tile_info.csv");
 
             try
             {
-                TableReader tableReader = new TableReader(path, ',');
+                TableReader tableReader = new TableReader(path, Encoding.Default, ','); //GB2312
                 tableReader.ForEach((tileKey, line) =>
                 {
                     if (!string.IsNullOrEmpty(tileKey))
@@ -166,7 +165,7 @@ namespace ArknightsMapViewer
                     }
                 });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 string errorMsg = $"tile_info.csv Read Error, {ex.Message}";
                 MainForm.Instance.Log(errorMsg, MainForm.LogType.Warning);
@@ -302,11 +301,24 @@ namespace ArknightsMapViewer
             return abbreviation.ToString();
         }
 
+        public static Bitmap CreateBitmap(LevelData levelData)
+        {
+            if (levelData == null)
+            {
+                return null;
+            }
+
+            int width = levelData.mapWidth * GlobalDefine.TILE_PIXLE;
+            int height = levelData.mapHeight * GlobalDefine.TILE_PIXLE;
+
+            return new Bitmap(width, height);
+        }
+
         public static bool[,] GetIsBarrierArray(LevelData levelData)
         {
             Tile[,] map = levelData.map;
-            int mapWidth = map.GetLength(0);
-            int mapHeight = map.GetLength(1);
+            int mapWidth = levelData.mapWidth;
+            int mapHeight = levelData.mapHeight;
             bool[,] isBarrier = new bool[mapWidth, mapHeight];
             for (int row = 0; row < mapHeight; row++)
             {

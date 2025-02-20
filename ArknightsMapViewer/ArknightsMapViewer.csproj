@@ -71,11 +71,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="View\Interface\ISpawnAction.cs" />
     <Compile Include="View\Interface\IMapData.cs" />
     <Compile Include="View\Interface\IMapDataView.cs" />
     <Compile Include="View\Interface\IDrawerView.cs" />
     <Compile Include="View\Interface\IDrawer.cs" />
-    <Compile Include="ArknightsMap\StringHelper.cs" />
+    <Compile Include="Utils\StringHelper.cs" />
     <Compile Include="View\DataView\ActionView\ActionView.cs" />
     <Compile Include="View\DataView\EnemySpawnView.cs" />
     <Compile Include="View\DataView\ActionView\PredefineActionView.cs" />

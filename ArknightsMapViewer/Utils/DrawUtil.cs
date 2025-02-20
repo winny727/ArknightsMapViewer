@@ -9,34 +9,6 @@ namespace ArknightsMapViewer
 {
     public static class DrawUtil
     {
-        public static Bitmap ScaleBitmap(Bitmap original, int targetMaxWidth, int targetMaxHeight)
-        {
-            if (original == null)
-            {
-                return null;
-            }
-
-            // 计算缩放比例
-            float scale = Math.Min(
-                (float)targetMaxWidth / original.Width,
-                (float)targetMaxHeight / original.Height
-            );
-
-            // 计算新尺寸
-            int newWidth = (int)(original.Width * scale);
-            int newHeight = (int)(original.Height * scale);
-
-            // 创建新 Bitmap 并绘制
-            Bitmap scaledBitmap = new Bitmap(newWidth, newHeight);
-            using (Graphics g = Graphics.FromImage(scaledBitmap))
-            {
-                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                g.DrawImage(original, 0, 0, newWidth, newHeight);
-            }
-
-            return scaledBitmap;
-        }
-
         public static void DrawLine(Bitmap bitmap, Point startPoint, Point endPoint, Color? color = null, float width = 1)
         {
             using Pen pen = GetPen(color, width);
@@ -53,7 +25,14 @@ namespace ArknightsMapViewer
 
         public static void FillRectangle(Bitmap bitmap, Rectangle rectangle, Color? color = null)
         {
-            using Brush brush = GetBrush(color);
+            using Brush brush = GetSolidBrush(color);
+            using Graphics graphics = GetGraphics(bitmap);
+            graphics.FillRectangle(brush, rectangle);
+        }
+
+        public static void FillRectangleHatch(Bitmap bitmap, Rectangle rectangle, HatchStyle? hatchStyle = null, Color? color = null)
+        {
+            using Brush brush = GetHatchBrush(hatchStyle, color);
             using Graphics graphics = GetGraphics(bitmap);
             graphics.FillRectangle(brush, rectangle);
         }
@@ -68,7 +47,15 @@ namespace ArknightsMapViewer
 
         public static void FillCircle(Bitmap bitmap, Point origin, int radius, Color? color = null)
         {
-            using Brush brush = GetBrush(color);
+            using Brush brush = GetSolidBrush(color);
+            using Graphics graphics = GetGraphics(bitmap);
+            Rectangle rectangle = new Rectangle(origin.X - radius, origin.Y - radius, 2 * radius, 2 * radius);
+            graphics.FillEllipse(brush, rectangle);
+        }
+
+        public static void FillCircleHatch(Bitmap bitmap, Point origin, int radius, HatchStyle? hatchStyle = null, Color? color = null)
+        {
+            using Brush brush = GetHatchBrush(hatchStyle, color);
             using Graphics graphics = GetGraphics(bitmap);
             Rectangle rectangle = new Rectangle(origin.X - radius, origin.Y - radius, 2 * radius, 2 * radius);
             graphics.FillEllipse(brush, rectangle);
@@ -82,13 +69,13 @@ namespace ArknightsMapViewer
         //public static void DrawString(Bitmap bitmap, string text, Rectangle rectangle, Font font, Color? color = null, TextFormatFlags textFormatFlags = TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter)
         //{
         //    using Graphics graphics = GetGraphics(bitmap);
-        //    TextRenderer.DrawText(graphics, text, font, rectangle, color ?? Color.Black, textFormatFlags); //单词绘制耗时3ms，较高
+        //    TextRenderer.DrawText(graphics, text, font, rectangle, color ?? Color.Black, textFormatFlags); //单次绘制耗时较大~3ms
         //}
 
         public static void DrawString(Bitmap bitmap, string text, Rectangle rectangle, Font font, Color? color = null, StringFormat format = null)
         {
             using Graphics graphics = GetGraphics(bitmap);
-            using Brush brush = GetBrush(color);
+            using Brush brush = GetSolidBrush(color);
             format ??= new StringFormat
             {
                 Alignment = StringAlignment.Center,
@@ -112,9 +99,15 @@ namespace ArknightsMapViewer
             return pen;
         }
 
-        private static Brush GetBrush(Color? color)
+        private static SolidBrush GetSolidBrush(Color? color)
         {
-            Brush brush = new SolidBrush(color ?? Color.Black);
+            SolidBrush brush = new SolidBrush(color ?? Color.Black);
+            return brush;
+        }
+
+        private static HatchBrush GetHatchBrush(HatchStyle? hatchStyle, Color? color)
+        {
+            HatchBrush brush = new HatchBrush(hatchStyle ?? HatchStyle.ForwardDiagonal, color ?? Color.Black, Color.Transparent);
             return brush;
         }
     }

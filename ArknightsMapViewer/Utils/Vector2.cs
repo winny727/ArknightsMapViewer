@@ -21,6 +21,14 @@ public struct Vector2Int : IEquatable<Vector2Int>
     {
         return $"({x},{y})";
     }
+    public override bool Equals(object obj)
+    {
+        return base.Equals(obj);
+    }
+    public override int GetHashCode()
+    {
+        return base.GetHashCode();
+    }
 
     #region operator
 
@@ -107,6 +115,14 @@ public struct Vector2 : IEquatable<Vector2>
     public override string ToString()
     {
         return $"({x},{y})";
+    }
+    public override bool Equals(object obj)
+    {
+        return base.Equals(obj);
+    }
+    public override int GetHashCode()
+    {
+        return base.GetHashCode();
     }
 
     public static float Dot(Vector2 lhs, Vector2 rhs)

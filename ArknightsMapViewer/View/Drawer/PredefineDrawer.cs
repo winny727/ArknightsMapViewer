@@ -8,33 +8,18 @@ namespace ArknightsMapViewer
 {
     public class PredefineDrawer : IDrawer
     {
-        public PictureBox PictureBox { get; private set; }
         public Predefine.PredefineInst Predefine { get; private set; }
         public int MapWidth { get; private set; }
         public int MapHeight { get; private set; }
 
-        public PredefineDrawer(PictureBox pictureBox, Predefine.PredefineInst predefine, int mapWidth, int mapHeight)
+        public PredefineDrawer(Predefine.PredefineInst predefine, int mapWidth, int mapHeight)
         {
-            PictureBox = pictureBox;
             Predefine = predefine;
             MapWidth = mapWidth;
             MapHeight = mapHeight;
         }
 
-
-        public void InitCanvas()
-        {
-            Bitmap bitmap = new Bitmap(PictureBox.BackgroundImage.Width, PictureBox.BackgroundImage.Height);
-            PictureBox.Image?.Dispose();
-            PictureBox.Image = bitmap;
-        }
-
-        public void RefreshCanvas()
-        {
-            PictureBox.Refresh();
-        }
-
-        public void DrawPredefine()
+        public void Draw(Bitmap bitmap)
         {
             Point point = GetPoint(Predefine.position);
 
@@ -62,12 +47,11 @@ namespace ArknightsMapViewer
                 }
             }
 
-            DrawPosition(point, predefineName);
+            DrawPosition(bitmap, point, predefineName);
         }
 
-        private void DrawPosition(Point point, string name)
+        private void DrawPosition(Bitmap bitmap, Point point, string name)
         {
-            Bitmap bitmap = (Bitmap)PictureBox.Image;
             DrawUtil.FillCircle(bitmap, point, GlobalDefine.CIRCLE_RADIUS, Color.Gray);
             DrawUtil.DrawCircle(bitmap, point, GlobalDefine.CIRCLE_RADIUS, Color.OrangeRed, GlobalDefine.CIRCLE_EDGE_WIDTH);
 

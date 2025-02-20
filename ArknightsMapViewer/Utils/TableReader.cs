@@ -54,6 +54,7 @@ public class TableReader
         }
     }
 
+    private Encoding encoding;
     private char separator;
     private Dictionary<string, TableLine> datas;
     private Dictionary<string, int> colIndexDict;
@@ -80,8 +81,9 @@ public class TableReader
     }
 
 
-    public TableReader(string filePath, char separator = '\t')
+    public TableReader(string filePath, Encoding encoding, char separator = '\t')
     {
+        this.encoding = encoding;
         this.separator = separator;
         string[] lines = ReadFile(filePath);
         InitDatas(lines);
@@ -100,13 +102,13 @@ public class TableReader
         }
 
         // 读取数据文件
-        // var lines = File.ReadAllLines(filePath, Encoding.UTF8);
+        // var lines = File.ReadAllLines(filePath, encoding);
 
         // Excel会占用文件导致File.ReadAllLines读取不了，还是用FileStream
         List<string> lines = new List<string>();
         using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)) //FileShare.ReadWrite参数表示可以与其他进程共享读写权限
         {
-            using (StreamReader reader = new StreamReader(fileStream, Encoding.UTF8))
+            using (StreamReader reader = new StreamReader(fileStream, encoding))
             {
                 string line;
                 while ((line = reader.ReadLine()) != null)

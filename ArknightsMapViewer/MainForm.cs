@@ -17,6 +17,7 @@ namespace ArknightsMapViewer
 
         private LevelView curLevelView;
         private SpawnView curSpawnView;
+        private bool needUpdateMap;
         private bool readingMultiFiles;
 
         private Dictionary<Position, List<IMapData>> mapPredefines = new Dictionary<Position, List<IMapData>>();
@@ -320,11 +321,11 @@ namespace ArknightsMapViewer
                 Path = path,
                 Name = fileName,
                 LevelData = levelData,
-                MapDrawer = new MapDrawer(pictureBox1, levelData.map),
+                MapDrawer = new MapDrawer(levelData.map),
             };
 
-            int mapWidth = levelData.map.GetLength(0);
-            int mapHeight = levelData.map.GetLength(1);
+            int mapWidth = levelData.mapWidth;
+            int mapHeight = levelData.mapHeight;
             //PathFinding pathFinding = new AStarPathFinding(); //A*在节点周围多个点cost相同的情况，可能会选到后续较远的路径，即不一定会搜到最短路径
             PathFinding pathFinding = new DijkstraPathFinding();
             pathFinding.SetIsBarrierArray(Helper.GetIsBarrierArray(levelData));
@@ -348,7 +349,7 @@ namespace ArknightsMapViewer
                     {
                         RouteIndex = i,
                         Route = route,
-                        RouteDrawer = RouteDrawer.Create(pictureBox1, route, pathFinding, mapWidth, mapHeight),
+                        RouteDrawer = RouteDrawer.Create(route, pathFinding, mapWidth, mapHeight),
                     };
                     if (route != null && route.checkPoints != null)
                     {
@@ -369,7 +370,7 @@ namespace ArknightsMapViewer
             //AddWaveList & InitEnemyList
             int spawnIndex = 0;
             float spawnTime = 0;
-            List<EnemySpawnView> enemySpawnViews = new List<EnemySpawnView>();
+            List<ISpawnAction> spawnActions = new List<ISpawnAction>();
             List<PredefineView> predefineViews = new List<PredefineView>();
 
             if (levelData.waves != null)
@@ -400,7 +401,7 @@ namespace ArknightsMapViewer
                                 if (levelData.routes != null && action.routeIndex >= 0 && action.routeIndex < levelData.routes.Count)
                                 {
                                     Route route = levelData.routes[action.routeIndex];
-                                    RouteDrawer routeDrawer = RouteDrawer.Create(pictureBox1, route, pathFinding, mapWidth, mapHeight);
+                                    RouteDrawer routeDrawer = RouteDrawer.Create(route, pathFinding, mapWidth, mapHeight);
                                     actionNode.Tag = new SpawnActionView()
                                     {
                                         Action = action,
@@ -431,7 +432,7 @@ namespace ArknightsMapViewer
                                             MaxTimeWaitingForNextWave = wave.maxTimeWaitingForNextWave,
                                             RouteDrawer = routeDrawer,
                                         };
-                                        enemySpawnViews.Add(enemySpawnView);
+                                        spawnActions.Add(enemySpawnView);
 
                                         if (enemySpawnView.SpawnTime > fragmentSpawnTime)
                                         {
@@ -454,7 +455,7 @@ namespace ArknightsMapViewer
 
                                     if (predefine != null)
                                     {
-                                        PredefineDrawer predefineDrawer = new PredefineDrawer(pictureBox1, predefine, mapWidth, mapHeight);
+                                        PredefineDrawer predefineDrawer = new PredefineDrawer(predefine, mapWidth, mapHeight);
                                         actionNode.Tag = new PredefineActionView()
                                         {
                                             Action = action,
@@ -462,10 +463,12 @@ namespace ArknightsMapViewer
                                         };
 
                                         //TODO 单个action内装置是否有多个？
+                                        GlobalDefine.TrapDBData.TryGetValue(predefine.inst.characterKey, out TrapData trapData);
                                         PredefineView predefineView = new PredefineView()
                                         {
                                             Predefine = predefine,
                                             PredefineKey = action.key,
+                                            TrapData = trapData,
                                             ActivateTime = spawnTime + action.preDelay,
                                             HiddenGroup = action.hiddenGroup,
                                             RandomSpawnGroupKey = action.randomSpawnGroupKey,
@@ -474,6 +477,7 @@ namespace ArknightsMapViewer
                                             PredefineDrawer = predefineDrawer,
                                         };
                                         predefineViews.Add(predefineView);
+                                        spawnActions.Add(predefineView);
 
                                         if (predefineView.ActivateTime > fragmentSpawnTime)
                                         {
@@ -517,7 +521,7 @@ namespace ArknightsMapViewer
                                 actionNode.Tag = new SpawnActionView()
                                 {
                                     Action = action,
-                                    Drawer = RouteDrawer.Create(pictureBox1, levelData.extraRoutes[action.routeIndex], pathFinding, mapWidth, mapHeight),
+                                    Drawer = RouteDrawer.Create(levelData.extraRoutes[action.routeIndex], pathFinding, mapWidth, mapHeight),
                                     IsExtraRoute = true,
                                 };
                             }
@@ -541,25 +545,27 @@ namespace ArknightsMapViewer
                     PredefineView predefineView = predefineViews.Find(x => predefineKey == x.PredefineKey);
                     if (predefineView != null)
                     {
-                        TreeNode predefineNode = tokensNode.Nodes.Add($"#{i} {predefineView.ToSimpleString()}");
+                        TreeNode predefineNode = tokensNode.Nodes.Add($"#{i} {predefineView.ToSimpleString(false)}");
                         predefineNode.Tag = predefineView;
                     }
                     else
                     {
                         TreeNode predefineNode = tokensNode.Nodes.Add($"#{i} {predefineKey}");
+                        GlobalDefine.TrapDBData.TryGetValue(predefine.inst.characterKey, out TrapData trapData);
                         predefineNode.Tag = new PredefineView()
                         {
                             Predefine = predefine,
                             PredefineKey = predefineKey,
+                            TrapData = trapData,
                             ActivateTime = -1,
-                            PredefineDrawer = new PredefineDrawer(pictureBox1, predefine, mapWidth, mapHeight),
+                            PredefineDrawer = new PredefineDrawer(predefine, mapWidth, mapHeight),
                         };
                     }
                 }
             }
 
             //AddSpawnList
-            if (enemySpawnViews.Count > 0)
+            if (spawnActions.Count > 0)
             {
                 TreeNode spawnsNode = rootNode.Nodes.Add("spawns");
                 SpawnView spawnView = new SpawnView()
@@ -567,7 +573,7 @@ namespace ArknightsMapViewer
                     SpawnsNode = spawnsNode,
                 };
                 spawnsNode.Tag = spawnView;
-                enemySpawnViews.Sort((a, b) => a.CompareTo(b));
+                spawnActions.Sort((a, b) => a.CompareTo(b));
 
                 void InsertGroup(string groupName, TreeNode treeNode)
                 {
@@ -580,26 +586,29 @@ namespace ArknightsMapViewer
                     }
                 }
 
-                for (int i = 0; i < enemySpawnViews.Count; i++)
+                for (int i = 0; i < spawnActions.Count; i++)
                 {
-                    EnemySpawnView enemySpawnView = enemySpawnViews[i];
-                    TreeNode spawnNode = spawnsNode.Nodes.Add($"#{i} {enemySpawnView.ToSimpleString()}");
-                    spawnNode.Tag = enemySpawnView;
+                    ISpawnAction spawnAction = spawnActions[i];
+                    TreeNode spawnNode = spawnsNode.Nodes.Add($"#{i} {spawnAction.ToSimpleString()}");
+                    spawnNode.Tag = spawnAction;
 
-                    Route route = enemySpawnView.Route;
-                    if (route != null && route.checkPoints != null)
+                    if (spawnAction is EnemySpawnView enemySpawnView)
                     {
-                        spawnNode.Nodes.Add($"startPosition: {route.startPosition}");
-                        for (int j = 0; j < route.checkPoints.Count; j++)
+                        Route route = enemySpawnView.Route;
+                        if (route != null && route.checkPoints != null)
                         {
-                            spawnNode.Nodes.Add($"checkPoint #{j} {route.checkPoints[j].ToSimpleString()}");
+                            spawnNode.Nodes.Add($"startPosition: {route.startPosition}");
+                            for (int j = 0; j < route.checkPoints.Count; j++)
+                            {
+                                spawnNode.Nodes.Add($"checkPoint #{j} {route.checkPoints[j].ToSimpleString()}");
+                            }
+                            spawnNode.Nodes.Add($"endPosition: {route.endPosition}");
                         }
-                        spawnNode.Nodes.Add($"endPosition: {route.endPosition}");
                     }
 
-                    InsertGroup(enemySpawnView.HiddenGroup, spawnNode);
-                    InsertGroup(enemySpawnView.RandomSpawnGroupKey, spawnNode);
-                    InsertGroup(enemySpawnView.RandomSpawnGroupPackKey, spawnNode);
+                    InsertGroup(spawnAction.HiddenGroup, spawnNode);
+                    InsertGroup(spawnAction.RandomSpawnGroupKey, spawnNode);
+                    InsertGroup(spawnAction.RandomSpawnGroupPackKey, spawnNode);
                 }
 
                 if (!readingMultiFiles)
@@ -665,49 +674,49 @@ namespace ArknightsMapViewer
                 treeNode = treeNode.Parent;
             }
 
-
-            //TODO
-            Graphics g = Graphics.FromHwnd(IntPtr.Zero);
-            float dpi = Math.Max(g.DpiX, g.DpiY) * 0.01f;
-
-            if (curLevelView != levelView)
+            if (curLevelView != levelView || needUpdateMap)
             {
                 curLevelView = levelView;
                 pictureBox1.BackgroundImage?.Dispose();
                 pictureBox1.BackgroundImage = null;
-                curLevelView?.MapDrawer?.DrawMap();
+                needUpdateMap = false;
+
+                if (curLevelView != null && curLevelView.MapDrawer != null)
+                {
+                    Bitmap bitmap = Helper.CreateBitmap(curLevelView.LevelData);
+
+                    curLevelView.MapDrawer.MarkUndefinedTile = checkBox1.Checked;
+                    curLevelView.MapDrawer.Draw(bitmap);
+                    pictureBox1.Width = bitmap.Width;
+                    pictureBox1.Height = bitmap.Height;
+                    pictureBox1.BackgroundImage = bitmap;
+
+                    checkBox1.Visible = curLevelView.MapDrawer.HaveUndefinedTiles;
+                }
             }
 
             pictureBox1.Image?.Dispose();
             pictureBox1.Image = null;
 
-            if (pictureBox1.BackgroundImage != null)
+            if (curLevelView != null)
             {
-                pictureBox1.Image = new Bitmap(pictureBox1.BackgroundImage.Width, pictureBox1.BackgroundImage.Height);
+                Bitmap bitmap = Helper.CreateBitmap(curLevelView.LevelData);
+
+                UpdatePredefine(bitmap, predefineRootNode, predefineDrawerView);
+                UpdateRoute(bitmap, routeDrawerView, routeSubIndex);
+                pictureBox1.Image = bitmap;
             }
 
-            UpdatePredefine(predefineRootNode, predefineDrawerView);
-            UpdateRoute(routeDrawerView, routeSubIndex);
             UpdateLabelInfo(routeSubIndex);
             UpdateGroupCheckBoxes(spawnView);
 
-            ////TODO 将各个Drawer中的pictureBox改为Bitmap
-            //if (pictureBox1.BackgroundImage != null && pictureBox1.Image != null)
-            //{
-            //    Bitmap scaledBackgroundImage = DrawUtil.ScaleBitmap((Bitmap)pictureBox1.BackgroundImage, (int)(pictureBox1.BackgroundImage.Width * 0.5f), (int)(pictureBox1.BackgroundImage.Height * 0.5f));
-            //    Bitmap scaledImage = DrawUtil.ScaleBitmap((Bitmap)pictureBox1.Image, (int)(pictureBox1.Image.Width * 0.5f), (int)(pictureBox1.Image.Height * 0.5f));
-            //    pictureBox1.BackgroundImage.Dispose();
-            //    pictureBox1.Image.Dispose();
-            //    pictureBox1.BackgroundImage = scaledBackgroundImage;
-            //    pictureBox1.Image = scaledImage;
-            //}
-
-            checkBox3.Visible = enemySpawnView != null;
+            pictureBox1.Refresh();
+            checkBox6.Visible = enemySpawnView != null;
         }
 
-        private void UpdatePredefine(TreeNode predefineRootNode, IDrawerView<PredefineDrawer> predefineDrawerView)
+        private void UpdatePredefine(Bitmap bitmap, TreeNode predefineRootNode, IDrawerView<PredefineDrawer> predefineDrawerView)
         {
-            bool showCheckBox5 = false;
+            bool showCheckBox3 = false;
 
             foreach (var item in mapPredefines)
             {
@@ -715,10 +724,9 @@ namespace ArknightsMapViewer
             }
 
             PredefineDrawer predefineDrawer = predefineDrawerView?.GetDrawer();
-            if (predefineDrawer != null && !checkBox4.Checked)
+            if (predefineDrawer != null && !checkBox2.Checked)
             {
-                predefineDrawer.DrawPredefine();
-                predefineDrawer.RefreshCanvas();
+                predefineDrawer.Draw(bitmap);
 
                 if (!mapPredefines.ContainsKey(predefineDrawer.Predefine.position))
                 {
@@ -731,7 +739,7 @@ namespace ArknightsMapViewer
                     mapPredefines[predefineDrawer.Predefine.position].Add(mapData);
                 }
             }
-            else if (predefineRootNode != null && checkBox4.Checked)
+            else if (predefineRootNode != null && checkBox2.Checked)
             {
                 foreach (TreeNode predefineNode in predefineRootNode.Nodes)
                 {
@@ -739,11 +747,11 @@ namespace ArknightsMapViewer
                     {
                         if (predefineView.Predefine.hidden)
                         {
-                            showCheckBox5 = true;
+                            showCheckBox3 = true;
                         }
-                        if (checkBox5.Checked || !predefineView.Predefine.hidden)
+                        if (checkBox3.Checked || !predefineView.Predefine.hidden)
                         {
-                            predefineView.PredefineDrawer?.DrawPredefine();
+                            predefineView.PredefineDrawer?.Draw(bitmap);
 
                             if (!mapPredefines.ContainsKey(predefineView.Predefine.position))
                             {
@@ -756,44 +764,43 @@ namespace ArknightsMapViewer
                 pictureBox1.Refresh();
             }
 
-            checkBox4.Visible = predefineRootNode != null && predefineRootNode.Nodes.Count > 0;
-            checkBox5.Visible = showCheckBox5;
+            checkBox2.Visible = predefineRootNode != null && predefineRootNode.Nodes.Count > 0;
+            checkBox3.Visible = showCheckBox3;
         }
 
-        private void UpdateRoute(IDrawerView<RouteDrawer> routeDrawerView, int routeSubIndex)
+        private void UpdateRoute(Bitmap bitmap, IDrawerView<RouteDrawer> routeDrawerView, int routeSubIndex)
         {
-            bool showCheckBox1 = false;
-            bool showCheckBox2 = false;
+            bool showCheckBox4 = false;
+            bool showCheckBox5 = false;
 
             RouteDrawer routeDrawer = routeDrawerView?.GetDrawer();
             if (routeDrawer != null)
             {
-                showCheckBox2 = true;
-                routeDrawer.ShowRouteLength = checkBox2.Checked;
+                showCheckBox4 = true;
+                routeDrawer.ShowRouteLength = checkBox4.Checked;
                 if (routeSubIndex < 0)
                 {
-                    routeDrawer.DrawRoute();
+                    routeDrawer.Draw(bitmap);
                 }
                 else
                 {
-                    showCheckBox1 = true;
+                    showCheckBox5 = true;
                     int checkPointIndex = routeSubIndex - 1;
-                    int startIndex = checkBox1.Checked ? checkPointIndex : -1; //-1表示从startPosition开始
+                    int startIndex = checkBox5.Checked ? checkPointIndex : -1; //-1表示从startPosition开始
 
                     for (int i = startIndex; i <= checkPointIndex; i++)
                     {
-                        routeDrawer.DrawMoveLine(i);
+                        routeDrawer.DrawMoveLine(bitmap, i);
                     }
                     for (int i = startIndex; i <= checkPointIndex; i++)
                     {
-                        routeDrawer.DrawCheckPoint(i);
+                        routeDrawer.DrawCheckPoint(bitmap, i);
                     }
-                    routeDrawer.RefreshCanvas();
                 }
             }
 
-            checkBox1.Visible = showCheckBox1;
-            checkBox2.Visible = showCheckBox2;
+            checkBox4.Visible = showCheckBox4;
+            checkBox5.Visible = showCheckBox5;
         }
 
         private void UpdateLabelInfo(int routeSubIndex)
@@ -811,7 +818,7 @@ namespace ArknightsMapViewer
                     {
                         if (routeDataView is EnemySpawnView enemySpawnView)
                         {
-                            stringBuilder.AppendLine(enemySpawnView.ToString(checkBox3.Checked));
+                            stringBuilder.AppendLine(enemySpawnView.ToString(checkBox6.Checked));
                             break;
 
                         }
@@ -898,7 +905,13 @@ namespace ArknightsMapViewer
                         };
                         flowLayoutPanel2.Controls.Add(checkBox);
                     }
+                    checkBox7.Checked = spawnView.ShowPredefined;
+                    treeView1.BeginUpdate();
+                    spawnView.UpdateNodes();
+                    treeView1.EndUpdate();
                 }
+
+                checkBox7.Visible = spawnView != null;
             }
         }
 
@@ -942,8 +955,8 @@ namespace ArknightsMapViewer
             //Point to row & col
             Point point = e.Location;
             Tile[,] map = curLevelView.LevelData.map;
-            int mapWidth = map.GetLength(0);
-            int mapHeight = map.GetLength(1);
+            int mapWidth = curLevelView.LevelData.mapWidth;
+            int mapHeight = curLevelView.LevelData.mapHeight;
 
             Position position = Helper.PointToPosition(point, mapHeight);
             position.col = position.col.Clamp(0, mapWidth - 1);
@@ -967,29 +980,31 @@ namespace ArknightsMapViewer
             richTextBox1.ScrollToCaret();
         }
 
+        private void checkBox_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateView();
+        }
+
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
+            if (curLevelView != null && curLevelView.MapDrawer != null)
+            {
+                curLevelView.MapDrawer.MarkUndefinedTile = checkBox1.Checked;
+            }
+            needUpdateMap = true;
             UpdateView();
         }
 
-        private void checkBox2_CheckedChanged(object sender, EventArgs e)
+        private void checkBox7_CheckedChanged(object sender, EventArgs e)
         {
-            UpdateView();
-        }
-
-        private void checkBox3_CheckedChanged(object sender, EventArgs e)
-        {
-            UpdateView();
-        }
-
-        private void checkBox4_CheckedChanged(object sender, EventArgs e)
-        {
-            UpdateView();
-        }
-
-        private void checkBox5_CheckedChanged(object sender, EventArgs e)
-        {
-            UpdateView();
+            if (curSpawnView != null)
+            {
+                curSpawnView.ShowPredefined = checkBox7.Checked;
+                treeView1.BeginUpdate();
+                curSpawnView.UpdateNodes();
+                treeView1.EndUpdate();
+                UpdateView();
+            }
         }
 
         private void fullImageToolStripMenuItem_Click(object sender, EventArgs e)

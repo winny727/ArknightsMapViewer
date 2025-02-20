@@ -4,7 +4,7 @@ using System.Data;
 
 namespace ArknightsMapViewer
 {
-    public class EnemySpawnView : IMapData, IDrawerView<RouteDrawer>, IMapDataView<Route>
+    public class EnemySpawnView : IMapData, IDrawerView<RouteDrawer>, IMapDataView<Route>, ISpawnAction
     {
         public string EnemyKey { get; set; }
         public DbData EnemyData { get; set; }
@@ -33,17 +33,18 @@ namespace ArknightsMapViewer
 
         public Route GetData() => Route;
         public RouteDrawer GetDrawer() => RouteDrawer;
+        public string ActionKey => EnemyKey;
+        public float ActionTime => SpawnTime;
 
-        public int CompareTo(EnemySpawnView other)
+        public int CompareTo(ISpawnAction other)
         {
             (IComparable, IComparable)[] comparer = new (IComparable, IComparable)[]
             {
-                (SpawnTime, other.SpawnTime),
-                (EnemyKey, other.EnemyKey),
+                (ActionTime, other.ActionTime),
+                (ActionKey, other.ActionKey),
                 (HiddenGroup, other.HiddenGroup),
                 (RandomSpawnGroupKey, other.RandomSpawnGroupKey),
                 (RandomSpawnGroupPackKey, other.RandomSpawnGroupPackKey),
-                (TotalSpawnIndex, other.TotalSpawnIndex),
             };
 
             foreach (var item in comparer)
@@ -75,7 +76,7 @@ namespace ArknightsMapViewer
 
         public string ToSimpleString()
         {
-            string text = $"{(EnemyData != null ? EnemyData.name.m_value : EnemyKey)} {SpawnTime}s";
+            string text = $"{((EnemyData != null && !string.IsNullOrEmpty(EnemyData.name)) ? EnemyData.name : EnemyKey)} {SpawnTime}s";
             if (TotalWave > 1)
             {
                 text = $"[{WaveIndex}_{SpawnIndexInWave}] " + text;

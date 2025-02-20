@@ -7,23 +7,21 @@ namespace ArknightsMapViewer
 {
     public class RouteDrawer : IDrawer
     {
-        public PictureBox PictureBox { get; private set; }
         public Route Route { get; private set; }
         public bool ShowRouteLength { get; set; }
         public PathFinding PathFinding { get; private set; }
         public int MapWidth { get; private set; }
         public int MapHeight { get; private set; }
 
-        private RouteDrawer(PictureBox pictureBox, Route route, PathFinding pathFinding, int mapWidth, int mapHeight)
+        private RouteDrawer(Route route, PathFinding pathFinding, int mapWidth, int mapHeight)
         {
-            PictureBox = pictureBox;
             Route = route;
             PathFinding = pathFinding;
             MapWidth = mapWidth;
             MapHeight = mapHeight;
         }
 
-        public static RouteDrawer Create(PictureBox pictureBox, Route route, PathFinding pathFinding, int mapWidth, int mapHeight)
+        public static RouteDrawer Create(Route route, PathFinding pathFinding, int mapWidth, int mapHeight)
         {
             if (route == null || route.checkPoints == null)
             {
@@ -31,41 +29,29 @@ namespace ArknightsMapViewer
                 return null;
             }
 
-            return new RouteDrawer(pictureBox, route, pathFinding, mapWidth, mapHeight);
+            return new RouteDrawer(route, pathFinding, mapWidth, mapHeight);
         }
 
-        public void InitCanvas()
-        {
-            Bitmap bitmap = new Bitmap(PictureBox.BackgroundImage.Width, PictureBox.BackgroundImage.Height);
-            PictureBox.Image?.Dispose();
-            PictureBox.Image = bitmap;
-        }
 
-        public void RefreshCanvas()
-        {
-            PictureBox.Refresh();
-        }
-
-        public void DrawRoute()
+        public void Draw(Bitmap bitmap)
         {
             for (int i = -1; i <= Route.checkPoints.Count; i++)
             {
-                DrawMoveLine(i);
+                DrawMoveLine(bitmap, i);
             }
             for (int i = -1; i <= Route.checkPoints.Count; i++)
             {
-                DrawCheckPoint(i);
+                DrawCheckPoint(bitmap, i);
             }
-            RefreshCanvas();
         }
 
-        public void DrawCheckPoint(int checkPointIndex)
+        public void DrawCheckPoint(Bitmap bitmap, int checkPointIndex)
         {
             if (checkPointIndex < 0)
             {
                 //DrawStartPosition
                 Point point = GetPoint(Route.startPosition, Route.spawnOffset);
-                DrawMovePosition(point);
+                DrawMovePosition(bitmap, point);
             }
             else if (checkPointIndex < Route.checkPoints.Count)
             {
@@ -74,30 +60,28 @@ namespace ArknightsMapViewer
                 if (checkPoint.SimpleType == CheckPoint.Type.MOVE)
                 {
                     Point point = GetPoint(checkPoint.position, checkPoint.reachOffset);
-                    DrawMovePosition(point);
+                    DrawMovePosition(bitmap, point);
                 }
                 else if (checkPoint.SimpleType == CheckPoint.Type.WAIT)
                 {
                     Point prevPoint = GetPrevMovePoint(checkPointIndex);
-                    DrawWaitPosition(prevPoint, checkPoint.time);
+                    DrawWaitPosition(bitmap, prevPoint, checkPoint.time);
                 }
             }
             else
             {
                 //DrawEndPosition
                 Point point = GetPoint(Route.endPosition, default);
-                DrawMovePosition(point);
+                DrawMovePosition(bitmap, point);
             }
         }
 
-        public void DrawMoveLine(int checkPointIndex)
+        public void DrawMoveLine(Bitmap bitmap, int checkPointIndex)
         {
             if (checkPointIndex < 0)
             {
                 return;
             }
-
-            Bitmap bitmap = (Bitmap)PictureBox.Image;
 
             int prevIndex = GetPrevMoveIndex(checkPointIndex);
             bool needPathFinding = Route.motionMode == MotionType.WALK;
@@ -245,15 +229,13 @@ namespace ArknightsMapViewer
             }
         }
 
-        private void DrawMovePosition(Point point)
+        private void DrawMovePosition(Bitmap bitmap, Point point)
         {
-            Bitmap bitmap = (Bitmap)PictureBox.Image;
             DrawUtil.DrawPoint(bitmap, point, GlobalDefine.LINE_COLOR, GlobalDefine.POINT_RADIUS);
         }
 
-        private void DrawWaitPosition(Point point, float time)
+        private void DrawWaitPosition(Bitmap bitmap, Point point, float time)
         {
-            Bitmap bitmap = (Bitmap)PictureBox.Image;
             int length = GlobalDefine.TILE_PIXLE;
             Rectangle rectangle = new Rectangle(point.X - length, point.Y - length, 2 * length, 2 * length);
             DrawUtil.FillCircle(bitmap, point, GlobalDefine.CIRCLE_RADIUS, GlobalDefine.CIRCLE_COLOR);
