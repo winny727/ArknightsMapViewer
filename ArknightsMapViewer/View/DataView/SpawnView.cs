@@ -7,24 +7,15 @@ namespace ArknightsMapViewer
     public class SpawnView
     {
         public TreeNode SpawnsNode;
+        public List<TreeNode> SpawnNodesList = new List<TreeNode>();
+
         public bool ShowPredefined;
         public Dictionary<string, bool> SpawnGroups = new Dictionary<string, bool>();
 
-        private List<TreeNode> originNodes;
-
         public void UpdateNodes()
         {
-            if (originNodes == null)
-            {
-                originNodes = new List<TreeNode>();
-                foreach (TreeNode node in SpawnsNode.Nodes)
-                {
-                    originNodes.Add(node);
-                }
-            }
-
             SpawnsNode.Nodes.Clear();
-            foreach (TreeNode node in originNodes)
+            foreach (TreeNode node in SpawnNodesList)
             {
                 if (node.Tag is ISpawnAction spawnAction)
                 {
@@ -37,8 +28,8 @@ namespace ArknightsMapViewer
                         string.IsNullOrEmpty(spawnAction.RandomSpawnGroupKey) &&
                         string.IsNullOrEmpty(spawnAction.RandomSpawnGroupPackKey))
                     {
+                        node.Text = $"#{SpawnsNode.Nodes.Count} {spawnAction.ToSimpleString()}";
                         SpawnsNode.Nodes.Add(node);
-                        node.Text = $"#{node.Index} {spawnAction.ToSimpleString()}";
                         continue;
                     }
 
@@ -46,8 +37,8 @@ namespace ArknightsMapViewer
                         CheckShowNode(spawnAction.RandomSpawnGroupKey) ||
                         CheckShowNode(spawnAction.RandomSpawnGroupPackKey))
                     {
+                        node.Text = $"#{SpawnsNode.Nodes.Count} {spawnAction.ToSimpleString()}";
                         SpawnsNode.Nodes.Add(node);
-                        node.Text = $"#{node.Index} {spawnAction.ToSimpleString()}";
                     }
                 }
             }

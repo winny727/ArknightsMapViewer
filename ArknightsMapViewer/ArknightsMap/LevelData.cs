@@ -102,7 +102,7 @@ namespace ArknightsMapViewer
         public Dictionary<string, Branch> branches;
         public Predefine predefines;
 
-        //TODO SpawnList中显示装置刷新相关信息，并且插入到随机分组中
+        //TODO 装置勾选框后分组勾选框刷新？Weight和总Weight计算
     }
 
     [Serializable]

@@ -415,7 +415,7 @@
             this.checkBox7.Name = "checkBox7";
             this.checkBox7.Size = new System.Drawing.Size(120, 16);
             this.checkBox7.TabIndex = 8;
-            this.checkBox7.Text = "显示装置激活行为";
+            this.checkBox7.Text = "显示预设激活行为";
             this.checkBox7.UseVisualStyleBackColor = true;
             this.checkBox7.CheckedChanged += new System.EventHandler(this.checkBox7_CheckedChanged);
             // 

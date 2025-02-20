@@ -441,7 +441,7 @@ namespace ArknightsMapViewer
                                     }
                                 }
 
-                                //TODO ACTIVATE_PREDEFINED是否也算Spawn
+                                //TODO ACTIVATE_PREDEFINED是否也计数
                                 waveSpawnIndex++;
                                 spawnIndex++;
                             }
@@ -589,8 +589,10 @@ namespace ArknightsMapViewer
                 for (int i = 0; i < spawnActions.Count; i++)
                 {
                     ISpawnAction spawnAction = spawnActions[i];
-                    TreeNode spawnNode = spawnsNode.Nodes.Add($"#{i} {spawnAction.ToSimpleString()}");
-                    spawnNode.Tag = spawnAction;
+                    TreeNode spawnNode = new TreeNode
+                    {
+                        Tag = spawnAction
+                    };
 
                     if (spawnAction is EnemySpawnView enemySpawnView)
                     {
@@ -609,12 +611,16 @@ namespace ArknightsMapViewer
                     InsertGroup(spawnAction.HiddenGroup, spawnNode);
                     InsertGroup(spawnAction.RandomSpawnGroupKey, spawnNode);
                     InsertGroup(spawnAction.RandomSpawnGroupPackKey, spawnNode);
+
+                    spawnView.SpawnNodesList.Add(spawnNode);
                 }
 
                 if (!readingMultiFiles)
                 {
                     spawnsNode.Expand();
                 }
+
+                spawnView.UpdateNodes();
             }
 
             if (!readingMultiFiles)
@@ -690,8 +696,6 @@ namespace ArknightsMapViewer
                     pictureBox1.Width = bitmap.Width;
                     pictureBox1.Height = bitmap.Height;
                     pictureBox1.BackgroundImage = bitmap;
-
-                    checkBox1.Visible = curLevelView.MapDrawer.HaveUndefinedTiles;
                 }
             }
 
@@ -705,13 +709,28 @@ namespace ArknightsMapViewer
                 UpdatePredefine(bitmap, predefineRootNode, predefineDrawerView);
                 UpdateRoute(bitmap, routeDrawerView, routeSubIndex);
                 pictureBox1.Image = bitmap;
+
+                if (curLevelView.MapDrawer != null)
+                {
+                    checkBox1.Visible = curLevelView.MapDrawer.HaveUndefinedTiles;
+                }
+                checkBox6.Visible = enemySpawnView != null;
+            }
+            else
+            {
+                checkBox1.Visible = false;
+                checkBox2.Visible = false;
+                checkBox3.Visible = false;
+                checkBox4.Visible = false;
+                checkBox5.Visible = false;
+                checkBox6.Visible = false;
+                checkBox7.Visible = false;
             }
 
             UpdateLabelInfo(routeSubIndex);
             UpdateGroupCheckBoxes(spawnView);
 
             pictureBox1.Refresh();
-            checkBox6.Visible = enemySpawnView != null;
         }
 
         private void UpdatePredefine(Bitmap bitmap, TreeNode predefineRootNode, IDrawerView<PredefineDrawer> predefineDrawerView)
@@ -887,6 +906,7 @@ namespace ArknightsMapViewer
                 flowLayoutPanel2.Controls.Clear();
                 if (spawnView != null)
                 {
+                    checkBox7.Checked = spawnView.ShowPredefined;
                     foreach (var item in spawnView.SpawnGroups)
                     {
                         CheckBox checkBox = new CheckBox
@@ -898,21 +918,14 @@ namespace ArknightsMapViewer
                         checkBox.CheckedChanged += (s, e) =>
                         {
                             spawnView.SpawnGroups[checkBox.Text] = checkBox.Checked;
-                            treeView1.BeginUpdate(); //避免修改节点Text时频繁触发treeView的Update
                             spawnView.UpdateNodes();
-                            treeView1.EndUpdate();
                             UpdateView();
                         };
                         flowLayoutPanel2.Controls.Add(checkBox);
                     }
-                    checkBox7.Checked = spawnView.ShowPredefined;
-                    treeView1.BeginUpdate();
-                    spawnView.UpdateNodes();
-                    treeView1.EndUpdate();
                 }
-
-                checkBox7.Visible = spawnView != null;
             }
+            checkBox7.Visible = spawnView != null;
         }
 
         public enum LogType
@@ -1000,9 +1013,7 @@ namespace ArknightsMapViewer
             if (curSpawnView != null)
             {
                 curSpawnView.ShowPredefined = checkBox7.Checked;
-                treeView1.BeginUpdate();
                 curSpawnView.UpdateNodes();
-                treeView1.EndUpdate();
                 UpdateView();
             }
         }
