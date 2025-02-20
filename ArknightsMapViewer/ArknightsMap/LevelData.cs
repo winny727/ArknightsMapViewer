@@ -32,17 +32,26 @@ namespace ArknightsMapViewer
             {
                 for (int i = 0; i < rawLevelData.enemyDbRefs.Count; i++)
                 {
-                    DbData dbData;
+                    DbData dbData = null;
                     EnemyDbRef enemyDbRef = rawLevelData.enemyDbRefs[i];
                     if (enemyDbRef.useDb)
                     {
-                        dbData = GlobalDefine.EnemyDBData[enemyDbRef.id][enemyDbRef.level];
+                        if (GlobalDefine.EnemyDBData.TryGetValue(enemyDbRef.id, out var dbDatas))
+                        {
+                            if (enemyDbRef.level >= 0 && enemyDbRef.level < dbDatas.Count)
+                            {
+                                dbData = dbDatas[enemyDbRef.level];
+                            }
+                        }
                     }
                     else
                     {
                         dbData = enemyDbRef.overwrittenData;
                     }
-                    enemyDbRefs.Add(enemyDbRef.id, dbData);
+                    if (dbData != null)
+                    {
+                        enemyDbRefs.Add(enemyDbRef.id, dbData);
+                    }
                 }
             }
 
@@ -102,7 +111,7 @@ namespace ArknightsMapViewer
         public Dictionary<string, Branch> branches;
         public Predefine predefines;
 
-        //TODO 装置勾选框后分组勾选框刷新？Weight和总Weight计算
+        //TODO 装置勾选框后分组勾选框刷新？分组和权重逻辑完善
     }
 
     [Serializable]
@@ -321,14 +330,15 @@ namespace ArknightsMapViewer
         public int routeIndex;
         public bool blockFragment;
         public bool isUnharmfulAndAlwaysCountAsKilled;
-        public string hiddenGroup;
-        public string randomSpawnGroupKey;
-        public string randomSpawnGroupPackKey;
+        public string hiddenGroup; //隐藏分组标签，由外部触发显示
+        public string randomSpawnGroupKey; //互斥随机：同randomSpawnGroupKey不会同时刷出，共享weight
+        public string randomSpawnGroupPackKey; //打包随机：当前action满足随机后，同randomSpawnGroupPackKey的也一并刷出
         public RandomType randomType;
         public RefreshType refreshType;
-        public int weight; //权重
+        public int weight; //互斥随机权重，若randomSpawnGroupKey为空，则无论权重多少固定刷出
+        //public float weightValue;
         public bool dontBlockWave;
-        public bool isValid;
+        //public bool isValid;
         //extraMeta
 
         public string ToSimpleString()

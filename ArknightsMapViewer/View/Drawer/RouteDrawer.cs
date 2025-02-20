@@ -136,79 +136,87 @@ namespace ArknightsMapViewer
                 //PathFinding
                 List<Vector2Int> path = PathFinding.GetPath(prevPosition, curPosition);
 
-                //移除路径中的非拐点
-                for (int i = 1; i < path.Count - 1; i++)
+                if (path != null)
                 {
-                    Vector2Int prevDir = path[i] - path[i - 1];
-                    Vector2Int nextDir = path[i + 1] - path[i];
-                    if (Vector2.Dot(prevDir, nextDir) != 0)
+
+                    //移除路径中的非拐点
+                    for (int i = 1; i < path.Count - 1; i++)
                     {
-                        path.RemoveAt(i);
-                        i--;
+                        Vector2Int prevDir = path[i] - path[i - 1];
+                        Vector2Int nextDir = path[i + 1] - path[i];
+                        if (Vector2.Dot(prevDir, nextDir) != 0)
+                        {
+                            path.RemoveAt(i);
+                            i--;
+                        }
+                    }
+
+                    //若两个点之间无障碍，则移除两个点之间的所有路径点
+                    for (int i = 0; i < path.Count - 2; i++)
+                    {
+                        int removeCount = 0;
+                        for (int j = i + 2; j < path.Count; j++)
+                        {
+                            Vector2 startPos = path[i];
+                            Vector2 endPos = path[j];
+
+                            if (i == 0)
+                            {
+                                startPos += prevOffset;
+                            }
+                            if (j == path.Count - 1)
+                            {
+                                endPos += curOffset;
+                            }
+
+                            if (Helper.HasCollider(startPos, endPos, PathFinding.IsBarrier))
+                            {
+                                break;
+                            }
+                            removeCount++;
+                        }
+                        path.RemoveRange(i + 1, removeCount);
+                    }
+
+                    if (path.Count > 2)
+                    {
+                        //color = Color.FromArgb(color.A / 2, color.R, color.G, color.B);
+                        for (int i = 0; i < path.Count - 1; i++)
+                        {
+                            Position position = path[i];
+                            Offset offset = default;
+                            Position nextPosition = path[i + 1];
+                            Offset nextOffset = default;
+                            if (i == 0)
+                            {
+                                offset = prevOffset;
+                            }
+                            if (i == path.Count - 2)
+                            {
+                                nextOffset = curOffset;
+                            }
+                            Point point = GetPoint(position, offset);
+                            Point nextPoint = GetPoint(nextPosition, nextOffset);
+                            DrawUtil.DrawLine(bitmap, point, nextPoint, color, GlobalDefine.LINE_WIDTH);
+                            if (ShowRouteLength)
+                            {
+                                float deltaCol = (position.col + offset.x) - (nextPosition.col + nextOffset.x);
+                                float deltaRow = (position.row + offset.y) - (nextPosition.row + nextOffset.y);
+                                float length = (float)Math.Sqrt(deltaCol * deltaCol + deltaRow * deltaRow);
+                                Rectangle rectangle = new Rectangle(
+                                    Math.Min(point.X, nextPoint.X),
+                                    Math.Min(point.Y, nextPoint.Y),
+                                    Math.Max(Math.Abs(point.X - nextPoint.X), GlobalDefine.TILE_PIXLE),
+                                    Math.Max(Math.Abs(point.Y - nextPoint.Y), GlobalDefine.TILE_PIXLE / 2));
+                                DrawUtil.DrawString(bitmap, $"({length:f2})", rectangle, GlobalDefine.LENGTH_FONT, GlobalDefine.LENGTH_COLOR);
+                            }
+                        }
+                        return;
                     }
                 }
-
-                //若两个点之间无障碍，则移除两个点之间的所有路径点
-                for (int i = 0; i < path.Count - 2; i++)
+                else
                 {
-                    int removeCount = 0;
-                    for (int j = i + 2; j < path.Count; j++)
-                    {
-                        Vector2 startPos = path[i];
-                        Vector2 endPos = path[j];
-
-                        if (i == 0)
-                        {
-                            startPos += prevOffset;
-                        }
-                        if (j == path.Count - 1)
-                        {
-                            endPos += curOffset;
-                        }
-
-                        if (Helper.HasCollider(startPos, endPos, PathFinding.IsBarrier))
-                        {
-                            break;
-                        }
-                        removeCount++;
-                    }
-                    path.RemoveRange(i + 1, removeCount);
-                }
-
-                if (path.Count > 2)
-                {
-                    //color = Color.FromArgb(color.A / 2, color.R, color.G, color.B);
-                    for (int i = 0; i < path.Count - 1; i++)
-                    {
-                        Position position = path[i];
-                        Offset offset = default;
-                        Position nextPosition = path[i + 1];
-                        Offset nextOffset = default;
-                        if (i == 0)
-                        {
-                            offset = prevOffset;
-                        }
-                        if (i == path.Count - 2)
-                        {
-                            nextOffset = curOffset;
-                        }
-                        Point point = GetPoint(position, offset);
-                        Point nextPoint = GetPoint(nextPosition, nextOffset);
-                        DrawUtil.DrawLine(bitmap, point, nextPoint, color, GlobalDefine.LINE_WIDTH);
-                        if (ShowRouteLength)
-                        {
-                            float deltaCol = (position.col + offset.x) - (nextPosition.col + nextOffset.x);
-                            float deltaRow = (position.row + offset.y) - (nextPosition.row + nextOffset.y);
-                            float length = (float)Math.Sqrt(deltaCol * deltaCol + deltaRow * deltaRow);
-                            Rectangle rectangle = new Rectangle(
-                                Math.Min(point.X, nextPoint.X), 
-                                Math.Min(point.Y, nextPoint.Y), 
-                                Math.Max(Math.Abs(point.X - nextPoint.X), GlobalDefine.TILE_PIXLE), 
-                                Math.Max(Math.Abs(point.Y - nextPoint.Y), GlobalDefine.TILE_PIXLE / 2));
-                            DrawUtil.DrawString(bitmap, $"({length:f2})", rectangle, GlobalDefine.LENGTH_FONT, GlobalDefine.LENGTH_COLOR);
-                        }
-                    }
-                    return;
+                    MainForm.Instance.Log($"PathFinding Failed, checkPointIndex: {checkPointIndex}", MainForm.LogType.Warning);
                 }
             }
 

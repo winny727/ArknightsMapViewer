@@ -10,6 +10,9 @@ namespace ArknightsMapViewer
         public TrapData TrapData { get; set; }
         public float ActivateTime { get; set; } = -1;
 
+        public int TotalWave { get; set; }
+        public int WaveIndex { get; set; }
+        public int SpawnIndexInWave { get; set; }
         public string HiddenGroup { get; set; }
         public string RandomSpawnGroupKey { get; set; }
         public string RandomSpawnGroupPackKey { get; set; }
@@ -25,7 +28,9 @@ namespace ArknightsMapViewer
         {
             (IComparable, IComparable)[] comparer = new (IComparable, IComparable)[]
             {
+                (WaveIndex, other.WaveIndex),
                 (ActionTime, other.ActionTime),
+                (SpawnIndexInWave, other.SpawnIndexInWave),
                 (ActionKey, other.ActionKey),
                 (HiddenGroup, other.HiddenGroup),
                 (RandomSpawnGroupKey, other.RandomSpawnGroupKey),
@@ -66,10 +71,14 @@ namespace ArknightsMapViewer
 
         public string ToSimpleString(bool isSpawn)
         {
-            string text = string.IsNullOrEmpty(PredefineKey) ? PredefineKey : (Predefine.alias ?? Predefine.inst.characterKey);
+            string text = (string.IsNullOrEmpty(PredefineKey) || Predefine == null) ? PredefineKey : (Predefine.alias ?? Predefine.inst.characterKey);
             if (isSpawn)
             {
                 text = $"{((TrapData != null && !string.IsNullOrEmpty(TrapData.name)) ? TrapData.name : text)} {ActivateTime}s";
+            }
+            if (TotalWave > 1)
+            {
+                text = $"[{WaveIndex}_{SpawnIndexInWave}] " + text;
             }
             if (!string.IsNullOrEmpty(HiddenGroup))
             {
@@ -92,9 +101,12 @@ namespace ArknightsMapViewer
 
         public override string ToString()
         {
-            string text =
-                $"PredefineKey: {PredefineKey}\n" +
-                $"PredefineData:\n{Predefine}";
+            string text = $"PredefineKey: {PredefineKey}\n";
+
+            if (Predefine != null)
+            {
+                text += $"PredefineData:\n{Predefine}";
+            }
 
             if (ActivateTime >= 0)
             {

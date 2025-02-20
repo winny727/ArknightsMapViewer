@@ -363,6 +363,11 @@ namespace ArknightsMapViewer
             int nodeIndex = destinationIndex;
             while (nodeIndex != originIndex)
             {
+                if (nodeIndex < 0)
+                {
+                    return null;
+                }
+
                 path.Add(nodeList[nodeIndex]);
                 nodeIndex = dijkstraInfo.Path[nodeIndex];
             }

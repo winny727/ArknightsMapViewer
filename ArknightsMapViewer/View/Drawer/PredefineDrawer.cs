@@ -21,6 +21,11 @@ namespace ArknightsMapViewer
 
         public void Draw(Bitmap bitmap)
         {
+            if (Predefine == null)
+            {
+                return;
+            }
+
             Point point = GetPoint(Predefine.position);
 
             string predefineName = Predefine.inst.characterKey;

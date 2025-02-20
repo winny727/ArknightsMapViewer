@@ -40,7 +40,9 @@ namespace ArknightsMapViewer
         {
             (IComparable, IComparable)[] comparer = new (IComparable, IComparable)[]
             {
+                (WaveIndex, other.WaveIndex),
                 (ActionTime, other.ActionTime),
+                (SpawnIndexInWave, other.SpawnIndexInWave),
                 (ActionKey, other.ActionKey),
                 (HiddenGroup, other.HiddenGroup),
                 (RandomSpawnGroupKey, other.RandomSpawnGroupKey),
@@ -113,7 +115,7 @@ namespace ArknightsMapViewer
 
             text += 
                 $"SpawnTime: {SpawnTime}\n" +
-                $"SpawnIndex: {TotalSpawnIndex}\n" +
+                //$"SpawnIndex: {TotalSpawnIndex}\n" +
                 $"RouteIndex: {RouteIndex}\n" +
                 $"HiddenGroup: {HiddenGroup}\n" +
                 $"RandomSpawnGroupKey: {RandomSpawnGroupKey}\n" +

@@ -440,49 +440,55 @@ namespace ArknightsMapViewer
                                         }
                                     }
                                 }
-
-                                //TODO ACTIVATE_PREDEFINED是否也计数
-                                waveSpawnIndex++;
-                                spawnIndex++;
                             }
                             else if (action.actionType == ActionType.ACTIVATE_PREDEFINED)
                             {
                                 if (levelData.predefines != null)
                                 {
-                                    Predefine.PredefineInst predefine =
-                                        levelData.predefines.tokenInsts?.Find(x => (x.alias ?? x.inst.characterKey) == action.key) ??
-                                        levelData.predefines.characterInsts?.Find(x => (x.alias ?? x.inst.characterKey) == action.key);
+                                    Predefine.PredefineInst predefine = null;
 
+                                    if (!string.IsNullOrEmpty(action.key))
+                                    {
+                                        predefine = 
+                                            levelData.predefines.tokenInsts?.Find(x => (x.alias ?? x.inst.characterKey) == action.key) ??
+                                            levelData.predefines.characterInsts?.Find(x => (x.alias ?? x.inst.characterKey) == action.key);
+                                    }
+
+                                    PredefineDrawer predefineDrawer = new PredefineDrawer(predefine, mapWidth, mapHeight);
+                                    actionNode.Tag = new PredefineActionView()
+                                    {
+                                        Action = action,
+                                        Drawer = predefineDrawer,
+                                    };
+
+                                    //TODO 单个action内装置是否有多个？
+                                    TrapData trapData = null;
                                     if (predefine != null)
                                     {
-                                        PredefineDrawer predefineDrawer = new PredefineDrawer(predefine, mapWidth, mapHeight);
-                                        actionNode.Tag = new PredefineActionView()
-                                        {
-                                            Action = action,
-                                            Drawer = predefineDrawer,
-                                        };
+                                        GlobalDefine.TrapDBData.TryGetValue(predefine.inst.characterKey, out trapData);
+                                    }
 
-                                        //TODO 单个action内装置是否有多个？
-                                        GlobalDefine.TrapDBData.TryGetValue(predefine.inst.characterKey, out TrapData trapData);
-                                        PredefineView predefineView = new PredefineView()
-                                        {
-                                            Predefine = predefine,
-                                            PredefineKey = action.key,
-                                            TrapData = trapData,
-                                            ActivateTime = spawnTime + action.preDelay,
-                                            HiddenGroup = action.hiddenGroup,
-                                            RandomSpawnGroupKey = action.randomSpawnGroupKey,
-                                            RandomSpawnGroupPackKey = action.randomSpawnGroupPackKey,
-                                            Weight = action.weight,
-                                            PredefineDrawer = predefineDrawer,
-                                        };
-                                        predefineViews.Add(predefineView);
-                                        spawnActions.Add(predefineView);
+                                    PredefineView predefineView = new PredefineView()
+                                    {
+                                        Predefine = predefine,
+                                        PredefineKey = action.key,
+                                        TrapData = trapData,
+                                        ActivateTime = spawnTime + action.preDelay,
+                                        TotalWave = levelData.waves.Count,
+                                        WaveIndex = i,
+                                        SpawnIndexInWave = waveSpawnIndex,
+                                        HiddenGroup = action.hiddenGroup,
+                                        RandomSpawnGroupKey = action.randomSpawnGroupKey,
+                                        RandomSpawnGroupPackKey = action.randomSpawnGroupPackKey,
+                                        Weight = action.weight,
+                                        PredefineDrawer = predefineDrawer,
+                                    };
+                                    predefineViews.Add(predefineView);
+                                    spawnActions.Add(predefineView);
 
-                                        if (predefineView.ActivateTime > fragmentSpawnTime)
-                                        {
-                                            fragmentSpawnTime = predefineView.ActivateTime;
-                                        }
+                                    if (predefineView.ActivateTime > fragmentSpawnTime)
+                                    {
+                                        fragmentSpawnTime = predefineView.ActivateTime;
                                     }
                                 }
                             }
@@ -490,6 +496,9 @@ namespace ArknightsMapViewer
                             {
                                 actionNode.Tag = action;
                             }
+
+                            waveSpawnIndex++;
+                            spawnIndex++;
                         }
                         spawnTime = fragmentSpawnTime;
                     }
@@ -743,7 +752,7 @@ namespace ArknightsMapViewer
             }
 
             PredefineDrawer predefineDrawer = predefineDrawerView?.GetDrawer();
-            if (predefineDrawer != null && !checkBox2.Checked)
+            if (predefineDrawer != null && predefineDrawer.Predefine != null && !checkBox2.Checked)
             {
                 predefineDrawer.Draw(bitmap);
 
@@ -762,7 +771,7 @@ namespace ArknightsMapViewer
             {
                 foreach (TreeNode predefineNode in predefineRootNode.Nodes)
                 {
-                    if (predefineNode.Tag is PredefineView predefineView)
+                    if (predefineNode.Tag is PredefineView predefineView && predefineView.Predefine != null)
                     {
                         if (predefineView.Predefine.hidden)
                         {

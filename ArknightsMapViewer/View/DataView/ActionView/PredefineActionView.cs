@@ -14,8 +14,12 @@ namespace ArknightsMapViewer
                 $"{nameof(Action.hiddenGroup)}: {Action.hiddenGroup}\n" +
                 $"{nameof(Action.randomSpawnGroupKey)}: {Action.randomSpawnGroupKey}\n" +
                 $"{nameof(Action.randomSpawnGroupPackKey)}: {Action.randomSpawnGroupPackKey}\n" +
-                $"{nameof(Action.weight)}: {Action.weight}\n" +
-                $"{((PredefineDrawer)Drawer).Predefine}";
+                $"{nameof(Action.weight)}: {Action.weight}";
+
+            if (((PredefineDrawer)Drawer).Predefine != null)
+            {
+                text += $"\n{((PredefineDrawer)Drawer).Predefine}";
+            }
 
             return text;
         }
