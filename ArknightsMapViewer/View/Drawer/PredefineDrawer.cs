@@ -30,9 +30,10 @@ namespace ArknightsMapViewer
 
             string predefineName = Predefine.inst.characterKey;
 
-            if (GlobalDefine.TrapDBData.TryGetValue(predefineName, out TrapData trapDBData) && !string.IsNullOrEmpty(trapDBData.appellation))
+            if (GlobalDefine.CharacterTable.TryGetValue(predefineName, out CharacterData characterData) && 
+                !string.IsNullOrEmpty(characterData.appellation) && characterData.profession == "TRAP")
             {
-                predefineName = trapDBData.appellation;
+                predefineName = characterData.appellation;
                 if (predefineName.Contains(" "))
                 {
                     predefineName = Helper.GetAbbreviation(predefineName);

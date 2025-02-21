@@ -102,7 +102,7 @@ namespace ArknightsMapViewer
         public readonly static Dictionary<string, TileInfo> TileInfo = new Dictionary<string, TileInfo>();
 
         //Database
-        public readonly static Dictionary<string, Dictionary<int, DbData>> EnemyDBData = new Dictionary<string, Dictionary<int, DbData>>();
-        public readonly static Dictionary<string, TrapData> TrapDBData = new Dictionary<string, TrapData>();
+        public readonly static Dictionary<string, Dictionary<int, DbData>> EnemyDatabase = new Dictionary<string, Dictionary<int, DbData>>();
+        public readonly static Dictionary<string, CharacterData> CharacterTable = new Dictionary<string, CharacterData>();
     }
 }

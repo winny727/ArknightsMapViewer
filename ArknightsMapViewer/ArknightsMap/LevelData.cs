@@ -36,7 +36,7 @@ namespace ArknightsMapViewer
                     EnemyDbRef enemyDbRef = rawLevelData.enemyDbRefs[i];
                     if (enemyDbRef.useDb)
                     {
-                        if (GlobalDefine.EnemyDBData.TryGetValue(enemyDbRef.id, out var dbDatas))
+                        if (GlobalDefine.EnemyDatabase.TryGetValue(enemyDbRef.id, out var dbDatas))
                         {
                             if (enemyDbRef.level >= 0 && enemyDbRef.level < dbDatas.Count)
                             {
@@ -348,6 +348,7 @@ namespace ArknightsMapViewer
         public string ToSimpleString()
         {
             //EnemyData: gamedata/levels/enemydata/enemy_database.json
+            //CharacterTable: gamedata/excel/character_table.json
 
             string text = actionType.ToString();
             if (actionType == ActionType.SPAWN || actionType == ActionType.ACTIVATE_PREDEFINED)
@@ -407,9 +408,9 @@ namespace ArknightsMapViewer
                     $"{nameof(hidden)}: {hidden}\n" +
                     $"{nameof(inst.characterKey)}: {inst.characterKey}\n";
 
-                if (GlobalDefine.TrapDBData.TryGetValue(inst.characterKey, out TrapData trapData))
+                if (GlobalDefine.CharacterTable.TryGetValue(inst.characterKey, out CharacterData characterData))
                 {
-                    text += trapData.ToString();
+                    text += characterData.ToString();
                 }
 
                     //$"{nameof(inst.level)}: {inst.level}\n" +
@@ -425,8 +426,13 @@ namespace ArknightsMapViewer
             }
         }
 
+        //自动部署
         public List<PredefineInst> characterInsts;
         public List<PredefineInst> tokenInsts;
+
+        //手牌
+        public List<PredefineInst> characterCards;
+        public List<PredefineInst> tokenCards;
     }
 
 
@@ -607,15 +613,16 @@ namespace ArknightsMapViewer
     }
 
     [Serializable]
-    public class TrapData : IMapData
+    public class CharacterData : IMapData
     {
         public string name;
         public string description;
         public string appellation;
+        public string profession;
 
         public override string ToString()
         {
-            string text = $"{nameof(name)}: {name}";
+            string text = $"{nameof(name)}: {name} ({profession})";
             if (!string.IsNullOrEmpty(appellation))
             {
                 text += $" ({appellation})";

@@ -207,9 +207,9 @@ namespace ArknightsMapViewer
                                 dbDatas.Add(level, dbData);
                             }
                         }
-                        if (!string.IsNullOrEmpty(key) && !GlobalDefine.EnemyDBData.ContainsKey(key))
+                        if (!string.IsNullOrEmpty(key) && !GlobalDefine.EnemyDatabase.ContainsKey(key))
                         {
-                            GlobalDefine.EnemyDBData.Add(key, dbDatas);
+                            GlobalDefine.EnemyDatabase.Add(key, dbDatas);
                         }
                         else
                         {
@@ -226,7 +226,7 @@ namespace ArknightsMapViewer
             }
         }
 
-        public static void InitTrapDatabase()
+        public static void InitCharacterTable()
         {
             string path = Path.Combine(Directory.GetCurrentDirectory(), "Config", "character_table.json");
             if (!File.Exists(path))
@@ -245,25 +245,26 @@ namespace ArknightsMapViewer
                         string key = item.Key;
                         JObject data = item.Value;
 
-                        if (data["profession"]?.ToString() == "TRAP")
-                        {
-                            TrapData trapData = new TrapData()
+                        //if (data["profession"]?.ToString() == "TRAP")
+                        //{
+                            CharacterData characterData = new CharacterData()
                             {
                                 name = data["name"]?.ToString(),
                                 description = data["description"]?.ToString(),
                                 appellation = data["appellation"]?.ToString(),
+                                profession = data["profession"]?.ToString(),
                             };
 
-                            if (!string.IsNullOrEmpty(key) && !GlobalDefine.TrapDBData.ContainsKey(key))
+                            if (!string.IsNullOrEmpty(key) && !GlobalDefine.CharacterTable.ContainsKey(key))
                             {
-                                GlobalDefine.TrapDBData.Add(key, trapData);
+                                GlobalDefine.CharacterTable.Add(key, characterData);
                             }
                             else
                             {
                                 string errorMsg = $"character_table.json Parse Error, ErrorKey: {key}";
                                 MainForm.Instance.Log(errorMsg, MainForm.LogType.Warning);
                             }
-                        }
+                        //}
                     }
                 }
             }

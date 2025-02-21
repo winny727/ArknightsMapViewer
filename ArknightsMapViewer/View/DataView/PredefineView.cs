@@ -7,7 +7,8 @@ namespace ArknightsMapViewer
     {
         public Predefine.PredefineInst Predefine { get; set; }
         public string PredefineKey { get; set; }
-        public TrapData TrapData { get; set; }
+        public bool IsCard { get; set; }
+        public CharacterData PredefineData { get; set; }
         public float ActivateTime { get; set; } = -1;
 
         public int TotalWave { get; set; }
@@ -74,8 +75,19 @@ namespace ArknightsMapViewer
             string text = (string.IsNullOrEmpty(PredefineKey) || Predefine == null) ? PredefineKey : (Predefine.alias ?? Predefine.inst.characterKey);
             if (isSpawn)
             {
-                text = $"{((TrapData != null && !string.IsNullOrEmpty(TrapData.name)) ? TrapData.name : text)} {ActivateTime}s";
+                text = (PredefineData != null && !string.IsNullOrEmpty(PredefineData.name)) ? PredefineData.name : text;
             }
+
+            if (IsCard)
+            {
+                text += " (Card)";
+            }
+
+            if (isSpawn)
+            {
+                text += $" {ActivateTime}s";
+            }
+
             if (TotalWave > 1)
             {
                 text = $"[{WaveIndex}_{SpawnIndexInWave}] " + text;
@@ -101,7 +113,14 @@ namespace ArknightsMapViewer
 
         public override string ToString()
         {
-            string text = $"PredefineKey: {PredefineKey}\n";
+            string text = $"PredefineKey: {PredefineKey}";
+
+            if (IsCard)
+            {
+                text += " (Card)";
+            }
+
+            text += "\n";
 
             if (Predefine != null)
             {

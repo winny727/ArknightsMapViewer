@@ -70,7 +70,7 @@ namespace ArknightsMapViewer
             Helper.InitDrawConfig();
             Helper.InitTileInfoConfig();
             Helper.InitEnemyDatabase();
-            Helper.InitTrapDatabase();
+            Helper.InitCharacterTable();
             UpdateView();
 
             string[] latestFilePath = Helper.LoadLatestFilePath();
@@ -445,34 +445,45 @@ namespace ArknightsMapViewer
                             {
                                 if (levelData.predefines != null)
                                 {
+                                    bool isCard = false;
                                     Predefine.PredefineInst predefine = null;
 
                                     if (!string.IsNullOrEmpty(action.key))
                                     {
                                         predefine = 
-                                            levelData.predefines.tokenInsts?.Find(x => (x.alias ?? x.inst.characterKey) == action.key) ??
-                                            levelData.predefines.characterInsts?.Find(x => (x.alias ?? x.inst.characterKey) == action.key);
+                                            levelData.predefines.characterInsts?.Find(x => (x.alias ?? x.inst.characterKey) == action.key) ??
+                                            levelData.predefines.tokenInsts?.Find(x => (x.alias ?? x.inst.characterKey) == action.key);
+
+                                        if (predefine == null)
+                                        {
+                                            predefine =
+                                                levelData.predefines.characterCards?.Find(x => (x.alias ?? x.inst.characterKey) == action.key) ??
+                                                levelData.predefines.tokenCards?.Find(x => (x.alias ?? x.inst.characterKey) == action.key);
+                                            isCard = predefine != null;
+                                        }
                                     }
 
                                     PredefineDrawer predefineDrawer = new PredefineDrawer(predefine, mapWidth, mapHeight);
                                     actionNode.Tag = new PredefineActionView()
                                     {
                                         Action = action,
+                                        IsCard = isCard,
                                         Drawer = predefineDrawer,
                                     };
 
                                     //TODO 单个action内装置是否有多个？
-                                    TrapData trapData = null;
+                                    CharacterData characterData = null;
                                     if (predefine != null)
                                     {
-                                        GlobalDefine.TrapDBData.TryGetValue(predefine.inst.characterKey, out trapData);
+                                        GlobalDefine.CharacterTable.TryGetValue(predefine.inst.characterKey, out characterData);
                                     }
 
                                     PredefineView predefineView = new PredefineView()
                                     {
                                         Predefine = predefine,
                                         PredefineKey = action.key,
-                                        TrapData = trapData,
+                                        IsCard = isCard,
+                                        PredefineData = characterData,
                                         ActivateTime = spawnTime + action.preDelay,
                                         TotalWave = levelData.waves.Count,
                                         WaveIndex = i,
@@ -543,34 +554,43 @@ namespace ArknightsMapViewer
                 }
             }
 
-            //AddTrapList
+            //AddPredefineList
             if (levelData.predefines != null && levelData.predefines.tokenInsts != null)
             {
-                TreeNode tokensNode = rootNode.Nodes.Add("traps");
-                for (int i = 0; i < levelData.predefines.tokenInsts.Count; i++)
+                TreeNode tokensNode = rootNode.Nodes.Add("predefines");
+
+                void InsertPredefine(List<Predefine.PredefineInst> predefineInsts)
                 {
-                    Predefine.PredefineInst predefine = levelData.predefines.tokenInsts[i];
-                    string predefineKey = predefine.alias ?? predefine.inst.characterKey;
-                    PredefineView predefineView = predefineViews.Find(x => predefineKey == x.PredefineKey);
-                    if (predefineView != null)
+                    for (int i = 0; i < predefineInsts.Count; i++)
                     {
-                        TreeNode predefineNode = tokensNode.Nodes.Add($"#{i} {predefineView.ToSimpleString(false)}");
-                        predefineNode.Tag = predefineView;
-                    }
-                    else
-                    {
-                        TreeNode predefineNode = tokensNode.Nodes.Add($"#{i} {predefineKey}");
-                        GlobalDefine.TrapDBData.TryGetValue(predefine.inst.characterKey, out TrapData trapData);
-                        predefineNode.Tag = new PredefineView()
+                        Predefine.PredefineInst predefine = predefineInsts[i];
+                        string predefineKey = predefine.alias ?? predefine.inst.characterKey;
+                        PredefineView predefineView = predefineViews.Find(x => predefineKey == x.PredefineKey);
+                        if (predefineView != null)
                         {
-                            Predefine = predefine,
-                            PredefineKey = predefineKey,
-                            TrapData = trapData,
-                            ActivateTime = -1,
-                            PredefineDrawer = new PredefineDrawer(predefine, mapWidth, mapHeight),
-                        };
+                            TreeNode predefineNode = tokensNode.Nodes.Add($"#{i} {predefineView.ToSimpleString(false)}");
+                            predefineNode.Tag = predefineView;
+                        }
+                        else
+                        {
+                            TreeNode predefineNode = tokensNode.Nodes.Add($"#{i} {predefineKey}");
+                            GlobalDefine.CharacterTable.TryGetValue(predefine.inst.characterKey, out CharacterData characterData);
+                            predefineNode.Tag = new PredefineView()
+                            {
+                                Predefine = predefine,
+                                PredefineKey = predefineKey,
+                                PredefineData = characterData,
+                                ActivateTime = -1,
+                                PredefineDrawer = new PredefineDrawer(predefine, mapWidth, mapHeight),
+                            };
+                        }
                     }
                 }
+
+                InsertPredefine(levelData.predefines.characterInsts);
+                InsertPredefine(levelData.predefines.tokenInsts);
+                InsertPredefine(levelData.predefines.characterCards);
+                InsertPredefine(levelData.predefines.tokenCards);
             }
 
             //AddSpawnList
@@ -666,7 +686,7 @@ namespace ArknightsMapViewer
                     levelView ??= treeNode.Tag as LevelView;
                     foreach (TreeNode subRoot in treeNode.Nodes)
                     {
-                        if (subRoot.Text == "traps")
+                        if (subRoot.Text == "predefines")
                         {
                             predefineRootNode = subRoot;
                         }
@@ -990,7 +1010,7 @@ namespace ArknightsMapViewer
             //predefine
             if (mapPredefines.TryGetValue(position, out List<IMapData> predefines) && predefines.Count > 0)
             {
-                text += "\ntraps:\n";
+                text += "\npredefines:\n";
                 foreach (IMapData predefine in predefines)
                 {
                     text += predefine.ToString() + "\n";
