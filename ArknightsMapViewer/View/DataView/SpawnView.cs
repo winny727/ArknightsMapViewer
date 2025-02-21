@@ -12,7 +12,8 @@ namespace ArknightsMapViewer
         public Dictionary<string, List<TreeNode>> RandomSpawnGroupNodesDict = new Dictionary<string, List<TreeNode>>();
         public Dictionary<string, List<TreeNode>> RandomSpawnGroupPackNodesDict = new Dictionary<string, List<TreeNode>>();
 
-        public bool ShowPredefined;
+        public bool ShowPredefinedNodes;
+        public bool HideInvalidNodes;
         public Dictionary<string, bool> HiddenGroups = new Dictionary<string, bool>();
         public Dictionary<TreeNode, bool> ValidSpawnNodes = new Dictionary<TreeNode, bool>();
 
@@ -23,7 +24,12 @@ namespace ArknightsMapViewer
             {
                 if (node.Tag is ISpawnAction spawnAction)
                 {
-                    if (spawnAction is PredefineView && !ShowPredefined)
+                    if (!ShowPredefinedNodes && spawnAction is PredefineView)
+                    {
+                        continue;
+                    }
+
+                    if (HideInvalidNodes && ValidSpawnNodes.TryGetValue(node, out bool isValid) && !isValid)
                     {
                         continue;
                     }

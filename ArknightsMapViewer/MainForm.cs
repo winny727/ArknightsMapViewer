@@ -611,7 +611,8 @@ namespace ArknightsMapViewer
                 SpawnView spawnView = new SpawnView()
                 {
                     SpawnsNode = spawnsNode,
-                    ShowPredefined = true,
+                    ShowPredefinedNodes = true,
+                    HideInvalidNodes = false,
                 };
                 spawnsNode.Tag = spawnView;
                 spawnActions.Sort((a, b) => a.CompareTo(b));
@@ -793,6 +794,7 @@ namespace ArknightsMapViewer
                 checkBox5.Visible = false;
                 checkBox6.Visible = false;
                 checkBox7.Visible = false;
+                checkBox8.Visible = false;
             }
 
             UpdateLabelInfo(routeSubIndex);
@@ -837,7 +839,28 @@ namespace ArknightsMapViewer
                         {
                             showCheckBox3 = true;
                         }
-                        if (checkBox3.Checked || !predefineView.Predefine.hidden)
+
+                        bool isShow = !predefineView.Predefine.hidden;
+
+                        if (checkBox3.Checked && !isShow)
+                        {
+                            if (curSpawnView != null)
+                            {
+                                foreach (var item in curSpawnView.ValidSpawnNodes)
+                                {
+                                    if (item.Key.Tag is PredefineView validPredefineView && validPredefineView.PredefineKey == predefineView.PredefineKey)
+                                    {
+                                        isShow = item.Value;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                isShow = true;
+                            }
+                        }
+
+                        if (isShow)
                         {
                             predefineView.PredefineDrawer?.Draw(bitmap);
 
@@ -974,7 +997,8 @@ namespace ArknightsMapViewer
                 flowLayoutPanel2.Controls.Clear();
                 if (spawnView != null)
                 {
-                    checkBox7.Checked = spawnView.ShowPredefined;
+                    checkBox7.Checked = spawnView.ShowPredefinedNodes;
+                    checkBox8.Checked = spawnView.HideInvalidNodes;
                     foreach (var item in spawnView.HiddenGroups)
                     {
                         CheckBox checkBox = new CheckBox
@@ -991,6 +1015,18 @@ namespace ArknightsMapViewer
                         };
                         flowLayoutPanel2.Controls.Add(checkBox);
                     }
+                    foreach (var item in spawnView.ValidSpawnNodes)
+                    {
+                        if (!item.Value)
+                        {
+                            checkBox8.Visible = true;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    checkBox8.Visible = false;
                 }
             }
             checkBox7.Visible = spawnView != null;
@@ -1109,7 +1145,17 @@ namespace ArknightsMapViewer
         {
             if (curSpawnView != null)
             {
-                curSpawnView.ShowPredefined = checkBox7.Checked;
+                curSpawnView.ShowPredefinedNodes = checkBox7.Checked;
+                curSpawnView.UpdateNodes();
+                UpdateView();
+            }
+        }
+
+        private void checkBox8_CheckedChanged(object sender, EventArgs e)
+        {
+            if (curSpawnView != null)
+            {
+                curSpawnView.HideInvalidNodes = checkBox8.Checked;
                 curSpawnView.UpdateNodes();
                 UpdateView();
             }
