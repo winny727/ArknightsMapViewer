@@ -758,6 +758,7 @@ namespace ArknightsMapViewer
 
             UpdateLabelInfo(routeSubIndex);
             UpdateGroupCheckBoxes(spawnView);
+            FilterTreeNode();
 
             pictureBox1.Refresh();
         }
@@ -957,6 +958,27 @@ namespace ArknightsMapViewer
             checkBox7.Visible = spawnView != null;
         }
 
+        private void FilterTreeNode()
+        {
+            void Filter(TreeNodeCollection treeNodes)
+            {
+                foreach (TreeNode treeNode in treeNodes)
+                {
+                    if (!string.IsNullOrEmpty(textBox1.Text) && treeNode.Text.Contains(textBox1.Text))
+                    {
+                        treeNode.ForeColor = Color.Red;
+                    }
+                    else
+                    {
+                        treeNode.ForeColor = Color.FromKnownColor(KnownColor.WindowText);
+                    }
+                    Filter(treeNode.Nodes);
+                }
+            }
+
+            Filter(treeView1.Nodes);
+        }
+
         public enum LogType
         {
             Log,
@@ -1045,6 +1067,11 @@ namespace ArknightsMapViewer
                 curSpawnView.UpdateNodes();
                 UpdateView();
             }
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            FilterTreeNode();
         }
 
         private void fullImageToolStripMenuItem_Click(object sender, EventArgs e)
