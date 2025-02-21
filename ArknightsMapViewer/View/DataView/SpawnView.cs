@@ -19,6 +19,7 @@ namespace ArknightsMapViewer
 
         public void UpdateNodes()
         {
+            TreeNode selectedNode = SpawnsNode.TreeView.SelectedNode;
             SpawnsNode.Nodes.Clear();
             foreach (TreeNode node in SpawnNodesList)
             {
@@ -48,6 +49,10 @@ namespace ArknightsMapViewer
                         SpawnsNode.Nodes.Add(node);
                     }
                 }
+            }
+            if (selectedNode != null && selectedNode.TreeView != null)
+            {
+                SpawnsNode.TreeView.SelectedNode = selectedNode;
             }
         }
 
