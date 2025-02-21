@@ -28,6 +28,8 @@
     "defaultRoadColor": "#767676",
     "defaultWallColor": "#bbbbbb",
     "defaultFloorColor": "#343434",
-    "defaultForbiddenColor": "#161616"
+    "defaultForbiddenColor": "#161616",
+    "predefinedForeColor": "#ff4500",
+    "predefinedBackColor": "#808080"
   }
 }

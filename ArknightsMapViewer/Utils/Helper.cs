@@ -112,6 +112,8 @@ namespace ArknightsMapViewer
             GlobalDefine.DEFAULT_WALL_COLOR = ColorTranslator.FromHtml(drawConfig.Color.defaultWallColor);
             GlobalDefine.DEFAULT_FLOOR_COLOR = ColorTranslator.FromHtml(drawConfig.Color.defaultFloorColor);
             GlobalDefine.DEFAULT_FORBIDDEN_COLOR = ColorTranslator.FromHtml(drawConfig.Color.defaultForbiddenColor);
+            GlobalDefine.PREDEFINED_FORECOLOR = ColorTranslator.FromHtml(drawConfig.Color.predefinedForeColor);
+            GlobalDefine.PREDEFINED_BACKCOLOR = ColorTranslator.FromHtml(drawConfig.Color.predefinedBackColor);
         }
 
         public static void InitTileInfoConfig()

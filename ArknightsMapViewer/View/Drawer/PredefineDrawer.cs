@@ -57,8 +57,8 @@ namespace ArknightsMapViewer
 
         private void DrawPosition(Bitmap bitmap, Point point, string name)
         {
-            DrawUtil.FillCircle(bitmap, point, GlobalDefine.CIRCLE_RADIUS, Color.Gray);
-            DrawUtil.DrawCircle(bitmap, point, GlobalDefine.CIRCLE_RADIUS, Color.OrangeRed, GlobalDefine.CIRCLE_EDGE_WIDTH);
+            DrawUtil.FillCircle(bitmap, point, GlobalDefine.CIRCLE_RADIUS, GlobalDefine.PREDEFINED_BACKCOLOR);
+            DrawUtil.DrawCircle(bitmap, point, GlobalDefine.CIRCLE_RADIUS, GlobalDefine.PREDEFINED_FORECOLOR, GlobalDefine.CIRCLE_EDGE_WIDTH);
 
             int length = GlobalDefine.TILE_PIXLE;
             Rectangle rectangle = new Rectangle(point.X - length, point.Y - length, 2 * length, 2 * length);

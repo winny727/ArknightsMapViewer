@@ -30,9 +30,9 @@ namespace ArknightsMapViewer
             graphics.FillRectangle(brush, rectangle);
         }
 
-        public static void FillRectangleHatch(Bitmap bitmap, Rectangle rectangle, HatchStyle? hatchStyle = null, Color? color = null)
+        public static void FillRectangleHatch(Bitmap bitmap, Rectangle rectangle, HatchStyle? hatchStyle = null, Color? foreColor = null, Color? backColor = null)
         {
-            using Brush brush = GetHatchBrush(hatchStyle, color);
+            using Brush brush = GetHatchBrush(hatchStyle, foreColor, backColor);
             using Graphics graphics = GetGraphics(bitmap);
             graphics.FillRectangle(brush, rectangle);
         }
@@ -53,9 +53,9 @@ namespace ArknightsMapViewer
             graphics.FillEllipse(brush, rectangle);
         }
 
-        public static void FillCircleHatch(Bitmap bitmap, Point origin, int radius, HatchStyle? hatchStyle = null, Color? color = null)
+        public static void FillCircleHatch(Bitmap bitmap, Point origin, int radius, HatchStyle? hatchStyle = null, Color? foreColor = null, Color? backColor = null)
         {
-            using Brush brush = GetHatchBrush(hatchStyle, color);
+            using Brush brush = GetHatchBrush(hatchStyle, foreColor, backColor);
             using Graphics graphics = GetGraphics(bitmap);
             Rectangle rectangle = new Rectangle(origin.X - radius, origin.Y - radius, 2 * radius, 2 * radius);
             graphics.FillEllipse(brush, rectangle);
@@ -105,9 +105,9 @@ namespace ArknightsMapViewer
             return brush;
         }
 
-        private static HatchBrush GetHatchBrush(HatchStyle? hatchStyle, Color? color)
+        private static HatchBrush GetHatchBrush(HatchStyle? hatchStyle, Color? foreColor, Color? backColor)
         {
-            HatchBrush brush = new HatchBrush(hatchStyle ?? HatchStyle.ForwardDiagonal, color ?? Color.Black, Color.Transparent);
+            HatchBrush brush = new HatchBrush(hatchStyle ?? HatchStyle.ForwardDiagonal, foreColor ?? Color.Black, backColor ?? Color.Transparent);
             return brush;
         }
     }

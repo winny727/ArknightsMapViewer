@@ -112,6 +112,10 @@ namespace ArknightsMapViewer
         public Predefine predefines;
 
         //TODO 装置勾选框后分组勾选框刷新？分组和权重逻辑完善
+        //public string hiddenGroup; //隐藏分组标签，由外部触发显示
+        //public string randomSpawnGroupKey; //互斥随机：同randomSpawnGroupKey不会同时刷出，共享weight
+        //public string randomSpawnGroupPackKey; //打包随机：当前action满足随机后，同randomSpawnGroupPackKey的也一并刷出
+        //public int weight; //互斥随机权重，若randomSpawnGroupKey为空，则无论权重多少固定刷出
     }
 
     [Serializable]

@@ -47,6 +47,9 @@ namespace ArknightsMapViewer
             public string defaultWallColor = "#bbbbbb";
             public string defaultFloorColor = "#343434";
             public string defaultForbiddenColor = "#161616";
+
+            public string predefinedForeColor = "#ff4500";
+            public string predefinedBackColor = "#808080";
         }
 
         public SizeConfig Size = new SizeConfig();
@@ -85,10 +88,15 @@ namespace ArknightsMapViewer
         public static Color CIRCLE_COLOR = Color.FromArgb(255, 118, 118, 118);
         public static Color LENGTH_COLOR = Color.Green;
 
+        //默认地块颜色
         public static Color DEFAULT_ROAD_COLOR = ColorTranslator.FromHtml("#767676");
         public static Color DEFAULT_WALL_COLOR = ColorTranslator.FromHtml("#bbbbbb");
         public static Color DEFAULT_FLOOR_COLOR = ColorTranslator.FromHtml("#343434");
         public static Color DEFAULT_FORBIDDEN_COLOR = ColorTranslator.FromHtml("#161616");
+
+        //装置颜色
+        public static Color PREDEFINED_FORECOLOR = Color.OrangeRed;
+        public static Color PREDEFINED_BACKCOLOR = Color.Gray;
 
         //tileInfo
         public readonly static Dictionary<string, TileInfo> TileInfo = new Dictionary<string, TileInfo>();
