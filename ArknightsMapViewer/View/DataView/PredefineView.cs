@@ -18,6 +18,7 @@ namespace ArknightsMapViewer
         public string RandomSpawnGroupKey { get; set; }
         public string RandomSpawnGroupPackKey { get; set; }
         public int Weight { get; set; }
+        public int TotalWeight { get; set; }
         public PredefineDrawer PredefineDrawer { get; set; }
 
         public Predefine.PredefineInst GetData() => Predefine;
@@ -33,9 +34,6 @@ namespace ArknightsMapViewer
                 (ActionTime, other.ActionTime),
                 (SpawnIndexInWave, other.SpawnIndexInWave),
                 (ActionKey, other.ActionKey),
-                (HiddenGroup, other.HiddenGroup),
-                (RandomSpawnGroupKey, other.RandomSpawnGroupKey),
-                (RandomSpawnGroupPackKey, other.RandomSpawnGroupPackKey),
             };
 
             foreach (var item in comparer)
@@ -88,26 +86,7 @@ namespace ArknightsMapViewer
                 text += $" {ActivateTime}s";
             }
 
-            if (TotalWave > 1)
-            {
-                text = $"[{WaveIndex}_{SpawnIndexInWave}] " + text;
-            }
-            if (!string.IsNullOrEmpty(HiddenGroup))
-            {
-                text += $" {HiddenGroup}";
-            }
-            if (!string.IsNullOrEmpty(RandomSpawnGroupKey))
-            {
-                text += $" {RandomSpawnGroupKey}";
-            }
-            if (!string.IsNullOrEmpty(RandomSpawnGroupPackKey))
-            {
-                text += $" {RandomSpawnGroupPackKey}";
-            }
-            if (Weight > 0)
-            {
-                text += $" w:{Weight}";
-            }
+            text = StringHelper.GetSpawnActionString(text, this);
             return text;
         }
 
@@ -133,8 +112,9 @@ namespace ArknightsMapViewer
                     $"ActivateTime: {ActivateTime}\n" +
                     $"HiddenGroup: {HiddenGroup}\n" +
                     $"RandomSpawnGroupKey: {RandomSpawnGroupKey}\n" +
-                    $"RandomSpawnGroupPackKey: {RandomSpawnGroupPackKey}\n" +
-                    $"Weight: {Weight}\n";
+                    $"RandomSpawnGroupPackKey: {RandomSpawnGroupPackKey}\n";
+
+                text += TotalWeight > 0 ? $"Weight: {Weight}/{TotalWeight}\n" : $"Weight: {Weight}\n";
             }
 
             return text;

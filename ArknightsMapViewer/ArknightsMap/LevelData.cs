@@ -622,7 +622,7 @@ namespace ArknightsMapViewer
 
         public override string ToString()
         {
-            string text = $"{nameof(name)}: {name} ({profession})";
+            string text = $"{nameof(name)}: {name} [{profession}]";
             if (!string.IsNullOrEmpty(appellation))
             {
                 text += $" ({appellation})";

@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ArknightsMapViewer
 {
@@ -28,6 +29,41 @@ namespace ArknightsMapViewer
                 {
                     text += $"{field.Name}: {value}\n";
                 }
+            }
+            return text;
+        }
+
+        public static string GetSpawnActionString(string name, ISpawnAction spawnAction)
+        {
+            string text = name ?? "";
+            if (spawnAction.TotalWave > 1)
+            {
+                text = $"[{spawnAction.WaveIndex}_{spawnAction.SpawnIndexInWave}] " + text;
+            }
+            if (!string.IsNullOrEmpty(spawnAction.HiddenGroup))
+            {
+                text += $" {spawnAction.HiddenGroup}";
+            }
+
+            string randomSpawnGroupKey = spawnAction.RandomSpawnGroupKey;
+            string randomSpawnGroupPackKey = spawnAction.RandomSpawnGroupPackKey;
+            bool hasRandomSpawnGroupKey = !string.IsNullOrEmpty(randomSpawnGroupKey);
+            bool hasRandomSpawnGroupPackKey = !string.IsNullOrEmpty(randomSpawnGroupPackKey);
+
+            if (hasRandomSpawnGroupKey || hasRandomSpawnGroupPackKey)
+            {
+                text += " ";
+            }
+            if (hasRandomSpawnGroupKey)
+            {
+                int weight = spawnAction.Weight;
+                int totalWeight = spawnAction.TotalWeight;
+                string weightText = weight < totalWeight ? $"{weight}/{totalWeight}" : weight.ToString();
+                text += $"({randomSpawnGroupKey}:{weightText})";
+            }
+            if (hasRandomSpawnGroupPackKey)
+            {
+                text += $"[{randomSpawnGroupPackKey}]";
             }
             return text;
         }

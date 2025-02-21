@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace ArknightsMapViewer
@@ -8,9 +9,12 @@ namespace ArknightsMapViewer
     {
         public TreeNode SpawnsNode;
         public List<TreeNode> SpawnNodesList = new List<TreeNode>();
+        public Dictionary<string, List<TreeNode>> RandomSpawnGroupNodesDict = new Dictionary<string, List<TreeNode>>();
+        public Dictionary<string, List<TreeNode>> RandomSpawnGroupPackNodesDict = new Dictionary<string, List<TreeNode>>();
 
         public bool ShowPredefined;
-        public Dictionary<string, bool> SpawnGroups = new Dictionary<string, bool>();
+        public Dictionary<string, bool> HiddenGroups = new Dictionary<string, bool>();
+        public Dictionary<TreeNode, bool> ValidSpawnNodes = new Dictionary<TreeNode, bool>();
 
         public void UpdateNodes()
         {
@@ -24,18 +28,15 @@ namespace ArknightsMapViewer
                         continue;
                     }
 
-                    if (string.IsNullOrEmpty(spawnAction.HiddenGroup) &&
-                        string.IsNullOrEmpty(spawnAction.RandomSpawnGroupKey) &&
-                        string.IsNullOrEmpty(spawnAction.RandomSpawnGroupPackKey))
+                    string groupName = spawnAction.HiddenGroup;
+                    if (string.IsNullOrEmpty(groupName))
                     {
                         node.Text = $"#{SpawnsNode.Nodes.Count} {spawnAction.ToSimpleString()}";
                         SpawnsNode.Nodes.Add(node);
                         continue;
                     }
 
-                    if (CheckShowNode(spawnAction.HiddenGroup) ||
-                        CheckShowNode(spawnAction.RandomSpawnGroupKey) ||
-                        CheckShowNode(spawnAction.RandomSpawnGroupPackKey))
+                    if (!string.IsNullOrEmpty(groupName) && HiddenGroups.ContainsKey(groupName) && HiddenGroups[groupName])
                     {
                         node.Text = $"#{SpawnsNode.Nodes.Count} {spawnAction.ToSimpleString()}";
                         SpawnsNode.Nodes.Add(node);
@@ -44,9 +45,71 @@ namespace ArknightsMapViewer
             }
         }
 
-        private bool CheckShowNode(string groupName)
+        public void UpdateRandomSpawnGroupNodes(TreeNode selectedNode)
         {
-            return !string.IsNullOrEmpty(groupName) && SpawnGroups.ContainsKey(groupName) && SpawnGroups[groupName];
+            //互斥分组
+            if (selectedNode?.Tag is ISpawnAction spawnAction)
+            {
+                string randomSpawnGroupKey = spawnAction.RandomSpawnGroupKey;
+                if (!string.IsNullOrEmpty(spawnAction.RandomSpawnGroupPackKey) &&
+                    RandomSpawnGroupPackNodesDict.TryGetValue(spawnAction.RandomSpawnGroupPackKey, out var treeNodes))
+                {
+                    foreach (TreeNode treeNode in treeNodes)
+                    {
+                        if (treeNode.Tag is ISpawnAction curSpawnAction)
+                        {
+                            if (string.IsNullOrEmpty(randomSpawnGroupKey) && !string.IsNullOrEmpty(curSpawnAction.RandomSpawnGroupKey))
+                            {
+                                randomSpawnGroupKey = curSpawnAction.RandomSpawnGroupKey;
+                            }
+                        }
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(randomSpawnGroupKey) && RandomSpawnGroupNodesDict.TryGetValue(randomSpawnGroupKey, out var nodeList))
+                {
+                    foreach (TreeNode treeNode in nodeList)
+                    {
+                        if (treeNode.Tag is ISpawnAction curSpawnAction)
+                        {
+                            bool isValid;
+                            if (spawnAction != curSpawnAction && spawnAction.RandomSpawnGroupPackKey != curSpawnAction.RandomSpawnGroupPackKey)
+                            {
+                                isValid = false;
+                            }
+                            else
+                            {
+                                isValid = true;
+                            }
+
+                            if (ValidSpawnNodes.ContainsKey(treeNode))
+                            {
+                                ValidSpawnNodes[treeNode] = isValid;
+                            }
+
+                            if (!string.IsNullOrEmpty(curSpawnAction.RandomSpawnGroupPackKey) &&
+                                RandomSpawnGroupPackNodesDict.TryGetValue(curSpawnAction.RandomSpawnGroupPackKey, out var packTreeNodes))
+                            {
+                                foreach (TreeNode packTreeNode in packTreeNodes)
+                                {
+                                    if (ValidSpawnNodes.ContainsKey(packTreeNode))
+                                    {
+                                        ValidSpawnNodes[packTreeNode] = isValid;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        public void UpdateSpawnViewNodeColor()
+        {
+            foreach (var item in ValidSpawnNodes)
+            {
+                item.Key.ForeColor = item.Value ? Color.FromKnownColor(KnownColor.WindowText) : Color.Gray;
+            }
         }
     }
 }

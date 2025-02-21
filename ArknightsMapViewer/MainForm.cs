@@ -119,6 +119,7 @@ namespace ArknightsMapViewer
 
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
+            curSpawnView?.UpdateRandomSpawnGroupNodes(treeView1.SelectedNode);
             UpdateView();
         }
 
@@ -372,6 +373,7 @@ namespace ArknightsMapViewer
             float spawnTime = 0;
             List<ISpawnAction> spawnActions = new List<ISpawnAction>();
             List<PredefineView> predefineViews = new List<PredefineView>();
+            Dictionary<string, int> totalWeightDict = new Dictionary<string, int>();
 
             if (levelData.waves != null)
             {
@@ -450,7 +452,7 @@ namespace ArknightsMapViewer
 
                                     if (!string.IsNullOrEmpty(action.key))
                                     {
-                                        predefine = 
+                                        predefine =
                                             levelData.predefines.characterInsts?.Find(x => (x.alias ?? x.inst.characterKey) == action.key) ??
                                             levelData.predefines.tokenInsts?.Find(x => (x.alias ?? x.inst.characterKey) == action.key);
 
@@ -506,6 +508,15 @@ namespace ArknightsMapViewer
                             else
                             {
                                 actionNode.Tag = action;
+                            }
+
+                            if (!string.IsNullOrEmpty(action.randomSpawnGroupKey))
+                            {
+                                if (!totalWeightDict.ContainsKey(action.randomSpawnGroupKey))
+                                {
+                                    totalWeightDict.Add(action.randomSpawnGroupKey, 0);
+                                }
+                                totalWeightDict[action.randomSpawnGroupKey] += action.weight;
                             }
 
                             waveSpawnIndex++;
@@ -600,21 +611,12 @@ namespace ArknightsMapViewer
                 SpawnView spawnView = new SpawnView()
                 {
                     SpawnsNode = spawnsNode,
+                    ShowPredefined = true,
                 };
                 spawnsNode.Tag = spawnView;
                 spawnActions.Sort((a, b) => a.CompareTo(b));
 
-                void InsertGroup(string groupName, TreeNode treeNode)
-                {
-                    if (!string.IsNullOrEmpty(groupName))
-                    {
-                        if (!spawnView.SpawnGroups.ContainsKey(groupName))
-                        {
-                            spawnView.SpawnGroups.Add(groupName, true);
-                        }
-                    }
-                }
-
+                Dictionary<string, TreeNode> randomSpawnGroupDefaultNodes = new Dictionary<string, TreeNode>();
                 for (int i = 0; i < spawnActions.Count; i++)
                 {
                     ISpawnAction spawnAction = spawnActions[i];
@@ -622,6 +624,11 @@ namespace ArknightsMapViewer
                     {
                         Tag = spawnAction
                     };
+
+                    if (!string.IsNullOrEmpty(spawnAction.RandomSpawnGroupKey) && totalWeightDict.TryGetValue(spawnAction.RandomSpawnGroupKey, out int totalWeight))
+                    {
+                        spawnAction.TotalWeight = totalWeight;
+                    }
 
                     if (spawnAction is EnemySpawnView enemySpawnView)
                     {
@@ -637,11 +644,38 @@ namespace ArknightsMapViewer
                         }
                     }
 
-                    InsertGroup(spawnAction.HiddenGroup, spawnNode);
-                    InsertGroup(spawnAction.RandomSpawnGroupKey, spawnNode);
-                    InsertGroup(spawnAction.RandomSpawnGroupPackKey, spawnNode);
+                    if (!string.IsNullOrEmpty(spawnAction.HiddenGroup))
+                    {
+                        if (!spawnView.HiddenGroups.ContainsKey(spawnAction.HiddenGroup))
+                        {
+                            spawnView.HiddenGroups.Add(spawnAction.HiddenGroup, true);
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(spawnAction.RandomSpawnGroupKey))
+                    {
+                        if (!spawnView.RandomSpawnGroupNodesDict.ContainsKey(spawnAction.RandomSpawnGroupKey))
+                        {
+                            spawnView.RandomSpawnGroupNodesDict.Add(spawnAction.RandomSpawnGroupKey, new List<TreeNode>());
+                        }
+                        if (!randomSpawnGroupDefaultNodes.ContainsKey(spawnAction.RandomSpawnGroupKey))
+                        {
+                            randomSpawnGroupDefaultNodes.Add(spawnAction.RandomSpawnGroupKey, spawnNode);
+                        }
+                        spawnView.RandomSpawnGroupNodesDict[spawnAction.RandomSpawnGroupKey].Add(spawnNode);
+                    }
+
+                    if (!string.IsNullOrEmpty(spawnAction.RandomSpawnGroupPackKey))
+                    {
+                        if (!spawnView.RandomSpawnGroupPackNodesDict.ContainsKey(spawnAction.RandomSpawnGroupPackKey))
+                        {
+                            spawnView.RandomSpawnGroupPackNodesDict.Add(spawnAction.RandomSpawnGroupPackKey, new List<TreeNode>());
+                        }
+                        spawnView.RandomSpawnGroupPackNodesDict[spawnAction.RandomSpawnGroupPackKey].Add(spawnNode);
+                    }
 
                     spawnView.SpawnNodesList.Add(spawnNode);
+                    spawnView.ValidSpawnNodes.Add(spawnNode, true);
                 }
 
                 if (!readingMultiFiles)
@@ -649,6 +683,11 @@ namespace ArknightsMapViewer
                     spawnsNode.Expand();
                 }
 
+                foreach (var item in randomSpawnGroupDefaultNodes)
+                {
+                    spawnView.UpdateRandomSpawnGroupNodes(item.Value);
+                }
+                spawnView.UpdateSpawnViewNodeColor();
                 spawnView.UpdateNodes();
             }
 
@@ -757,7 +796,7 @@ namespace ArknightsMapViewer
             }
 
             UpdateLabelInfo(routeSubIndex);
-            UpdateGroupCheckBoxes(spawnView);
+            UpdateSpawnGroups(spawnView);
             FilterTreeNode();
 
             pictureBox1.Refresh();
@@ -773,7 +812,7 @@ namespace ArknightsMapViewer
             }
 
             PredefineDrawer predefineDrawer = predefineDrawerView?.GetDrawer();
-            if (predefineDrawer != null && predefineDrawer.Predefine != null && !checkBox2.Checked)
+            if (predefineDrawer != null && predefineDrawer.Predefine != null)
             {
                 predefineDrawer.Draw(bitmap);
 
@@ -788,7 +827,7 @@ namespace ArknightsMapViewer
                     mapPredefines[predefineDrawer.Predefine.position].Add(mapData);
                 }
             }
-            else if (predefineRootNode != null && checkBox2.Checked)
+            if (predefineRootNode != null && checkBox2.Checked)
             {
                 foreach (TreeNode predefineNode in predefineRootNode.Nodes)
                 {
@@ -810,7 +849,6 @@ namespace ArknightsMapViewer
                         }
                     }
                 }
-                pictureBox1.Refresh();
             }
 
             checkBox2.Visible = predefineRootNode != null && predefineRootNode.Nodes.Count > 0;
@@ -928,7 +966,7 @@ namespace ArknightsMapViewer
             richTextBox1.ScrollToCaret();
         }
 
-        private void UpdateGroupCheckBoxes(SpawnView spawnView)
+        private void UpdateSpawnGroups(SpawnView spawnView)
         {
             if (curSpawnView != spawnView)
             {
@@ -937,7 +975,7 @@ namespace ArknightsMapViewer
                 if (spawnView != null)
                 {
                     checkBox7.Checked = spawnView.ShowPredefined;
-                    foreach (var item in spawnView.SpawnGroups)
+                    foreach (var item in spawnView.HiddenGroups)
                     {
                         CheckBox checkBox = new CheckBox
                         {
@@ -947,7 +985,7 @@ namespace ArknightsMapViewer
                         };
                         checkBox.CheckedChanged += (s, e) =>
                         {
-                            spawnView.SpawnGroups[checkBox.Text] = checkBox.Checked;
+                            spawnView.HiddenGroups[checkBox.Text] = checkBox.Checked;
                             spawnView.UpdateNodes();
                             UpdateView();
                         };
@@ -970,12 +1008,20 @@ namespace ArknightsMapViewer
                     }
                     else
                     {
-                        treeNode.ForeColor = Color.FromKnownColor(KnownColor.WindowText);
+                        if (curSpawnView != null && curSpawnView.ValidSpawnNodes.TryGetValue(treeNode, out bool isValid))
+                        {
+                            treeNode.ForeColor = isValid ? Color.FromKnownColor(KnownColor.WindowText) : Color.Gray;
+                        }
+                        else
+                        {
+                            treeNode.ForeColor = Color.FromKnownColor(KnownColor.WindowText);
+                        }
                     }
                     Filter(treeNode.Nodes);
                 }
             }
 
+            //搜索框筛选
             Filter(treeView1.Nodes);
         }
 

@@ -18,13 +18,14 @@ namespace ArknightsMapViewer
         public int WaveIndex { get; set; }
         public int SpawnIndexInWave { get; set; }
 
-        public string HiddenGroup { get; set; } //Filter
-        public string RandomSpawnGroupKey { get; set; } //Filter
-        public string RandomSpawnGroupPackKey { get; set; } //Filter
-        public int Weight { get; set; } //Hint
+        public string HiddenGroup { get; set; }
+        public string RandomSpawnGroupKey { get; set; }
+        public string RandomSpawnGroupPackKey { get; set; }
+        public int Weight { get; set; }
+        public int TotalWeight { get; set; }
 
-        public bool BlockFragment { get; set; } //Hint
-        public bool BlockWave { get; set; } //Hint
+        public bool BlockFragment { get; set; }
+        public bool BlockWave { get; set; }
         public bool LastEnemyInWave { get; set; }
         public bool LastEnemyInFragment { get; set; }
         public float MaxTimeWaitingForNextWave { get; set; }
@@ -44,9 +45,6 @@ namespace ArknightsMapViewer
                 (ActionTime, other.ActionTime),
                 (SpawnIndexInWave, other.SpawnIndexInWave),
                 (ActionKey, other.ActionKey),
-                (HiddenGroup, other.HiddenGroup),
-                (RandomSpawnGroupKey, other.RandomSpawnGroupKey),
-                (RandomSpawnGroupPackKey, other.RandomSpawnGroupPackKey),
             };
 
             foreach (var item in comparer)
@@ -79,26 +77,7 @@ namespace ArknightsMapViewer
         public string ToSimpleString()
         {
             string text = $"{((EnemyData != null && !string.IsNullOrEmpty(EnemyData.name)) ? EnemyData.name : EnemyKey)} {SpawnTime}s";
-            if (TotalWave > 1)
-            {
-                text = $"[{WaveIndex}_{SpawnIndexInWave}] " + text;
-            }
-            if (!string.IsNullOrEmpty(HiddenGroup))
-            {
-                text += $" {HiddenGroup}";
-            }
-            if (!string.IsNullOrEmpty(RandomSpawnGroupKey))
-            {
-                text += $" {RandomSpawnGroupKey}";
-            }
-            if (!string.IsNullOrEmpty(RandomSpawnGroupPackKey))
-            {
-                text += $" {RandomSpawnGroupPackKey}";
-            }
-            if (Weight > 0)
-            {
-                text += $" w:{Weight}";
-            }
+            text = StringHelper.GetSpawnActionString(text, this);
             return text;
         }
 
@@ -113,14 +92,17 @@ namespace ArknightsMapViewer
                 text += $"EnemyData:\n{EnemyData}\n\n";
             }
 
-            text += 
+            text +=
                 $"SpawnTime: {SpawnTime}\n" +
                 //$"SpawnIndex: {TotalSpawnIndex}\n" +
                 $"RouteIndex: {RouteIndex}\n" +
                 $"HiddenGroup: {HiddenGroup}\n" +
                 $"RandomSpawnGroupKey: {RandomSpawnGroupKey}\n" +
-                $"RandomSpawnGroupPackKey: {RandomSpawnGroupPackKey}\n" +
-                $"Weight: {Weight}\n" +
+                $"RandomSpawnGroupPackKey: {RandomSpawnGroupPackKey}\n";
+
+            text += TotalWeight > 0 ? $"Weight: {Weight}/{TotalWeight}\n" : $"Weight: {Weight}\n";
+
+            text +=
                 $"BlockFragment: {BlockFragment}\n" +
                 $"BlockWave: {BlockWave}\n" +
                 $"MaxTimeWaitingForNextWave: {MaxTimeWaitingForNextWave}\n";
