@@ -99,11 +99,13 @@ namespace ArknightsMapViewer
             Enum.TryParse(drawConfig.Font.indexFontStyle, out FontStyle indexFontStyle);
             Enum.TryParse(drawConfig.Font.timeFontStyle, out FontStyle timeFontStyle);
             Enum.TryParse(drawConfig.Font.lenghtFontStyle, out FontStyle lenghtFont);
+            Enum.TryParse(drawConfig.Font.predefinedFontStyle, out FontStyle predefinedFont);
 
             GlobalDefine.TEXT_FONT = new Font(drawConfig.Font.textFont, drawConfig.Font.textFontSize, textFontStyle);
             GlobalDefine.INDEX_FONT = new Font(drawConfig.Font.indexFont, drawConfig.Font.indexFontSize, indexFontStyle);
             GlobalDefine.TIME_FONT = new Font(drawConfig.Font.timeFont, drawConfig.Font.timeFontSize, timeFontStyle);
             GlobalDefine.LENGTH_FONT = new Font(drawConfig.Font.lenghtFont, drawConfig.Font.lenghtFontSize, lenghtFont);
+            GlobalDefine.PREDEFINED_FONT = new Font(drawConfig.Font.predefinedFont, drawConfig.Font.predefinedFontSize, predefinedFont);
             GlobalDefine.TEXT_COLOR = ColorTranslator.FromHtml(drawConfig.Color.textColor);
             GlobalDefine.LINE_COLOR = ColorTranslator.FromHtml(drawConfig.Color.lineColor);
             GlobalDefine.CIRCLE_COLOR = ColorTranslator.FromHtml(drawConfig.Color.circleColor);
@@ -112,8 +114,10 @@ namespace ArknightsMapViewer
             GlobalDefine.DEFAULT_WALL_COLOR = ColorTranslator.FromHtml(drawConfig.Color.defaultWallColor);
             GlobalDefine.DEFAULT_FLOOR_COLOR = ColorTranslator.FromHtml(drawConfig.Color.defaultFloorColor);
             GlobalDefine.DEFAULT_FORBIDDEN_COLOR = ColorTranslator.FromHtml(drawConfig.Color.defaultForbiddenColor);
-            GlobalDefine.PREDEFINED_FORECOLOR = ColorTranslator.FromHtml(drawConfig.Color.predefinedForeColor);
+            GlobalDefine.PREDEFINED_LINECOLOR = ColorTranslator.FromHtml(drawConfig.Color.predefinedForeColor);
             GlobalDefine.PREDEFINED_BACKCOLOR = ColorTranslator.FromHtml(drawConfig.Color.predefinedBackColor);
+            GlobalDefine.PREDEFINED_SELECTED_BACKCOLOR = ColorTranslator.FromHtml(drawConfig.Color.predefinedSelectedBackColor);
+            GlobalDefine.PREDEFINED_SELECTED_TEXTCOLOR = ColorTranslator.FromHtml(drawConfig.Color.predefinedSelectedTextColor);
         }
 
         public static void InitTileInfoConfig()

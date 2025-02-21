@@ -9,6 +9,7 @@ namespace ArknightsMapViewer
     public class PredefineDrawer : IDrawer
     {
         public Predefine.PredefineInst Predefine { get; private set; }
+        public bool IsSelected { get; set; } = false;
         public int MapWidth { get; private set; }
         public int MapHeight { get; private set; }
 
@@ -58,12 +59,12 @@ namespace ArknightsMapViewer
 
         private void DrawPosition(Bitmap bitmap, Point point, string name)
         {
-            DrawUtil.FillCircle(bitmap, point, GlobalDefine.CIRCLE_RADIUS, GlobalDefine.PREDEFINED_BACKCOLOR);
-            DrawUtil.DrawCircle(bitmap, point, GlobalDefine.CIRCLE_RADIUS, GlobalDefine.PREDEFINED_FORECOLOR, GlobalDefine.CIRCLE_EDGE_WIDTH);
+            DrawUtil.FillCircle(bitmap, point, GlobalDefine.CIRCLE_RADIUS, IsSelected ? GlobalDefine.PREDEFINED_SELECTED_BACKCOLOR : GlobalDefine.PREDEFINED_BACKCOLOR);
+            DrawUtil.DrawCircle(bitmap, point, GlobalDefine.CIRCLE_RADIUS, GlobalDefine.PREDEFINED_LINECOLOR, GlobalDefine.CIRCLE_EDGE_WIDTH);
 
             int length = GlobalDefine.TILE_PIXLE;
             Rectangle rectangle = new Rectangle(point.X - length, point.Y - length, 2 * length, 2 * length);
-            DrawUtil.DrawString(bitmap, name, rectangle, GlobalDefine.TIME_FONT, GlobalDefine.TEXT_COLOR);
+            DrawUtil.DrawString(bitmap, name, rectangle, GlobalDefine.PREDEFINED_FONT, IsSelected ? GlobalDefine.PREDEFINED_SELECTED_TEXTCOLOR : GlobalDefine.TEXT_COLOR);
         }
 
         private Point GetPoint(Position position)

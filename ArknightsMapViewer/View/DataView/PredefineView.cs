@@ -110,6 +110,8 @@ namespace ArknightsMapViewer
             {
                 text +=
                     $"ActivateTime: {ActivateTime}\n" +
+                    $"WaveIndex: {WaveIndex}\n" +
+                    $"SpawnIndexInWave: {SpawnIndexInWave}\n" +
                     $"HiddenGroup: {HiddenGroup}\n" +
                     $"RandomSpawnGroupKey: {RandomSpawnGroupKey}\n" +
                     $"RandomSpawnGroupPackKey: {RandomSpawnGroupPackKey}\n";

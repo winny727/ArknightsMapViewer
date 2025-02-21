@@ -16,6 +16,9 @@
     "timeFont": "Consolas",
     "timeFontSize": 10.0,
     "timeFontStyle": "Regular",
+    "predefinedFont": "Consolas",
+    "predefinedFontSize": 10.0,
+    "predefinedFontStyle": "Regular",
     "lenghtFont": "Consolas",
     "lenghtFontSize": 8.0,
     "lenghtFontStyle": "Regular"
@@ -30,6 +33,8 @@
     "defaultFloorColor": "#343434",
     "defaultForbiddenColor": "#161616",
     "predefinedForeColor": "#ff4500",
-    "predefinedBackColor": "#808080"
+    "predefinedBackColor": "#808080",
+    "predefinedSelectedBackColor": "#d3d3d3",
+    "predefinedSelectedTextColor": "#000000"
   }
 }

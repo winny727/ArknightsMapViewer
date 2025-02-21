@@ -176,26 +176,6 @@ namespace ArknightsMapViewer
             }
         }
 
-        private void expendToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (treeView1.SelectedNode == null)
-            {
-                return;
-            }
-
-            treeView1.SelectedNode.ExpandAll();
-        }
-
-        private void collapseToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (treeView1.SelectedNode == null)
-            {
-                return;
-            }
-
-            treeView1.SelectedNode.Collapse();
-        }
-
         private void toolStripStatusLabel1_Click(object sender, EventArgs e)
         {
             ShowLog();
@@ -813,22 +793,6 @@ namespace ArknightsMapViewer
                 item.Value.Clear();
             }
 
-            PredefineDrawer predefineDrawer = predefineDrawerView?.GetDrawer();
-            if (predefineDrawer != null && predefineDrawer.Predefine != null)
-            {
-                predefineDrawer.Draw(bitmap);
-
-                if (!mapPredefines.ContainsKey(predefineDrawer.Predefine.position))
-                {
-                    mapPredefines.Add(predefineDrawer.Predefine.position, new List<IMapData>());
-                }
-
-                IMapData mapData = (IMapData)(predefineDrawerView as PredefineView) ?? (IMapData)(predefineDrawerView as PredefineActionView) ?? (IMapData)(predefineDrawer.Predefine);
-                if (mapData != null)
-                {
-                    mapPredefines[predefineDrawer.Predefine.position].Add(mapData);
-                }
-            }
             if (predefineRootNode != null && checkBox2.Checked)
             {
                 foreach (TreeNode predefineNode in predefineRootNode.Nodes)
@@ -860,9 +824,10 @@ namespace ArknightsMapViewer
                             }
                         }
 
-                        if (isShow)
+                        if (isShow && predefineView.PredefineDrawer != null)
                         {
-                            predefineView.PredefineDrawer?.Draw(bitmap);
+                            predefineView.PredefineDrawer.IsSelected = false;
+                            predefineView.PredefineDrawer.Draw(bitmap);
 
                             if (!mapPredefines.ContainsKey(predefineView.Predefine.position))
                             {
@@ -871,6 +836,24 @@ namespace ArknightsMapViewer
                             mapPredefines[predefineView.Predefine.position].Add(predefineView);
                         }
                     }
+                }
+            }
+
+            PredefineDrawer predefineDrawer = predefineDrawerView?.GetDrawer();
+            if (predefineDrawer != null && predefineDrawer.Predefine != null)
+            {
+                predefineDrawer.IsSelected = checkBox2.Checked;
+                predefineDrawer.Draw(bitmap);
+
+                if (!mapPredefines.ContainsKey(predefineDrawer.Predefine.position))
+                {
+                    mapPredefines.Add(predefineDrawer.Predefine.position, new List<IMapData>());
+                }
+
+                IMapData mapData = (IMapData)(predefineDrawerView as PredefineView) ?? (IMapData)(predefineDrawerView as PredefineActionView) ?? (IMapData)(predefineDrawer.Predefine);
+                if (mapData != null)
+                {
+                    mapPredefines[predefineDrawer.Predefine.position].Add(mapData);
                 }
             }
 
@@ -1015,6 +998,14 @@ namespace ArknightsMapViewer
                         };
                         flowLayoutPanel2.Controls.Add(checkBox);
                     }
+                    foreach (TreeNode node in spawnView.SpawnNodesList)
+                    {
+                        if (node.Tag is PredefineView)
+                        {
+                            checkBox7.Visible = true;
+                            break;
+                        }
+                    }
                     foreach (var item in spawnView.ValidSpawnNodes)
                     {
                         if (!item.Value)
@@ -1029,7 +1020,6 @@ namespace ArknightsMapViewer
                     checkBox8.Visible = false;
                 }
             }
-            checkBox7.Visible = spawnView != null;
         }
 
         private void FilterTreeNode()

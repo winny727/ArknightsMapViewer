@@ -95,6 +95,8 @@ namespace ArknightsMapViewer
             text +=
                 $"SpawnTime: {SpawnTime}\n" +
                 //$"SpawnIndex: {TotalSpawnIndex}\n" +
+                $"WaveIndex: {WaveIndex}\n" +
+                $"SpawnIndexInWave: {SpawnIndexInWave}\n" +
                 $"RouteIndex: {RouteIndex}\n" +
                 $"HiddenGroup: {HiddenGroup}\n" +
                 $"RandomSpawnGroupKey: {RandomSpawnGroupKey}\n" +

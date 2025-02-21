@@ -50,8 +50,6 @@
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.allToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
-            this.expendToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.collapseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.removeAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
@@ -198,12 +196,10 @@
             this.toolStripSeparator2,
             this.exportToolStripMenuItem,
             this.toolStripSeparator3,
-            this.expendToolStripMenuItem,
-            this.collapseToolStripMenuItem,
             this.removeToolStripMenuItem,
             this.removeAllToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(142, 148);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(142, 104);
             // 
             // openToolStripMenuItem1
             // 
@@ -266,20 +262,6 @@
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
             this.toolStripSeparator3.Size = new System.Drawing.Size(138, 6);
-            // 
-            // expendToolStripMenuItem
-            // 
-            this.expendToolStripMenuItem.Name = "expendToolStripMenuItem";
-            this.expendToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
-            this.expendToolStripMenuItem.Text = "Ex&pend";
-            this.expendToolStripMenuItem.Click += new System.EventHandler(this.expendToolStripMenuItem_Click);
-            // 
-            // collapseToolStripMenuItem
-            // 
-            this.collapseToolStripMenuItem.Name = "collapseToolStripMenuItem";
-            this.collapseToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
-            this.collapseToolStripMenuItem.Text = "&Collapse";
-            this.collapseToolStripMenuItem.Click += new System.EventHandler(this.collapseToolStripMenuItem_Click);
             // 
             // removeToolStripMenuItem
             // 
@@ -534,8 +516,6 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
-        private System.Windows.Forms.ToolStripMenuItem expendToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem collapseToolStripMenuItem;
         private System.Windows.Forms.CheckBox checkBox5;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem showLogToolStripMenuItem;

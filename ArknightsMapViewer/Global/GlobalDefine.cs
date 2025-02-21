@@ -30,6 +30,9 @@ namespace ArknightsMapViewer
             public string timeFont = "Consolas";
             public float timeFontSize = 10.0f;
             public string timeFontStyle = "Regular";
+            public string predefinedFont = "Consolas";
+            public float predefinedFontSize = 10.0f;
+            public string predefinedFontStyle = "Regular";
             public string lenghtFont = "Consolas";
             public float lenghtFontSize = 8.0f;
             public string lenghtFontStyle = "Regular";
@@ -50,6 +53,8 @@ namespace ArknightsMapViewer
 
             public string predefinedForeColor = "#ff4500";
             public string predefinedBackColor = "#808080";
+            public string predefinedSelectedBackColor = "#d3d3d3";
+            public string predefinedSelectedTextColor = "#000000";
         }
 
         public SizeConfig Size = new SizeConfig();
@@ -81,6 +86,7 @@ namespace ArknightsMapViewer
         public static Font TEXT_FONT = new Font("Consolas", 12.0f);
         public static Font INDEX_FONT = new Font("Consolas", 8.0f, FontStyle.Bold);
         public static Font TIME_FONT = new Font("Consolas", 10.0f);
+        public static Font PREDEFINED_FONT = new Font("Consolas", 10.0f);
         public static Font LENGTH_FONT = new Font("Consolas", 8.0f);
 
         public static Color TEXT_COLOR = Color.White;
@@ -95,8 +101,10 @@ namespace ArknightsMapViewer
         public static Color DEFAULT_FORBIDDEN_COLOR = ColorTranslator.FromHtml("#161616");
 
         //装置颜色
-        public static Color PREDEFINED_FORECOLOR = Color.OrangeRed;
+        public static Color PREDEFINED_LINECOLOR = Color.OrangeRed;
         public static Color PREDEFINED_BACKCOLOR = Color.Gray;
+        public static Color PREDEFINED_SELECTED_BACKCOLOR = Color.LightGray;
+        public static Color PREDEFINED_SELECTED_TEXTCOLOR = Color.Black;
 
         //tileInfo
         public readonly static Dictionary<string, TileInfo> TileInfo = new Dictionary<string, TileInfo>();
