@@ -390,7 +390,7 @@
             this.checkBox8.Name = "checkBox8";
             this.checkBox8.Size = new System.Drawing.Size(108, 16);
             this.checkBox8.TabIndex = 9;
-            this.checkBox8.Text = "隐藏未选择行为";
+            this.checkBox8.Text = "隐藏未选择分组";
             this.checkBox8.UseVisualStyleBackColor = true;
             this.checkBox8.CheckedChanged += new System.EventHandler(this.checkBox8_CheckedChanged);
             // 
