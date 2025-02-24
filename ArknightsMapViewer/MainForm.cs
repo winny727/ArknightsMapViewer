@@ -186,6 +186,21 @@ namespace ArknightsMapViewer
             ShowLog();
         }
 
+        private void informationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(Process.GetCurrentProcess().MainModule.FileName);
+            if (fileVersionInfo == null)
+            {
+                return;
+            }
+
+            MessageBox.Show(
+                $"ProductName: {fileVersionInfo.ProductName} ({fileVersionInfo.Comments})\n" + 
+                $"Version: {fileVersionInfo.ProductVersion}\n" +
+                $"Author: {fileVersionInfo.LegalCopyright} ({fileVersionInfo.CompanyName})"
+                );
+        }
+
         private void OpenFile()
         {
             OpenFileDialog dialog = new OpenFileDialog();
