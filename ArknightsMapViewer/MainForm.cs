@@ -366,7 +366,6 @@ namespace ArknightsMapViewer
 
             LevelView levelView = null;
             SpawnActionView spawnActionView = null;
-            SpawnView spawnView = null;
             EnemySpawnView enemySpawnView = null;
             int routeSubIndex = -1;
 

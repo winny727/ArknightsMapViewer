@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("ArknightsMapViewer")]
 [assembly: AssemblyDescription("Beta Version")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Babel")]
+[assembly: AssemblyCompany("Babelab")]
 [assembly: AssemblyProduct("ArknightsMapViewer")]
 [assembly: AssemblyCopyright("w727")]
 [assembly: AssemblyTrademark("")]
