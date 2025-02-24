@@ -12,8 +12,6 @@ namespace ArknightsMapViewer
         public Dictionary<string, List<TreeNode>> RandomSpawnGroupNodesDict = new Dictionary<string, List<TreeNode>>();
         public Dictionary<string, List<TreeNode>> RandomSpawnGroupPackNodesDict = new Dictionary<string, List<TreeNode>>();
 
-        public bool NeedUpdateNodes { get; private set; }
-
         public bool ShowPredefinedNodes;
         public bool HideInvalidNodes;
         public Dictionary<string, bool> HiddenGroups = new Dictionary<string, bool>();
@@ -22,7 +20,6 @@ namespace ArknightsMapViewer
         public void UpdateNodes()
         {
             TreeNode selectedNode = SpawnsNode.TreeView?.SelectedNode;
-            NeedUpdateNodes = false;
             SpawnsNode.Nodes.Clear();
             foreach (TreeNode treeNode in SpawnNodesList)
             {
@@ -97,10 +94,9 @@ namespace ArknightsMapViewer
                                 isValid = true;
                             }
 
-                            if (ValidSpawnNodes.ContainsKey(treeNode) && ValidSpawnNodes[treeNode] != isValid)
+                            if (ValidSpawnNodes.ContainsKey(treeNode))
                             {
                                 ValidSpawnNodes[treeNode] = isValid;
-                                NeedUpdateNodes = true;
                             }
 
                             if (!string.IsNullOrEmpty(curSpawnAction.RandomSpawnGroupPackKey) &&
@@ -108,10 +104,9 @@ namespace ArknightsMapViewer
                             {
                                 foreach (TreeNode packTreeNode in packTreeNodes)
                                 {
-                                    if (ValidSpawnNodes.ContainsKey(packTreeNode) && ValidSpawnNodes[packTreeNode] != isValid)
+                                    if (ValidSpawnNodes.ContainsKey(packTreeNode))
                                     {
                                         ValidSpawnNodes[packTreeNode] = isValid;
-                                        NeedUpdateNodes = true;
                                     }
                                 }
                             }

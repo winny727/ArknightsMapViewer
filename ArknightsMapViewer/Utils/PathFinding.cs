@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Threading;
 
 namespace ArknightsMapViewer
@@ -81,7 +82,8 @@ namespace ArknightsMapViewer
             public Node(Vector2Int location, Vector2Int destination)
             {
                 this.position = location;
-                cost = (destination - position).sqrMagnitude;
+                //cost = (destination - position).sqrMagnitude;
+                cost = ManhattanDistance(destination, position); //曼哈顿距离
                 parent = null;
             }
             //带有父节点（前置节点）的Node
@@ -94,6 +96,11 @@ namespace ArknightsMapViewer
                 cost = pre_cost + nex_cost;
                 this.parent = parent;
             }
+        }
+
+        private static int ManhattanDistance(Vector2Int p1, Vector2Int p2)
+        {
+            return Math.Abs(p1.x - p2.x) + Math.Abs(p1.y - p2.y);
         }
 
         public List<Node> GetAstarPath(Vector2Int origin, Vector2Int destination)
@@ -156,11 +163,13 @@ namespace ArknightsMapViewer
             } while (current.position != destination);
             //将链中的结点提取出来
             road.Add(current);
-            do
+
+            while (current.parent != null)
             {
                 current = current.parent;
                 road.Add(current);
-            } while (current.parent != null);
+            }
+
             //倒置
             road.Reverse();
 

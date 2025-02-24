@@ -119,14 +119,7 @@ namespace ArknightsMapViewer
 
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            if (curLevelView?.SpawnView != null)
-            {
-                curLevelView.SpawnView.UpdateRandomSpawnGroupNodes(treeView1.SelectedNode);
-                if (curLevelView.SpawnView.NeedUpdateNodes)
-                {
-                    curLevelView.SpawnView.UpdateNodes();
-                }
-            }
+            curLevelView?.SpawnView?.UpdateRandomSpawnGroupNodes(treeView1.SelectedNode);
             UpdateView();
         }
 
@@ -307,8 +300,8 @@ namespace ArknightsMapViewer
 
             int mapWidth = levelData.mapWidth;
             int mapHeight = levelData.mapHeight;
-            //PathFinding pathFinding = new AStarPathFinding(); //A*在节点周围多个点cost相同的情况，可能会选到后续较远的路径，即不一定会搜到最短路径
-            PathFinding pathFinding = new DijkstraPathFinding();
+            PathFinding pathFinding = new AStarPathFinding();
+            //PathFinding pathFinding = new DijkstraPathFinding();
             pathFinding.SetIsBarrierArray(Helper.GetIsBarrierArray(levelData));
 
             //TODO SPFA
@@ -582,6 +575,7 @@ namespace ArknightsMapViewer
 
         private void UpdateLabelInfo(int routeSubIndex)
         {
+            string title = "";
             StringBuilder stringBuilder = new StringBuilder();
 
             TreeNode treeNode = treeView1.SelectedNode;
@@ -590,7 +584,7 @@ namespace ArknightsMapViewer
                 if (treeNode.Tag is IMapDataView<Route> routeDataView)
                 {
                     Route route = routeDataView?.GetData();
-                    stringBuilder.AppendLine($"[{treeView1.SelectedNode.Text}]");
+                    title = $"[{treeView1.SelectedNode.Text}]";
                     if (routeSubIndex < 0)
                     {
                         if (routeDataView is EnemySpawnView enemySpawnView)
@@ -651,7 +645,14 @@ namespace ArknightsMapViewer
                 stringBuilder.AppendLine(levelData.ToString());
             }
 
-            richTextBox1.Text = stringBuilder.ToString();
+            richTextBox1.ResetText();
+            if (!string.IsNullOrEmpty(title))
+            {
+                richTextBox1.SelectionFont = new Font("微软雅黑", 9f);
+                richTextBox1.AppendText(title + "\n"); //标题中可能有中文或者希腊字符，这里分开设置避免下面的文字也用默认字体显示
+            }
+            richTextBox1.SelectionFont = richTextBox1.Font;
+            richTextBox1.AppendText(stringBuilder.ToString());
             richTextBox1.SelectionStart = 0;
             richTextBox1.ScrollToCaret();
         }
@@ -794,7 +795,9 @@ namespace ArknightsMapViewer
                 }
             }
 
-            richTextBox1.Text = text;
+            richTextBox1.ResetText();
+            richTextBox1.SelectionFont = richTextBox1.Font;
+            richTextBox1.AppendText(text);
             richTextBox1.SelectionStart = 0;
             richTextBox1.ScrollToCaret();
         }
