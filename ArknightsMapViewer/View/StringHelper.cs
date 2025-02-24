@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace ArknightsMapViewer
 {

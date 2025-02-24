@@ -76,7 +76,7 @@
     <Compile Include="View\Interface\IMapDataView.cs" />
     <Compile Include="View\Interface\IDrawerView.cs" />
     <Compile Include="View\Interface\IDrawer.cs" />
-    <Compile Include="Utils\StringHelper.cs" />
+    <Compile Include="View\StringHelper.cs" />
     <Compile Include="View\DataView\ActionView\ActionView.cs" />
     <Compile Include="View\DataView\EnemySpawnView.cs" />
     <Compile Include="View\DataView\ActionView\PredefineActionView.cs" />
