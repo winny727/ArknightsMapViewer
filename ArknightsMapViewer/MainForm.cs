@@ -311,366 +311,37 @@ namespace ArknightsMapViewer
             PathFinding pathFinding = new DijkstraPathFinding();
             pathFinding.SetIsBarrierArray(Helper.GetIsBarrierArray(levelData));
 
-            //TODO SPFA https://blog.csdn.net/beijinghorn/article/details/125510627
+            //TODO SPFA
 
-            void AddRouteList(string name, List<Route> routes)
+            RouteDrawer routeDrawerCreater(Route route) => RouteDrawer.Create(route, pathFinding, mapWidth, mapHeight);
+            PredefineDrawer predefineDrawerCreater(Predefine.PredefineInst predefine) => new PredefineDrawer(predefine, mapWidth, mapHeight);
+
+            TreeNode routesNode = LevelViewHelper.CreateRoutesNode(nameof(levelData.routes), levelData.routes, routeDrawerCreater);
+            TreeNode extraRoutesNode = LevelViewHelper.CreateRoutesNode(nameof(levelData.extraRoutes), levelData.extraRoutes, routeDrawerCreater);
+
+            TreeNode wavesNode = LevelViewHelper.CreateWavesNode(levelData, routeDrawerCreater, predefineDrawerCreater,
+                out List<ISpawnAction> spawnActions, out List<PredefineView> predefineViews, out Dictionary<string, int> totalWeightDict);
+
+            TreeNode branchesNode = LevelViewHelper.CreateBranchsNode(nameof(levelData.branches), levelData.branches, levelData.extraRoutes, routeDrawerCreater);
+
+            PredefineView getPredefineView(string predefineKey) => predefineViews.Find(x => predefineKey == x.PredefineKey);
+            TreeNode predefinesNode = LevelViewHelper.CreatePredefinesNode(nameof(levelData.predefines), levelData.predefines, getPredefineView, predefineDrawerCreater);
+
+            TreeNode spawnsNode = LevelViewHelper.CreateSpawnsNode("spawns", spawnActions, totalWeightDict);
+            TreeNode groupsNode = LevelViewHelper.CreateGroupsNode("groups", spawnsNode?.Tag as SpawnView);
+
+            void AddTreeNode(TreeNode treeNode)
             {
-                if (routes == null || routes.Count <= 0)
-                {
-                    return;
-                }
-
-                string title = name.TrimEnd('s'); // routes -> route
-                TreeNode routesNode = rootNode.Nodes.Add(name);
-                for (int i = 0; i < routes.Count; i++)
-                {
-                    Route route = routes[i];
-                    TreeNode routeNode = routesNode.Nodes.Add($"{title} #{i}");
-                    routeNode.Tag = new RouteView()
-                    {
-                        RouteIndex = i,
-                        Route = route,
-                        RouteDrawer = RouteDrawer.Create(route, pathFinding, mapWidth, mapHeight),
-                    };
-                    if (route != null && route.checkPoints != null)
-                    {
-                        routeNode.Nodes.Add($"startPosition: {route.startPosition}");
-                        for (int j = 0; j < route.checkPoints.Count; j++)
-                        {
-                            routeNode.Nodes.Add($"checkPoint #{j} {route.checkPoints[j].ToSimpleString()}");
-                        }
-                        routeNode.Nodes.Add($"endPosition: {route.endPosition}");
-                    }
-                }
+                if (treeNode != null) rootNode.Nodes.Add(treeNode);
             }
 
-            //AddRouteList
-            AddRouteList(nameof(levelData.routes), levelData.routes);
-            AddRouteList(nameof(levelData.extraRoutes), levelData.extraRoutes);
-
-            //AddWaveList & InitEnemyList
-            int spawnIndex = 0;
-            float spawnTime = 0;
-            List<ISpawnAction> spawnActions = new List<ISpawnAction>();
-            List<PredefineView> predefineViews = new List<PredefineView>();
-            Dictionary<string, int> totalWeightDict = new Dictionary<string, int>();
-
-            if (levelData.waves != null)
-            {
-                TreeNode wavesNode = rootNode.Nodes.Add(nameof(levelData.waves));
-                for (int i = 0; i < levelData.waves.Count; i++)
-                {
-                    Wave wave = levelData.waves[i];
-                    TreeNode waveNode = wavesNode.Nodes.Add($"wave #{i}");
-                    waveNode.Tag = wave;
-
-                    int waveSpawnIndex = 0;
-                    spawnTime += wave.preDelay;
-                    for (int j = 0; j < wave.fragments.Count; j++)
-                    {
-                        Fragment fragment = wave.fragments[j];
-                        TreeNode fragmentNode = waveNode.Nodes.Add($"fragment #{j}");
-                        fragmentNode.Tag = fragment;
-
-                        float fragmentSpawnTime = 0;
-                        spawnTime += fragment.preDelay;
-                        for (int k = 0; k < fragment.actions.Count; k++)
-                        {
-                            Action action = fragment.actions[k];
-                            TreeNode actionNode = fragmentNode.Nodes.Add($"#{k} {action.ToSimpleString()}");
-                            if (action.actionType == ActionType.SPAWN)
-                            {
-                                if (levelData.routes != null && action.routeIndex >= 0 && action.routeIndex < levelData.routes.Count)
-                                {
-                                    Route route = levelData.routes[action.routeIndex];
-                                    RouteDrawer routeDrawer = RouteDrawer.Create(route, pathFinding, mapWidth, mapHeight);
-                                    actionNode.Tag = new SpawnActionView()
-                                    {
-                                        Action = action,
-                                        Drawer = routeDrawer,
-                                        IsExtraRoute = false,
-                                    };
-
-                                    for (int n = 0; n < action.count; n++)
-                                    {
-                                        levelData.enemyDbRefs.TryGetValue(action.key, out DbData enemyData);
-                                        EnemySpawnView enemySpawnView = new EnemySpawnView()
-                                        {
-                                            EnemyKey = action.key,
-                                            EnemyData = enemyData,
-                                            SpawnTime = spawnTime + action.preDelay + n * action.interval,
-                                            TotalSpawnIndex = spawnIndex,
-                                            Route = route,
-                                            RouteIndex = action.routeIndex,
-                                            TotalWave = levelData.waves.Count,
-                                            WaveIndex = i,
-                                            SpawnIndexInWave = waveSpawnIndex,
-                                            HiddenGroup = action.hiddenGroup,
-                                            RandomSpawnGroupKey = action.randomSpawnGroupKey,
-                                            RandomSpawnGroupPackKey = action.randomSpawnGroupPackKey,
-                                            Weight = action.weight,
-                                            BlockFragment = action.blockFragment,
-                                            BlockWave = !action.dontBlockWave,
-                                            MaxTimeWaitingForNextWave = wave.maxTimeWaitingForNextWave,
-                                            RouteDrawer = routeDrawer,
-                                        };
-                                        spawnActions.Add(enemySpawnView);
-
-                                        if (enemySpawnView.SpawnTime > fragmentSpawnTime)
-                                        {
-                                            fragmentSpawnTime = enemySpawnView.SpawnTime;
-                                        }
-                                    }
-                                }
-                            }
-                            else if (action.actionType == ActionType.ACTIVATE_PREDEFINED)
-                            {
-                                if (levelData.predefines != null)
-                                {
-                                    bool isCard = false;
-                                    Predefine.PredefineInst predefine = null;
-
-                                    if (!string.IsNullOrEmpty(action.key))
-                                    {
-                                        predefine =
-                                            levelData.predefines.characterInsts?.Find(x => (x.alias ?? x.inst.characterKey) == action.key) ??
-                                            levelData.predefines.tokenInsts?.Find(x => (x.alias ?? x.inst.characterKey) == action.key);
-
-                                        if (predefine == null)
-                                        {
-                                            predefine =
-                                                levelData.predefines.characterCards?.Find(x => (x.alias ?? x.inst.characterKey) == action.key) ??
-                                                levelData.predefines.tokenCards?.Find(x => (x.alias ?? x.inst.characterKey) == action.key);
-                                            isCard = predefine != null;
-                                        }
-                                    }
-
-                                    PredefineDrawer predefineDrawer = new PredefineDrawer(predefine, mapWidth, mapHeight);
-                                    actionNode.Tag = new PredefineActionView()
-                                    {
-                                        Action = action,
-                                        IsCard = isCard,
-                                        Drawer = predefineDrawer,
-                                    };
-
-                                    //TODO 单个action内装置是否有多个？
-                                    CharacterData characterData = null;
-                                    if (predefine != null)
-                                    {
-                                        GlobalDefine.CharacterTable.TryGetValue(predefine.inst.characterKey, out characterData);
-                                    }
-
-                                    PredefineView predefineView = new PredefineView()
-                                    {
-                                        Predefine = predefine,
-                                        PredefineKey = action.key,
-                                        IsCard = isCard,
-                                        PredefineData = characterData,
-                                        ActivateTime = spawnTime + action.preDelay,
-                                        TotalWave = levelData.waves.Count,
-                                        WaveIndex = i,
-                                        SpawnIndexInWave = waveSpawnIndex,
-                                        HiddenGroup = action.hiddenGroup,
-                                        RandomSpawnGroupKey = action.randomSpawnGroupKey,
-                                        RandomSpawnGroupPackKey = action.randomSpawnGroupPackKey,
-                                        Weight = action.weight,
-                                        PredefineDrawer = predefineDrawer,
-                                    };
-                                    predefineViews.Add(predefineView);
-                                    spawnActions.Add(predefineView);
-
-                                    if (predefineView.ActivateTime > fragmentSpawnTime)
-                                    {
-                                        fragmentSpawnTime = predefineView.ActivateTime;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                actionNode.Tag = action;
-                            }
-
-                            if (!string.IsNullOrEmpty(action.randomSpawnGroupKey))
-                            {
-                                if (!totalWeightDict.ContainsKey(action.randomSpawnGroupKey))
-                                {
-                                    totalWeightDict.Add(action.randomSpawnGroupKey, 0);
-                                }
-                                totalWeightDict[action.randomSpawnGroupKey] += action.weight;
-                            }
-
-                            waveSpawnIndex++;
-                            spawnIndex++;
-                        }
-                        spawnTime = fragmentSpawnTime;
-                    }
-                    spawnTime += wave.postDelay;
-                }
-            }
-
-            //AddBranchList
-            if (levelData.branches != null)
-            {
-                TreeNode branchesNode = rootNode.Nodes.Add(nameof(levelData.branches));
-                foreach (var item in levelData.branches)
-                {
-                    string key = item.Key;
-                    List<Fragment> phases = item.Value.phases;
-                    TreeNode brancheNode = branchesNode.Nodes.Add(key);
-                    for (int i = 0; i < phases.Count; i++)
-                    {
-                        Fragment phase = phases[i];
-                        TreeNode phaseNode = brancheNode.Nodes.Add($"phase #{i}");
-                        phaseNode.Tag = phase;
-
-                        for (int j = 0; j < phase.actions.Count; j++)
-                        {
-                            Action action = phase.actions[j];
-                            TreeNode actionNode = phaseNode.Nodes.Add($"#{j} {action.ToSimpleString()}");
-                            if (action.actionType == ActionType.SPAWN && levelData.extraRoutes != null && action.routeIndex >= 0 && action.routeIndex < levelData.extraRoutes.Count)
-                            {
-                                actionNode.Tag = new SpawnActionView()
-                                {
-                                    Action = action,
-                                    Drawer = RouteDrawer.Create(levelData.extraRoutes[action.routeIndex], pathFinding, mapWidth, mapHeight),
-                                    IsExtraRoute = true,
-                                };
-                            }
-                            else
-                            {
-                                actionNode.Tag = action;
-                            }
-                        }
-                    }
-                }
-            }
-
-            //AddPredefineList
-            if (levelData.predefines != null && levelData.predefines.tokenInsts != null)
-            {
-                TreeNode tokensNode = rootNode.Nodes.Add("predefines");
-
-                void InsertPredefine(List<Predefine.PredefineInst> predefineInsts)
-                {
-                    for (int i = 0; i < predefineInsts.Count; i++)
-                    {
-                        Predefine.PredefineInst predefine = predefineInsts[i];
-                        string predefineKey = predefine.alias ?? predefine.inst.characterKey;
-                        PredefineView predefineView = predefineViews.Find(x => predefineKey == x.PredefineKey);
-                        if (predefineView != null)
-                        {
-                            TreeNode predefineNode = tokensNode.Nodes.Add($"#{i} {predefineView.ToSimpleString(false)}");
-                            predefineNode.Tag = predefineView;
-                        }
-                        else
-                        {
-                            TreeNode predefineNode = tokensNode.Nodes.Add($"#{i} {predefineKey}");
-                            GlobalDefine.CharacterTable.TryGetValue(predefine.inst.characterKey, out CharacterData characterData);
-                            predefineNode.Tag = new PredefineView()
-                            {
-                                Predefine = predefine,
-                                PredefineKey = predefineKey,
-                                PredefineData = characterData,
-                                ActivateTime = -1,
-                                PredefineDrawer = new PredefineDrawer(predefine, mapWidth, mapHeight),
-                            };
-                        }
-                    }
-                }
-
-                InsertPredefine(levelData.predefines.characterInsts);
-                InsertPredefine(levelData.predefines.tokenInsts);
-                InsertPredefine(levelData.predefines.characterCards);
-                InsertPredefine(levelData.predefines.tokenCards);
-            }
-
-            //AddSpawnList
-            if (spawnActions.Count > 0)
-            {
-                TreeNode spawnsNode = rootNode.Nodes.Add("spawns");
-                SpawnView spawnView = new SpawnView()
-                {
-                    SpawnsNode = spawnsNode,
-                    ShowPredefinedNodes = true,
-                    HideInvalidNodes = false,
-                };
-                spawnsNode.Tag = spawnView;
-                spawnActions.Sort((a, b) => a.CompareTo(b));
-
-                Dictionary<string, TreeNode> randomSpawnGroupDefaultNodes = new Dictionary<string, TreeNode>();
-                for (int i = 0; i < spawnActions.Count; i++)
-                {
-                    ISpawnAction spawnAction = spawnActions[i];
-                    TreeNode spawnNode = new TreeNode
-                    {
-                        Tag = spawnAction
-                    };
-
-                    if (!string.IsNullOrEmpty(spawnAction.RandomSpawnGroupKey) && totalWeightDict.TryGetValue(spawnAction.RandomSpawnGroupKey, out int totalWeight))
-                    {
-                        spawnAction.TotalWeight = totalWeight;
-                    }
-
-                    if (spawnAction is EnemySpawnView enemySpawnView)
-                    {
-                        Route route = enemySpawnView.Route;
-                        if (route != null && route.checkPoints != null)
-                        {
-                            spawnNode.Nodes.Add($"startPosition: {route.startPosition}");
-                            for (int j = 0; j < route.checkPoints.Count; j++)
-                            {
-                                spawnNode.Nodes.Add($"checkPoint #{j} {route.checkPoints[j].ToSimpleString()}");
-                            }
-                            spawnNode.Nodes.Add($"endPosition: {route.endPosition}");
-                        }
-                    }
-
-                    if (!string.IsNullOrEmpty(spawnAction.HiddenGroup))
-                    {
-                        if (!spawnView.HiddenGroups.ContainsKey(spawnAction.HiddenGroup))
-                        {
-                            spawnView.HiddenGroups.Add(spawnAction.HiddenGroup, true);
-                        }
-                    }
-
-                    if (!string.IsNullOrEmpty(spawnAction.RandomSpawnGroupKey))
-                    {
-                        if (!spawnView.RandomSpawnGroupNodesDict.ContainsKey(spawnAction.RandomSpawnGroupKey))
-                        {
-                            spawnView.RandomSpawnGroupNodesDict.Add(spawnAction.RandomSpawnGroupKey, new List<TreeNode>());
-                        }
-                        if (!randomSpawnGroupDefaultNodes.ContainsKey(spawnAction.RandomSpawnGroupKey))
-                        {
-                            randomSpawnGroupDefaultNodes.Add(spawnAction.RandomSpawnGroupKey, spawnNode);
-                        }
-                        spawnView.RandomSpawnGroupNodesDict[spawnAction.RandomSpawnGroupKey].Add(spawnNode);
-                    }
-
-                    if (!string.IsNullOrEmpty(spawnAction.RandomSpawnGroupPackKey))
-                    {
-                        if (!spawnView.RandomSpawnGroupPackNodesDict.ContainsKey(spawnAction.RandomSpawnGroupPackKey))
-                        {
-                            spawnView.RandomSpawnGroupPackNodesDict.Add(spawnAction.RandomSpawnGroupPackKey, new List<TreeNode>());
-                        }
-                        spawnView.RandomSpawnGroupPackNodesDict[spawnAction.RandomSpawnGroupPackKey].Add(spawnNode);
-                    }
-
-                    spawnView.SpawnNodesList.Add(spawnNode);
-                    spawnView.ValidSpawnNodes.Add(spawnNode, true);
-                }
-
-                if (!readingMultiFiles)
-                {
-                    spawnsNode.Expand();
-                }
-
-                foreach (var item in randomSpawnGroupDefaultNodes)
-                {
-                    spawnView.UpdateRandomSpawnGroupNodes(item.Value);
-                }
-                spawnView.UpdateSpawnViewNodeColor();
-                spawnView.UpdateNodes();
-            }
+            AddTreeNode(routesNode);
+            AddTreeNode(extraRoutesNode);
+            AddTreeNode(wavesNode);
+            AddTreeNode(branchesNode);
+            AddTreeNode(predefinesNode);
+            AddTreeNode(spawnsNode);
+            AddTreeNode(groupsNode);
 
             if (!readingMultiFiles)
             {
@@ -998,9 +669,9 @@ namespace ArknightsMapViewer
                         };
                         flowLayoutPanel2.Controls.Add(checkBox);
                     }
-                    foreach (TreeNode node in spawnView.SpawnNodesList)
+                    foreach (TreeNode treeNode in spawnView.SpawnNodesList)
                     {
-                        if (node.Tag is PredefineView)
+                        if (treeNode.Tag is PredefineView)
                         {
                             checkBox7.Visible = true;
                             break;
@@ -1174,6 +845,18 @@ namespace ArknightsMapViewer
         private void allToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SaveImageToFile(saveBackground: true, saveRoute: true, saveFull: true);
+        }
+
+        private void openFolderToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (curLevelView != null && !string.IsNullOrEmpty(curLevelView.Path))
+            {
+                string folderPath = Path.GetDirectoryName(curLevelView.Path);
+                if (!string.IsNullOrEmpty(folderPath) && Directory.Exists(folderPath))
+                {
+                    Process.Start(folderPath);
+                }
+            }
         }
 
         private void SaveImageToFile(bool saveBackground = false, bool saveRoute = false, bool saveFull = false)

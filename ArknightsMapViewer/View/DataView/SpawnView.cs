@@ -19,18 +19,18 @@ namespace ArknightsMapViewer
 
         public void UpdateNodes()
         {
-            TreeNode selectedNode = SpawnsNode.TreeView.SelectedNode;
+            TreeNode selectedNode = SpawnsNode.TreeView?.SelectedNode;
             SpawnsNode.Nodes.Clear();
-            foreach (TreeNode node in SpawnNodesList)
+            foreach (TreeNode treeNode in SpawnNodesList)
             {
-                if (node.Tag is ISpawnAction spawnAction)
+                if (treeNode.Tag is ISpawnAction spawnAction)
                 {
                     if (!ShowPredefinedNodes && spawnAction is PredefineView)
                     {
                         continue;
                     }
 
-                    if (HideInvalidNodes && ValidSpawnNodes.TryGetValue(node, out bool isValid) && !isValid)
+                    if (HideInvalidNodes && ValidSpawnNodes.TryGetValue(treeNode, out bool isValid) && !isValid)
                     {
                         continue;
                     }
@@ -38,15 +38,15 @@ namespace ArknightsMapViewer
                     string groupName = spawnAction.HiddenGroup;
                     if (string.IsNullOrEmpty(groupName))
                     {
-                        node.Text = $"#{SpawnsNode.Nodes.Count} {spawnAction.ToSimpleString()}";
-                        SpawnsNode.Nodes.Add(node);
+                        treeNode.Text = $"#{SpawnsNode.Nodes.Count} {spawnAction.ToSimpleString()}";
+                        SpawnsNode.Nodes.Add(treeNode);
                         continue;
                     }
 
                     if (!string.IsNullOrEmpty(groupName) && HiddenGroups.ContainsKey(groupName) && HiddenGroups[groupName])
                     {
-                        node.Text = $"#{SpawnsNode.Nodes.Count} {spawnAction.ToSimpleString()}";
-                        SpawnsNode.Nodes.Add(node);
+                        treeNode.Text = $"#{SpawnsNode.Nodes.Count} {spawnAction.ToSimpleString()}";
+                        SpawnsNode.Nodes.Add(treeNode);
                     }
                 }
             }

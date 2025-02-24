@@ -40,10 +40,10 @@ namespace ArknightsMapViewer
             {
                 text = $"[{spawnAction.WaveIndex}_{spawnAction.SpawnIndexInWave}] " + text;
             }
-            else
-            {
-                text = $"[{spawnAction.SpawnIndexInWave}] " + text;
-            }
+            //else
+            //{
+            //    text = $"[{spawnAction.SpawnIndexInWave}] " + text;
+            //}
             if (!string.IsNullOrEmpty(spawnAction.HiddenGroup))
             {
                 text += $" {spawnAction.HiddenGroup}";

@@ -114,6 +114,7 @@
     <Compile Include="Utils\Vector2.cs" />
     <Compile Include="View\DataView\PredefineView.cs" />
     <Compile Include="View\DataView\LevelView.cs" />
+    <Compile Include="View\LevelViewHelper.cs" />
     <EmbeddedResource Include="LogForm.resx">
       <DependentUpon>LogForm.cs</DependentUpon>
     </EmbeddedResource>
