@@ -1,8 +1,8 @@
 明日方舟地图文件查看工具
 ArknightsMapViewer
-Version: 0.3
+Version: 0.4
 By winny727
-2025.2.11
+2025.2.24
 
 https://github.com/winny727/ArknightsMapViewer
 
@@ -11,8 +11,9 @@ https://github.com/winny727/ArknightsMapViewer
 
 b站专栏：https://www.bilibili.com/opus/873569465823920149
 
-地图文件和敌人数据可以自己解包，Github也有大佬传了：
+地图文件和角色/敌人数据可以自己解包，Github也有大佬传了：
 地图文件：https://github.com/Kengxxiao/ArknightsGameData/tree/master/zh_CN/gamedata/levels
-敌人数据文件：https://github.com/Kengxxiao/ArknightsGameData/blob/master/zh_CN/gamedata/levels/enemydata/enemy_database.json
+角色数据文件：https://github.com/Kengxxiao/ArknightsGameData/blob/master/zh_CN/gamedata/excel/chapter_table.json
+敌人数据文件：https://github.com/Kengxxiao/ArknightsGameData/tree/master/zh_CN/gamedata/levels/enemydata/enemy_database.json
 
 

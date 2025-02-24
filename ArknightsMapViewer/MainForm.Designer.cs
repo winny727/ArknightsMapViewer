@@ -70,6 +70,9 @@
             this.treeView1 = new System.Windows.Forms.TreeView();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.downloadMapFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
+            this.githubToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.contextMenuStrip1.SuspendLayout();
@@ -127,7 +130,10 @@
             // 
             this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.showLogToolStripMenuItem,
-            this.informationToolStripMenuItem});
+            this.informationToolStripMenuItem,
+            this.toolStripSeparator5,
+            this.githubToolStripMenuItem,
+            this.downloadMapFileToolStripMenuItem});
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(47, 22);
             this.helpToolStripMenuItem.Text = "&Help";
@@ -476,6 +482,25 @@
             this.tabControl1.Size = new System.Drawing.Size(298, 757);
             this.tabControl1.TabIndex = 1;
             // 
+            // downloadMapFileToolStripMenuItem
+            // 
+            this.downloadMapFileToolStripMenuItem.Name = "downloadMapFileToolStripMenuItem";
+            this.downloadMapFileToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.downloadMapFileToolStripMenuItem.Text = "&Download Map File";
+            this.downloadMapFileToolStripMenuItem.Click += new System.EventHandler(this.downloadMapFileToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator5
+            // 
+            this.toolStripSeparator5.Name = "toolStripSeparator5";
+            this.toolStripSeparator5.Size = new System.Drawing.Size(186, 6);
+            // 
+            // githubToolStripMenuItem
+            // 
+            this.githubToolStripMenuItem.Name = "githubToolStripMenuItem";
+            this.githubToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.githubToolStripMenuItem.Text = "&Github";
+            this.githubToolStripMenuItem.Click += new System.EventHandler(this.githubToolStripMenuItem_Click);
+            // 
             // MainForm
             // 
             this.AllowDrop = true;
@@ -559,6 +584,9 @@
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.TreeView treeView1;
         private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
+        private System.Windows.Forms.ToolStripMenuItem downloadMapFileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem githubToolStripMenuItem;
     }
 }
 

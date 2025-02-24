@@ -878,6 +878,16 @@ namespace ArknightsMapViewer
             SaveImageToFile(saveBackground: true, saveRoute: true, saveFull: true);
         }
 
+        private void githubToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Process.Start("https://github.com/winny727/ArknightsMapViewer");
+        }
+
+        private void downloadMapFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Process.Start("https://github.com/Kengxxiao/ArknightsGameData/tree/master/zh_CN/gamedata/levels");
+        }
+
         private void openFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (curLevelView != null && !string.IsNullOrEmpty(curLevelView.Path))
