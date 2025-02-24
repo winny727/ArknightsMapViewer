@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace ArknightsMapViewer
 {
@@ -383,6 +382,7 @@ namespace ArknightsMapViewer
                     spawnView.RandomSpawnGroupPackNodesDict[spawnAction.RandomSpawnGroupPackKey].Add(spawnNode);
                 }
 
+                spawnNode.Name = Guid.NewGuid().ToString(); //唯一标识
                 spawnView.SpawnNodesList.Add(spawnNode);
                 spawnView.ValidSpawnNodes.Add(spawnNode, true);
             }
@@ -485,9 +485,11 @@ namespace ArknightsMapViewer
                                 {
                                     foreach (TreeNode randomGroupPackNode in randomGroupPackNodes)
                                     {
-                                        randomGroupNode.Nodes.Add((TreeNode)randomGroupPackNode.Clone());
+                                        if (!randomGroupNode.Nodes.ContainsKey(randomGroupPackNode.Name))
+                                        {
+                                            randomGroupNode.Nodes.Add((TreeNode)randomGroupPackNode.Clone());
+                                        }
                                     }
-                                    break;
                                 }
                             }
                             else
@@ -496,37 +498,6 @@ namespace ArknightsMapViewer
                             }
                         }
                     }
-
-                    //if (packCountDict.Count > 1)
-                    //{
-                    //    randomGroupNode.Text = $"randomGroup #{randomGroupsNode.Nodes.Count} {groupName}";
-                    //    randomGroupsNode.Nodes.Add(randomGroupNode);
-                    //}
-                    //else
-                    //{
-                    //    TreeNode groupNode = randomGroupsNode.Nodes.Add($"randomGroup #{randomGroupsNode.Nodes.Count} {groupName}");
-                    //    foreach (TreeNode treeNode in randomGroupNodes)
-                    //    {
-                    //        groupNode.Nodes.Add((TreeNode)treeNode.Clone());
-
-                    //        if (treeNode.Tag is ISpawnAction spawnAction)
-                    //        {
-                    //            if (!string.IsNullOrEmpty(spawnAction.RandomSpawnGroupPackKey) && spawnView.RandomSpawnGroupPackNodesDict != null &&
-                    //                spawnView.RandomSpawnGroupPackNodesDict.TryGetValue(spawnAction.RandomSpawnGroupPackKey, out List<TreeNode> randomGroupPackNodes)
-                    //                )
-                    //            {
-                    //                foreach (TreeNode randomGroupPackNode in randomGroupPackNodes)
-                    //                {
-                    //                    groupNode.Nodes.Add((TreeNode)randomGroupPackNode.Clone());
-                    //                }
-                    //            }
-                    //            else
-                    //            {
-                    //                groupNode.Nodes.Add((TreeNode)treeNode.Clone());
-                    //            }
-                    //        }
-                    //    }
-                    //}
                 }
             }
             return groupsNode;

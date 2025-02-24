@@ -8,6 +8,7 @@ namespace ArknightsMapViewer
         public string Path { get; set; }
         public string Name { get; set; }
         public LevelData LevelData { get; set; }
+        public SpawnView SpawnView { get; set; }
         public MapDrawer MapDrawer { get; set; }
     }
 }

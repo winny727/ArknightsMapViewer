@@ -16,9 +16,9 @@ namespace ArknightsMapViewer
         private Dictionary<Control, RectangleF> controlsBoundScaled = new Dictionary<Control, RectangleF>();
 
         private LevelView curLevelView;
-        private SpawnView curSpawnView;
         private bool needUpdateMap;
         private bool readingMultiFiles;
+        private bool rawSetCheckBox;
 
         private Dictionary<Position, List<IMapData>> mapPredefines = new Dictionary<Position, List<IMapData>>();
 
@@ -119,7 +119,14 @@ namespace ArknightsMapViewer
 
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            curSpawnView?.UpdateRandomSpawnGroupNodes(treeView1.SelectedNode);
+            if (curLevelView?.SpawnView != null)
+            {
+                curLevelView.SpawnView.UpdateRandomSpawnGroupNodes(treeView1.SelectedNode);
+                if (curLevelView.SpawnView.NeedUpdateNodes)
+                {
+                    curLevelView.SpawnView.UpdateNodes();
+                }
+            }
             UpdateView();
         }
 
@@ -297,13 +304,6 @@ namespace ArknightsMapViewer
             }
 
             TreeNode rootNode = treeView1.Nodes.Add(fileName, fileName);
-            rootNode.Tag = new LevelView()
-            {
-                Path = path,
-                Name = fileName,
-                LevelData = levelData,
-                MapDrawer = new MapDrawer(levelData.map),
-            };
 
             int mapWidth = levelData.mapWidth;
             int mapHeight = levelData.mapHeight;
@@ -328,7 +328,19 @@ namespace ArknightsMapViewer
             TreeNode predefinesNode = LevelViewHelper.CreatePredefinesNode(nameof(levelData.predefines), levelData.predefines, getPredefineView, predefineDrawerCreater);
 
             TreeNode spawnsNode = LevelViewHelper.CreateSpawnsNode("spawns", spawnActions, totalWeightDict);
-            TreeNode groupsNode = LevelViewHelper.CreateGroupsNode("groups", spawnsNode?.Tag as SpawnView);
+            spawnsNode.BackColor = Color.LightPink;
+
+            SpawnView spawnView = spawnsNode?.Tag as SpawnView;
+            TreeNode groupsNode = LevelViewHelper.CreateGroupsNode("groups", spawnView);
+
+            rootNode.Tag = new LevelView()
+            {
+                Path = path,
+                Name = fileName,
+                LevelData = levelData,
+                SpawnView = spawnView,
+                MapDrawer = new MapDrawer(levelData.map),
+            };
 
             void AddTreeNode(TreeNode treeNode)
             {
@@ -346,6 +358,7 @@ namespace ArknightsMapViewer
             if (!readingMultiFiles)
             {
                 rootNode.Expand();
+                spawnsNode?.Expand();
                 treeView1.SelectedNode = rootNode;
             }
             rootNode.EnsureVisible();
@@ -386,7 +399,6 @@ namespace ArknightsMapViewer
                 else
                 {
                     spawnActionView ??= treeNode.Tag as SpawnActionView;
-                    spawnView ??= treeNode.Tag as SpawnView;
                     enemySpawnView ??= treeNode.Tag as EnemySpawnView;
                     routeDrawerView ??= treeNode.Tag as IDrawerView<RouteDrawer>;
                     predefineDrawerView ??= treeNode.Tag as IDrawerView<PredefineDrawer>;
@@ -417,6 +429,8 @@ namespace ArknightsMapViewer
                     pictureBox1.Height = bitmap.Height;
                     pictureBox1.BackgroundImage = bitmap;
                 }
+
+                UpdateSpawnGroups();
             }
 
             pictureBox1.Image?.Dispose();
@@ -449,7 +463,6 @@ namespace ArknightsMapViewer
             }
 
             UpdateLabelInfo(routeSubIndex);
-            UpdateSpawnGroups(spawnView);
             FilterTreeNode();
 
             pictureBox1.Refresh();
@@ -479,9 +492,9 @@ namespace ArknightsMapViewer
 
                         if (checkBox3.Checked && !isShow)
                         {
-                            if (curSpawnView != null)
+                            if (curLevelView?.SpawnView != null)
                             {
-                                foreach (var item in curSpawnView.ValidSpawnNodes)
+                                foreach (var item in curLevelView.SpawnView.ValidSpawnNodes)
                                 {
                                     if (item.Key.Tag is PredefineView validPredefineView && validPredefineView.PredefineKey == predefineView.PredefineKey)
                                     {
@@ -643,53 +656,52 @@ namespace ArknightsMapViewer
             richTextBox1.ScrollToCaret();
         }
 
-        private void UpdateSpawnGroups(SpawnView spawnView)
+        private void UpdateSpawnGroups()
         {
-            if (curSpawnView != spawnView)
+            SpawnView spawnView = curLevelView?.SpawnView;
+            flowLayoutPanel2.Controls.Clear();
+            if (spawnView != null)
             {
-                curSpawnView = spawnView;
-                flowLayoutPanel2.Controls.Clear();
-                if (spawnView != null)
+                rawSetCheckBox = true;
+                checkBox7.Checked = spawnView.ShowPredefinedNodes;
+                checkBox8.Checked = spawnView.HideInvalidNodes;
+                rawSetCheckBox = false;
+                foreach (var item in spawnView.HiddenGroups)
                 {
-                    checkBox7.Checked = spawnView.ShowPredefinedNodes;
-                    checkBox8.Checked = spawnView.HideInvalidNodes;
-                    foreach (var item in spawnView.HiddenGroups)
+                    CheckBox checkBox = new CheckBox
                     {
-                        CheckBox checkBox = new CheckBox
-                        {
-                            Text = item.Key,
-                            Checked = item.Value,
-                            AutoSize = true
-                        };
-                        checkBox.CheckedChanged += (s, e) =>
-                        {
-                            spawnView.HiddenGroups[checkBox.Text] = checkBox.Checked;
-                            spawnView.UpdateNodes();
-                            UpdateView();
-                        };
-                        flowLayoutPanel2.Controls.Add(checkBox);
-                    }
-                    foreach (TreeNode treeNode in spawnView.SpawnNodesList)
+                        Text = item.Key,
+                        Checked = item.Value,
+                        AutoSize = true
+                    };
+                    checkBox.CheckedChanged += (s, e) =>
                     {
-                        if (treeNode.Tag is PredefineView)
-                        {
-                            checkBox7.Visible = true;
-                            break;
-                        }
-                    }
-                    foreach (var item in spawnView.ValidSpawnNodes)
+                        spawnView.HiddenGroups[checkBox.Text] = checkBox.Checked;
+                        spawnView.UpdateNodes();
+                        UpdateView();
+                    };
+                    flowLayoutPanel2.Controls.Add(checkBox);
+                }
+                foreach (TreeNode treeNode in spawnView.SpawnNodesList)
+                {
+                    if (treeNode.Tag is PredefineView)
                     {
-                        if (!item.Value)
-                        {
-                            checkBox8.Visible = true;
-                            break;
-                        }
+                        checkBox7.Visible = true;
+                        break;
                     }
                 }
-                else
+                foreach (var item in spawnView.ValidSpawnNodes)
                 {
-                    checkBox8.Visible = false;
+                    if (!item.Value)
+                    {
+                        checkBox8.Visible = true;
+                        break;
+                    }
                 }
+            }
+            else
+            {
+                checkBox8.Visible = false;
             }
         }
 
@@ -705,7 +717,7 @@ namespace ArknightsMapViewer
                     }
                     else
                     {
-                        if (curSpawnView != null && curSpawnView.ValidSpawnNodes.TryGetValue(treeNode, out bool isValid))
+                        if (curLevelView?.SpawnView != null && curLevelView.SpawnView.ValidSpawnNodes.TryGetValue(treeNode, out bool isValid))
                         {
                             treeNode.ForeColor = isValid ? Color.FromKnownColor(KnownColor.WindowText) : Color.Gray;
                         }
@@ -804,21 +816,23 @@ namespace ArknightsMapViewer
 
         private void checkBox7_CheckedChanged(object sender, EventArgs e)
         {
-            if (curSpawnView != null)
+            if (curLevelView?.SpawnView != null && !rawSetCheckBox)
             {
-                curSpawnView.ShowPredefinedNodes = checkBox7.Checked;
-                curSpawnView.UpdateNodes();
+                curLevelView.SpawnView.ShowPredefinedNodes = checkBox7.Checked;
+                curLevelView.SpawnView.UpdateNodes();
                 UpdateView();
+                curLevelView.SpawnView.SpawnsNode?.EnsureVisible();
             }
         }
 
         private void checkBox8_CheckedChanged(object sender, EventArgs e)
         {
-            if (curSpawnView != null)
+            if (curLevelView?.SpawnView != null && !rawSetCheckBox)
             {
-                curSpawnView.HideInvalidNodes = checkBox8.Checked;
-                curSpawnView.UpdateNodes();
+                curLevelView.SpawnView.HideInvalidNodes = checkBox8.Checked;
+                curLevelView.SpawnView.UpdateNodes();
                 UpdateView();
+                curLevelView.SpawnView.SpawnsNode?.EnsureVisible();
             }
         }
 

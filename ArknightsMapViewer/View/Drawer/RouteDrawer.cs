@@ -126,7 +126,7 @@ namespace ArknightsMapViewer
                 curOffset = default;
             }
 
-            if (prevPosition == curPosition)
+            if (prevPosition == curPosition && (Vector2)prevOffset == (Vector2)curOffset)
             {
                 return;
             }
