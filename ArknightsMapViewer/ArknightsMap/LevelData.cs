@@ -120,6 +120,7 @@ namespace ArknightsMapViewer
         public int initialCost;
         public int maxCost;
         public float costIncreaseTime;
+        public float moveMultiplier;
         public float maxPlayTime;
 
         public override string ToString()
