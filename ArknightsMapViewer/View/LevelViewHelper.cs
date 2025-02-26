@@ -503,7 +503,7 @@ namespace ArknightsMapViewer
                             {
                                 TreeNode clonedNode = (TreeNode)treeNode.Clone();
                                 clonedNode.ForeColor = Color.FromKnownColor(KnownColor.WindowText);
-                                randomGroupNode.Nodes.Add((TreeNode)treeNode.Clone());
+                                randomGroupNode.Nodes.Add(clonedNode);
                             }
                         }
                     }
