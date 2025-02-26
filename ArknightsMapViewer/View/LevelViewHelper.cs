@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using System.Drawing;
 
 namespace ArknightsMapViewer
 {
@@ -420,7 +421,9 @@ namespace ArknightsMapViewer
                         {
                             if (spawnAction.HiddenGroup == groupName)
                             {
-                                hiddenGroupNode.Nodes.Add((TreeNode)treeNode.Clone());
+                                TreeNode clonedNode = (TreeNode)treeNode.Clone();
+                                clonedNode.ForeColor = Color.FromKnownColor(KnownColor.WindowText);
+                                hiddenGroupNode.Nodes.Add(clonedNode);
                             }
                         }
                     }
@@ -478,7 +481,9 @@ namespace ArknightsMapViewer
                                     randomGroupNode.Nodes.Add(groupPackNode);
                                     foreach (TreeNode randomGroupPackNode in randomGroupPackNodes)
                                     {
-                                        groupPackNode.Nodes.Add((TreeNode)randomGroupPackNode.Clone());
+                                        TreeNode clonedNode = (TreeNode)randomGroupPackNode.Clone();
+                                        clonedNode.ForeColor = Color.FromKnownColor(KnownColor.WindowText);
+                                        groupPackNode.Nodes.Add(clonedNode);
                                     }
                                 }
                                 else
@@ -487,13 +492,17 @@ namespace ArknightsMapViewer
                                     {
                                         if (!randomGroupNode.Nodes.ContainsKey(randomGroupPackNode.Name))
                                         {
-                                            randomGroupNode.Nodes.Add((TreeNode)randomGroupPackNode.Clone());
+                                            TreeNode clonedNode = (TreeNode)randomGroupPackNode.Clone();
+                                            clonedNode.ForeColor = Color.FromKnownColor(KnownColor.WindowText);
+                                            randomGroupNode.Nodes.Add(clonedNode);
                                         }
                                     }
                                 }
                             }
                             else
                             {
+                                TreeNode clonedNode = (TreeNode)treeNode.Clone();
+                                clonedNode.ForeColor = Color.FromKnownColor(KnownColor.WindowText);
                                 randomGroupNode.Nodes.Add((TreeNode)treeNode.Clone());
                             }
                         }
