@@ -337,7 +337,7 @@ namespace ArknightsMapViewer
             TreeNode predefinesNode = LevelViewHelper.CreatePredefinesNode(nameof(levelData.predefines), levelData.predefines, getPredefineView, predefineDrawerCreater);
 
             TreeNode spawnsNode = LevelViewHelper.CreateSpawnsNode("spawns", spawnActions, totalWeightDict);
-            spawnsNode.BackColor = Color.LightPink;
+            spawnsNode.ForeColor = Color.Red;
 
             SpawnView spawnView = spawnsNode?.Tag as SpawnView;
             TreeNode groupsNode = LevelViewHelper.CreateGroupsNode("groups", spawnView);
@@ -367,9 +367,10 @@ namespace ArknightsMapViewer
             if (!readingMultiFiles)
             {
                 rootNode.Expand();
-                spawnsNode?.Expand();
                 treeView1.SelectedNode = rootNode;
             }
+
+            spawnsNode.Expand();
             rootNode.EnsureVisible();
         }
 
@@ -729,21 +730,20 @@ namespace ArknightsMapViewer
             {
                 foreach (TreeNode treeNode in treeNodes)
                 {
+                    if (curLevelView?.SpawnView != null && curLevelView.SpawnView.ValidSpawnNodes.TryGetValue(treeNode, out bool isValid))
+                    {
+                        treeNode.ForeColor = isValid ? Color.FromKnownColor(KnownColor.WindowText) : Color.Gray;
+                    }
+
                     if (!string.IsNullOrEmpty(textBox1.Text) && treeNode.Text.Contains(textBox1.Text))
                     {
-                        treeNode.ForeColor = Color.Red;
+                        treeNode.BackColor = Color.LightPink;
                     }
                     else
                     {
-                        if (curLevelView?.SpawnView != null && curLevelView.SpawnView.ValidSpawnNodes.TryGetValue(treeNode, out bool isValid))
-                        {
-                            treeNode.ForeColor = isValid ? Color.FromKnownColor(KnownColor.WindowText) : Color.Gray;
-                        }
-                        else
-                        {
-                            treeNode.ForeColor = Color.FromKnownColor(KnownColor.WindowText);
-                        }
+                        treeNode.BackColor = Color.FromKnownColor(KnownColor.Window);
                     }
+
                     Filter(treeNode.Nodes);
                 }
             }
@@ -948,7 +948,7 @@ namespace ArknightsMapViewer
                 Directory.CreateDirectory(path);
             }
 
-            bool saved = false;
+            int saved = 0;
             bool backGroundSaved = false;
             void ForEachRouteNode(TreeNode treeNode)
             {
@@ -976,7 +976,7 @@ namespace ArknightsMapViewer
                     {
                         string fullPath = Path.Combine(path, $"{curLevelView.Name}_Background.png");
                         pictureBox1.BackgroundImage.Save(fullPath, ImageFormat.Png);
-                        saved = true;
+                        saved++;
                         backGroundSaved = true;
                     }
 
@@ -984,7 +984,7 @@ namespace ArknightsMapViewer
                     {
                         string fullPath = Path.Combine(path, $"{curLevelView.Name}_{treeNode.Parent.Text}_R{treeNode.Index}.png");
                         pictureBox1.Image.Save(fullPath, ImageFormat.Png);
-                        saved = true;
+                        saved++;
                     }
 
                     if (saveFull)
@@ -993,7 +993,7 @@ namespace ArknightsMapViewer
                         Bitmap bitmap = new Bitmap(pictureBox1.Width, pictureBox1.Height);
                         pictureBox1.DrawToBitmap(bitmap, new Rectangle(0, 0, pictureBox1.Width, pictureBox1.Height));
                         bitmap.Save(fullPath, ImageFormat.Png);
-                        saved = true;
+                        saved++;
                     }
                 }
 
@@ -1009,10 +1009,13 @@ namespace ArknightsMapViewer
             treeView1.SelectedNode = selectedNode;
             UpdateView();
 
-            if (saved)
+            if (saved > 0)
             {
                 MessageBox.Show("Export Image Completed.");
-                Process.Start(path);
+                if (saved > 1)
+                {
+                    Process.Start(path);
+                }
             }
         }
     }

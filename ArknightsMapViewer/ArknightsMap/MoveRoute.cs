@@ -6,7 +6,7 @@ namespace ArknightsMapViewer
 {
     public class MoveRoute
     {
-        private class RouteLocation
+        private class RouteData
         {
             public Position Position;
             public Offset Offset;
@@ -15,7 +15,7 @@ namespace ArknightsMapViewer
             public float WaitTime;
             public bool IsTeleport;
 
-            public RouteLocation(Position position, Offset offset, bool isTeleport = false)
+            public RouteData(Position position, Offset offset, bool isTeleport = false)
             {
                 Position = position;
                 Offset = offset;
@@ -28,7 +28,7 @@ namespace ArknightsMapViewer
 
         private Route route;
         private PathFinding pathFinding;
-        private List<RouteLocation> routeLocations = new List<RouteLocation>();
+        private List<RouteData> routeDatas = new List<RouteData>();
 
         public MoveRoute(Route route, PathFinding pathFinding)
         {
@@ -36,7 +36,7 @@ namespace ArknightsMapViewer
             this.pathFinding = pathFinding;
             InitMoveRoute();
 
-            //PrintMoveRoute();
+            PrintMoveRoute();
         }
 
         private void InitMoveRoute()
@@ -47,7 +47,7 @@ namespace ArknightsMapViewer
             }
 
             //startPosition
-            routeLocations.Add(new RouteLocation(route.startPosition, route.spawnOffset));
+            routeDatas.Add(new RouteData(route.startPosition, route.spawnOffset));
 
             //checkPoints
             if (route.checkPoints != null && route.checkPoints.Count > 0)
@@ -55,7 +55,7 @@ namespace ArknightsMapViewer
                 for (int index = 0; index < route.checkPoints.Count; index++)
                 {
                     CheckPoint checkPoint = route.checkPoints[index];
-                    RouteLocation prevRoutePoint = routeLocations[routeLocations.Count - 1];
+                    RouteData prevRoutePoint = routeDatas[routeDatas.Count - 1];
                     Position curPosition = checkPoint.position;
                     Offset curOffset = checkPoint.reachOffset;
 
@@ -63,11 +63,11 @@ namespace ArknightsMapViewer
                     {
                         if (checkPoint.type == CheckPointType.APPEAR_AT_POS)
                         {
-                            routeLocations.Add(new RouteLocation(curPosition, curOffset, true));
+                            routeDatas.Add(new RouteData(curPosition, curOffset, true));
                         }
                         else if (checkPoint.type == CheckPointType.MOVE || checkPoint.type == CheckPointType.PATROL_MOVE)
                         {
-                            AddRouteLocation(prevRoutePoint.Position, curPosition, curOffset);
+                            AddRouteData(prevRoutePoint.Position, curPosition, curOffset);
                         }
                     }
                     else if (checkPoint.SimpleType == CheckPoint.Type.WAIT)
@@ -78,10 +78,10 @@ namespace ArknightsMapViewer
             }
 
             //endPosition
-            AddRouteLocation(routeLocations[routeLocations.Count - 1].Position, route.endPosition, default);
+            AddRouteData(routeDatas[routeDatas.Count - 1].Position, route.endPosition, default);
         }
 
-        private void AddRouteLocation(Position prevPosition, Position curPosition, Offset curOffset)
+        private void AddRouteData(Position prevPosition, Position curPosition, Offset curOffset)
         {
             //PathFinding
             List<Vector2Int> path = pathFinding.GetPath(prevPosition, curPosition);
@@ -97,27 +97,27 @@ namespace ArknightsMapViewer
                     {
                         offset = curOffset;
                     }
-                    routeLocations.Add(new RouteLocation(position, offset));
+                    routeDatas.Add(new RouteData(position, offset));
                 }
                 return;
             }
 
-            routeLocations.Add(new RouteLocation(curPosition, curOffset, true));
+            routeDatas.Add(new RouteData(curPosition, curOffset, true));
         }
 
         public void PrintMoveRoute()
         {
             string text = "";
-            foreach (RouteLocation routeLocation in routeLocations)
+            foreach (RouteData routeData in routeDatas)
             {
                 if (!string.IsNullOrEmpty(text))
                 {
                     text += "->";
                 }
-                text += routeLocation.Location;
-                if (routeLocation.WaitTime > 0)
+                text += routeData.Location;
+                if (routeData.WaitTime > 0)
                 {
-                    text += $"({routeLocation.WaitTime}s)";
+                    text += $"({routeData.WaitTime}s)";
                 }
             }
             Console.WriteLine(text);
