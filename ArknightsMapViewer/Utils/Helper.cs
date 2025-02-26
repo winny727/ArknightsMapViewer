@@ -321,22 +321,242 @@ namespace ArknightsMapViewer
             return new Bitmap(width, height);
         }
 
-        public static bool[,] GetIsBarrierArray(LevelData levelData)
+        /// <summary>
+        /// 地图障碍，数字表示cost，int.MaxValue表示障碍
+        /// </summary>
+        /// <param name="levelData"></param>
+        /// <returns></returns>
+        public static int[,] GetGridArray(LevelData levelData)
         {
             Tile[,] map = levelData.map;
             int mapWidth = levelData.mapWidth;
             int mapHeight = levelData.mapHeight;
-            bool[,] isBarrier = new bool[mapWidth, mapHeight];
+            int[,] grid = new int[mapWidth, mapHeight];
             for (int row = 0; row < mapHeight; row++)
             {
                 for (int col = 0; col < mapWidth; col++)
                 {
                     Tile tile = map[col, row];
-                    isBarrier[col, row] = tile.passableMask == PassableMask.FLY_ONLY || tile.passableMask == PassableMask.NONE;
+                    int cost = 1;
+                    if (tile.passableMask == PassableMask.FLY_ONLY || tile.passableMask == PassableMask.NONE)
+                    {
+                        cost = int.MaxValue;
+                    }
+                    if (tile.tileKey == "tile_hole")
+                    {
+                        cost = 1000000;
+                    }
+                    grid[col, row] = cost;
+                }
+            }
+
+            return grid;
+        }
+
+        public static bool[,] GetIsBarrier(int[,] grid)
+        {
+            int width = grid.GetLength(0);
+            int height = grid.GetLength(1);
+            bool[,] isBarrier = new bool[width, height];
+            for (int row = 0; row < height; row++)
+            {
+                for (int col = 0; col < width; col++)
+                {
+                    isBarrier[col, row] = grid[col, row] > 1;
                 }
             }
 
             return isBarrier;
+        }
+
+        private static readonly float FloatMinNormal = 1.17549435E-38f;
+        private static readonly float FloatMinDenormal = float.Epsilon;
+        private static readonly bool IsFlushToZeroEnabled = FloatMinDenormal == 0f;
+        private static readonly float Epsilon = (IsFlushToZeroEnabled ? FloatMinNormal : FloatMinDenormal);
+
+        //copy from unity Mathf.Approximately
+        public static bool Approximately(float a, float b)
+        {
+            return Math.Abs(b - a) < Math.Max(1E-06f * Math.Max(Math.Abs(a), Math.Abs(b)), Epsilon * 8f);
+        }
+
+        //曼哈顿距离
+        public static float ManhattanDistance(Vector2 p1, Vector2 p2)
+        {
+            return Math.Abs(p1.x - p2.x) + Math.Abs(p1.y - p2.y);
+        }
+
+        /// <summary>
+        /// 拉绳（漏斗）算法，优化相连的方格的路径的行走位置的优化（贴边走） TODO 推广到优化后的不相连路径
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static List<Vector2> StringPulling(List<Vector2Int> path)
+        {
+            if (path == null)
+            {
+                return null;
+            }
+
+            if (path.Count >= 2)
+            {
+                //一次遍历获取所有左右边
+                float offset = 0.4f; //距正方形中心距离
+                List<Vector2> leftVertexs = new List<Vector2>();
+                List<Vector2> rightVertexs = new List<Vector2>();
+                Vector2 startPos = new Vector2
+                {
+                    x = path[0].x + 0.5f,
+                    y = path[0].y + 0.5f,
+                };
+                Vector2 endPos = new Vector2
+                {
+                    x = path[path.Count - 1].x + 0.5f,
+                    y = path[path.Count - 1].y + 0.5f,
+                };
+
+                leftVertexs.Add(startPos);
+                rightVertexs.Add(startPos);
+                for (int i = 1; i < path.Count; i++)
+                {
+                    Vector2Int curPoint = path[i];
+                    Vector2Int prevPoint = path[i - 1];
+
+                    if (prevPoint.y == curPoint.y)
+                    {
+                        //x方向移动
+                        int dir = curPoint.x - prevPoint.x;
+                        float vertexOffset = offset * (curPoint.x - prevPoint.x);
+                        leftVertexs.Add(new Vector2(curPoint.x + 0.5f - dir * 0.5f, curPoint.y + vertexOffset + 0.5f));
+                        rightVertexs.Add(new Vector2(curPoint.x + 0.5f - dir * 0.5f, curPoint.y - vertexOffset + 0.5f));
+                    }
+                    else if (prevPoint.x == curPoint.x)
+                    {
+                        //y方向移动
+                        int dir = curPoint.y - prevPoint.y;
+                        float vertexOffset = offset * (curPoint.y - prevPoint.y);
+                        leftVertexs.Add(new Vector2(curPoint.x - vertexOffset + 0.5f, curPoint.y + 0.5f - dir * 0.5f));
+                        rightVertexs.Add(new Vector2(curPoint.x + vertexOffset + 0.5f, curPoint.y + 0.5f - dir * 0.5f));
+                    }
+                }
+                leftVertexs.Add(endPos);
+                rightVertexs.Add(endPos);
+
+                List<Vector2> newPath = new List<Vector2>();
+                Vector2 apex = leftVertexs[0];
+                Vector2 left = apex;
+                Vector2 right = apex;
+
+                newPath.Add(apex);
+
+                for (int i = 1; i < path.Count; i++)
+                {
+                    Vector2 curLeft = leftVertexs[i];
+                    Vector2 curRight = rightVertexs[i];
+
+                    //判断当前左方向在右方向的左侧
+                    if (Vector2.Cross(curLeft - apex, right - apex) <= 0)
+                    {
+                        //判断新的左方向在原左方向的右侧（收窄）
+                        if (apex == left || Vector2.Cross(curLeft - apex, left - apex) >= 0)
+                        {
+                            left = curLeft;
+                        }
+                        else
+                        {
+                            apex = left;
+                            left = apex;
+                            right = apex;
+                            newPath.Add(apex);
+                        }
+                    }
+
+                    //判断当前右方向在左方向的右侧
+                    if (Vector2.Cross(curRight - apex, left - apex) >= 0)
+                    {
+                        //判断新的右方向在原右方向的左侧（收窄）
+                        if (apex == right || Vector2.Cross(curRight - apex, right - apex) <= 0)
+                        {
+                            right = curRight;
+                        }
+                        else
+                        {
+                            apex = right;
+                            left = apex;
+                            right = apex;
+                            newPath.Add(apex);
+                        }
+                    }
+                }
+
+                newPath.Add(endPos);
+
+                return newPath;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 寻路路径优化，缩短
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="grid"></param>
+        /// <returns></returns>
+        public static List<Vector2Int> OptimizePath(List<Vector2Int> path, bool[,] grid)
+        {
+            if (path == null) return null;
+
+            int n = path.Count;
+            if (n == 0) return new List<Vector2Int>();
+
+            int[] dp = new int[n];
+            int[] prev = new int[n]; // 前驱节点索引
+            for (int i = 0; i < n; i++)
+            {
+                dp[i] = int.MaxValue;
+                prev[i] = -1;
+            }
+            dp[0] = 0;
+
+            for (int i = 1; i < n; i++)
+            {
+                // 常规移动：从i-1移动一步
+                if (dp[i - 1] != int.MaxValue)
+                {
+                    dp[i] = dp[i - 1] + 1;
+                    prev[i] = i - 1; // 记录前驱
+                }
+
+                // 检查所有可能的前向跳跃
+                for (int j = 0; j < i; j++)
+                {
+                    if (dp[j] != int.MaxValue &&
+                        !HasCollider(new Vector2(path[i].x + 0.5f, path[i].y + 0.5f), new Vector2(path[j].x + 0.5f, path[j].y + 0.5f), grid) &&
+                        dp[j] + 1 < dp[i])
+                    {
+                        dp[i] = dp[j] + 1;
+                        prev[i] = j; // 更新为更优前驱
+                    }
+                }
+            }
+
+            // 回溯重建路径
+            List<Vector2Int> optimizedPath = new List<Vector2Int>();
+            int current = path.Count - 1;
+
+            if (prev[current] == -1) return path; // 无法优化时返回原路径
+
+            // 反向追踪前驱节点
+            while (current != -1)
+            {
+                optimizedPath.Add(path[current]);
+                current = prev[current];
+            }
+
+            // 反转得到正确顺序
+            optimizedPath.Reverse();
+            return optimizedPath;
         }
 
         /// <summary>
@@ -345,7 +565,7 @@ namespace ArknightsMapViewer
         /// <param name="startPos">起点</param>
         /// <param name="endPos">终点</param>
         /// <returns></returns>
-        public static bool HasCollider(Vector2 startPos, Vector2 endPos, bool[,] isBarrier)
+        public static bool HasCollider(Vector2 startPos, Vector2 endPos, bool[,] isBarrier, float characterRadius = 0.2f)
         {
             int mapWidth = isBarrier.GetLength(0);
             int mapHeight = isBarrier.GetLength(1);
@@ -353,7 +573,7 @@ namespace ArknightsMapViewer
             //xy都相等则为同一点
             if (startPos.x == endPos.x && startPos.y == endPos.y)
             {
-                if (isBarrier[(int)(startPos.x + 0.5f), (int)(startPos.y + 0.5f)]) return true;
+                if (isBarrier[(int)startPos.x, (int)startPos.y]) return true;
                 else return false;
             }
             //若为竖直
@@ -361,8 +581,8 @@ namespace ArknightsMapViewer
             {
                 for (int i = 1; i < Math.Abs(endPos.y - startPos.y); i++)
                 {
-                    if (isBarrier[(int)(startPos.x + 0.5f),
-                        (int)(startPos.y + i * Math.Sign(endPos.y - startPos.y) + 0.5f)]) return true;
+                    if (isBarrier[(int)startPos.x,
+                        (int)(startPos.y + i * Math.Sign(endPos.y - startPos.y))]) return true;
                 }
                 return false;
             }
@@ -371,8 +591,8 @@ namespace ArknightsMapViewer
             {
                 for (int i = 1; i < Math.Abs(endPos.x - startPos.x); i++)
                 {
-                    if (isBarrier[(int)(startPos.x + i * Math.Sign(endPos.x - startPos.x) + 0.5f),
-                        (int)(startPos.y + 0.5f)]) return true;
+                    if (isBarrier[(int)(startPos.x + i * Math.Sign(endPos.x - startPos.x)),
+                        (int)startPos.y]) return true;
                 }
                 return false;
             }
@@ -385,8 +605,6 @@ namespace ArknightsMapViewer
                 Vector2 verticalUnit = new Vector2(deltay, -deltax).normalized;
 
                 //检测两点连线之间是否有相交；同时检测两条偏移平行线，以消除敌人模型半径穿模影响
-                float characterRadius = 0.1f;
-
                 for (int v = -1; v <= 1; v++)
                 {
                     //偏移平行线，将点往法方向偏移固定距离
@@ -405,22 +623,28 @@ namespace ArknightsMapViewer
                                 recty < mapHeight && recty >= 0 &&
                                 isBarrier[rectx, recty])
                             {
+                                //MainForm.Instance.DebugDrawLine(startOffset, endOffset, Color.Green);
+                                //MainForm.Instance.DebugDrawLine(new Vector2(rectx, recty), new Vector2(rectx, recty + 1f), Color.Red);
+                                //MainForm.Instance.DebugDrawLine(new Vector2(rectx, recty + 1f), new Vector2(rectx + 1f, recty + 1f), Color.Red);
+                                //MainForm.Instance.DebugDrawLine(new Vector2(rectx + 1f, recty + 1f), new Vector2(rectx + 1f, recty), Color.Red);
+                                //MainForm.Instance.DebugDrawLine(new Vector2(rectx + 1f, recty), new Vector2(rectx, recty), Color.Red);
+
                                 //拿到正方形的四条边，判断是否与线段相交
                                 if (GetIntersection(startOffset, endOffset,
-                                    new Vector2(rectx - 0.5f, recty - 0.5f),
-                                    new Vector2(rectx - 0.5f, recty + 0.5f))) return true;
+                                    new Vector2(rectx, recty),
+                                    new Vector2(rectx, recty + 1f))) return true;
 
                                 if (GetIntersection(startOffset, endOffset,
-                                    new Vector2(rectx - 0.5f, recty + 0.5f),
-                                    new Vector2(rectx + 0.5f, recty + 0.5f))) return true;
+                                    new Vector2(rectx, recty + 1f),
+                                    new Vector2(rectx + 1f, recty + 1f))) return true;
 
                                 if (GetIntersection(startOffset, endOffset,
-                                    new Vector2(rectx + 0.5f, recty + 0.5f),
-                                    new Vector2(rectx + 0.5f, recty - 0.5f))) return true;
+                                    new Vector2(rectx + 1f, recty + 1f),
+                                    new Vector2(rectx + 1f, recty))) return true;
 
                                 if (GetIntersection(startOffset, endOffset,
-                                    new Vector2(rectx + 0.5f, recty - 0.5f),
-                                    new Vector2(rectx - 0.5f, recty - 0.5f))) return true;
+                                    new Vector2(rectx + 1f, recty),
+                                    new Vector2(rectx, recty))) return true;
                             }
                         }
                     }
@@ -528,6 +752,21 @@ namespace ArknightsMapViewer
                 col = x,
                 row = y,
             };
+        }
+
+        public static Vector2 PositionToVector2(Position position, Offset offset)
+        {
+            float x = position.col + offset.x + 0.5f;
+            float y = position.row + offset.y + 0.5f;
+            return new Vector2(x, y);
+        }
+
+        public static Point Vector2ToPoint(Vector2 vector, int mapHeight)
+        {
+            int x = (int)(vector.x * GlobalDefine.TILE_PIXLE);
+            //int y = (int)(vector.y * GlobalDefine.TILE_PIXLE);
+            int y = (int)((mapHeight - vector.y) * GlobalDefine.TILE_PIXLE);
+            return new Point(x, y);
         }
 
         #region Extension Method

@@ -130,6 +130,11 @@ public struct Vector2 : IEquatable<Vector2>
         return lhs.x * rhs.x + lhs.y * rhs.y;
     }
 
+    public static float Cross(Vector2 lhs, Vector2 rhs)
+    {
+        return lhs.x * rhs.y - lhs.y * rhs.x;
+    }
+
     #region operator
 
     public static Vector2 operator +(Vector2 a, Vector2 b)

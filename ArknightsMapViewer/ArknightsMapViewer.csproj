@@ -71,6 +71,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArknightsMap\MoveRoute.cs" />
     <Compile Include="View\Interface\ISpawnAction.cs" />
     <Compile Include="View\Interface\IMapData.cs" />
     <Compile Include="View\Interface\IMapDataView.cs" />

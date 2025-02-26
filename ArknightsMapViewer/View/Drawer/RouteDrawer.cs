@@ -135,63 +135,23 @@ namespace ArknightsMapViewer
             {
                 //PathFinding
                 List<Vector2Int> path = PathFinding.GetPath(prevPosition, curPosition);
+                List<Vector2Int> optimizedPath = Helper.OptimizePath(path, PathFinding.IsBarrier);
 
-                if (path != null)
+                if (optimizedPath != null && optimizedPath.Count > 0)
                 {
-
-                    //移除路径中的非拐点
-                    for (int i = 1; i < path.Count - 1; i++)
+                    if (optimizedPath.Count > 2)
                     {
-                        Vector2Int prevDir = path[i] - path[i - 1];
-                        Vector2Int nextDir = path[i + 1] - path[i];
-                        if (Vector2.Dot(prevDir, nextDir) != 0)
+                        for (int i = 0; i < optimizedPath.Count - 1; i++)
                         {
-                            path.RemoveAt(i);
-                            i--;
-                        }
-                    }
-
-                    //若两个点之间无障碍，则移除两个点之间的所有路径点
-                    for (int i = 0; i < path.Count - 2; i++)
-                    {
-                        int removeCount = 0;
-                        for (int j = i + 2; j < path.Count; j++)
-                        {
-                            Vector2 startPos = path[i];
-                            Vector2 endPos = path[j];
-
-                            if (i == 0)
-                            {
-                                startPos += prevOffset;
-                            }
-                            if (j == path.Count - 1)
-                            {
-                                endPos += curOffset;
-                            }
-
-                            if (Helper.HasCollider(startPos, endPos, PathFinding.IsBarrier))
-                            {
-                                break;
-                            }
-                            removeCount++;
-                        }
-                        path.RemoveRange(i + 1, removeCount);
-                    }
-
-                    if (path.Count > 2)
-                    {
-                        //color = Color.FromArgb(color.A / 2, color.R, color.G, color.B);
-                        for (int i = 0; i < path.Count - 1; i++)
-                        {
-                            Position position = path[i];
+                            Position position = optimizedPath[i];
                             Offset offset = default;
-                            Position nextPosition = path[i + 1];
+                            Position nextPosition = optimizedPath[i + 1];
                             Offset nextOffset = default;
                             if (i == 0)
                             {
                                 offset = prevOffset;
                             }
-                            if (i == path.Count - 2)
+                            if (i == optimizedPath.Count - 2)
                             {
                                 nextOffset = curOffset;
                             }

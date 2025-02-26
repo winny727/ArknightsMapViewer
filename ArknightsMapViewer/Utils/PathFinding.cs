@@ -1,25 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Threading;
 
 namespace ArknightsMapViewer
 {
     public abstract class PathFinding
     {
+        public int[,] Grid { get; private set; }
         public bool[,] IsBarrier { get; private set; }
         protected int Width { get; private set; }
         protected int Height { get; private set; }
-        public virtual void SetIsBarrierArray(bool[,] isBarrier)
+        public virtual void SetGridArray(int[,] grid)
         {
-            IsBarrier = isBarrier;
-            Width = isBarrier.GetLength(0);
-            Height = isBarrier.GetLength(1);
+            Grid = grid;
+            IsBarrier = Helper.GetIsBarrier(grid);
+            Width = grid.GetLength(0);
+            Height = grid.GetLength(1);
         }
 
         public abstract List<Vector2Int> GetPath(Vector2Int origin, Vector2Int destination);
 
-        protected void ForEachNeighbor(Vector2Int current, Action<Vector2Int> callback)
+        protected void ForEachNeighbor(Vector2Int current, Action<Vector2Int, int> callback)
         {
             if (callback == null)
             {
@@ -47,14 +47,9 @@ namespace ArknightsMapViewer
                         continue;
                     }
 
-                    //判断该处是否为路障
-                    if (IsBarrier[current.x + i, current.y + j])
-                    {
-                        continue;
-                    }
-
                     Vector2Int node = new Vector2Int(current.x + i, current.y + j);
-                    callback(node);
+                    int cost = Grid[current.x + i, current.y + j];
+                    callback(node, cost);
                 }
             }
         }
@@ -83,24 +78,19 @@ namespace ArknightsMapViewer
             {
                 this.position = location;
                 //cost = (destination - position).sqrMagnitude;
-                cost = ManhattanDistance(destination, position); //曼哈顿距离
+                cost = Helper.ManhattanDistance(destination, position); //曼哈顿距离
                 parent = null;
             }
             //带有父节点（前置节点）的Node
-            public Node(Vector2Int location, Vector2Int destination, Node parent)
+            public Node(Vector2Int location, Vector2Int destination, Node parent, int cost = 0)
             {
                 this.position = location;
                 //移动代价+1
                 this.pre_cost = parent.pre_cost;
-                nex_cost = (destination - position).sqrMagnitude;
-                cost = pre_cost + nex_cost;
+                nex_cost = (destination - position).sqrMagnitude + cost;
+                this.cost = pre_cost + nex_cost;
                 this.parent = parent;
             }
-        }
-
-        private static int ManhattanDistance(Vector2Int p1, Vector2Int p2)
-        {
-            return Math.Abs(p1.x - p2.x) + Math.Abs(p1.y - p2.y);
         }
 
         public List<Node> GetAstarPath(Vector2Int origin, Vector2Int destination)
@@ -133,15 +123,20 @@ namespace ArknightsMapViewer
                 int index;//存储所有暂时需要保存的list中元素位置
                           //遍历当前点邻域，使所有点的前置节点都保证其代价更小
 
-                ForEachNeighbor(current.position, (neighbor) =>
+                ForEachNeighbor(current.position, (neighbor, cost) =>
                 {
+                    //障碍
+                    if (cost == int.MaxValue)
+                    {
+                        return;
+                    }
                     //已经在close中则跳过
                     if (close.Exists(t => t.position == neighbor))
                     {
                         return;
                     }
                     //open中是否已经存在，如果不存在，添加进open，如果存在，看所在路径是否需要更新
-                    Node temp = new Node(neighbor, destination, current);
+                    Node temp = new Node(neighbor, destination, current, cost);
 
                     if (!open.Exists(t => t.position == neighbor))
 
@@ -223,7 +218,7 @@ namespace ArknightsMapViewer
             {
                 for (int col = 0; col < Width; col++)
                 {
-                    if (IsBarrier[col, row])
+                    if (Grid[col, row] == int.MaxValue)
                     {
                         continue;
                     }
@@ -241,8 +236,13 @@ namespace ArknightsMapViewer
                     {
                         Vector2Int current = nodeList[currentIndex];
 
-                        ForEachNeighbor(current, (neighbor) =>
+                        ForEachNeighbor(current, (neighbor, cost) =>
                         {
+                            //障碍
+                            if (cost == int.MaxValue)
+                            {
+                                return;
+                            }
                             //nodeList中是否已经存在，如果不存在，添加进nodeList；同时记录连接关系
                             int nodeIndex = nodeList.IndexOf(neighbor);
                             if (nodeIndex < 0)
@@ -250,7 +250,7 @@ namespace ArknightsMapViewer
                                 nodeList.Add(neighbor);
                                 nodeIndex = nodeList.Count - 1;
                             }
-                            tempMatrix[currentIndex, nodeIndex] = 1;
+                            tempMatrix[currentIndex, nodeIndex] = cost;
                         });
                     }
                     while (++currentIndex < nodeList.Count);
@@ -346,9 +346,9 @@ namespace ArknightsMapViewer
             return dijkstraInfo;
         }
 
-        public override void SetIsBarrierArray(bool[,] isBarrier)
+        public override void SetGridArray(int[,] grid)
         {
-            base.SetIsBarrierArray(isBarrier);
+            base.SetGridArray(grid);
             ProcessIsBarrierArray();
         }
 

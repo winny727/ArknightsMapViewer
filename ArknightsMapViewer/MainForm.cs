@@ -16,6 +16,7 @@ namespace ArknightsMapViewer
         private Dictionary<Control, RectangleF> controlsBoundScaled = new Dictionary<Control, RectangleF>();
 
         private LevelView curLevelView;
+        private Bitmap drawingImage;
         private bool needUpdateMap;
         private bool readingMultiFiles;
         private bool rawSetCheckBox;
@@ -317,7 +318,7 @@ namespace ArknightsMapViewer
             int mapHeight = levelData.mapHeight;
             PathFinding pathFinding = new AStarPathFinding();
             //PathFinding pathFinding = new DijkstraPathFinding();
-            pathFinding.SetIsBarrierArray(Helper.GetIsBarrierArray(levelData));
+            pathFinding.SetGridArray(Helper.GetGridArray(levelData));
 
             //TODO SPFA
 
@@ -446,6 +447,7 @@ namespace ArknightsMapViewer
             if (curLevelView != null)
             {
                 Bitmap bitmap = Helper.CreateBitmap(curLevelView.LevelData);
+                drawingImage = bitmap;
 
                 UpdatePredefine(bitmap, predefineRootNode, predefineDrawerView);
                 UpdateRoute(bitmap, routeDrawerView, routeSubIndex);
@@ -565,6 +567,7 @@ namespace ArknightsMapViewer
                 if (routeSubIndex < 0)
                 {
                     routeDrawer.Draw(bitmap);
+                    //MoveRoute moveRoute = new MoveRoute(routeDrawer.Route, routeDrawer.PathFinding);
                 }
                 else
                 {
@@ -777,6 +780,26 @@ namespace ArknightsMapViewer
             LogForm logForm = new LogForm();
             logForm.UpdateLog(LogText);
             logForm.ShowDialog();
+        }
+
+        public void DebugDrawPoint(Vector2 position, Color color)
+        {
+            Bitmap bitmap = (Bitmap)pictureBox1.Image ?? drawingImage;
+            if (bitmap != null)
+            {
+                DrawUtil.DrawPoint(bitmap, Helper.Vector2ToPoint(position, curLevelView.LevelData.mapHeight), color, 5);
+            }
+        }
+
+        public void DebugDrawLine(Vector2 startPosition, Vector2 endPosition, Color color)
+        {
+            Bitmap bitmap = (Bitmap)pictureBox1.Image ?? drawingImage;
+            if (bitmap != null)
+            {
+                Point startPoint = Helper.Vector2ToPoint(startPosition, curLevelView.LevelData.mapHeight);
+                Point endPoint = Helper.Vector2ToPoint(endPosition, curLevelView.LevelData.mapHeight);
+                DrawUtil.DrawLine(bitmap, startPoint, endPoint, color, 2);
+            }
         }
 
         private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
