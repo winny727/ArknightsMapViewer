@@ -498,7 +498,7 @@ namespace ArknightsMapViewer
         }
 
         /// <summary>
-        /// 寻路路径优化，缩短
+        /// 寻路路径优化 By：Deepseek
         /// </summary>
         /// <param name="path"></param>
         /// <param name="grid"></param>
@@ -532,7 +532,7 @@ namespace ArknightsMapViewer
                 for (int j = 0; j < i; j++)
                 {
                     if (dp[j] != int.MaxValue &&
-                        !HasCollider(new Vector2(path[i].x + 0.5f, path[i].y + 0.5f), new Vector2(path[j].x + 0.5f, path[j].y + 0.5f), grid) &&
+                        !HasCollider(PositionToVector2(path[i]), PositionToVector2(path[j]), grid) &&
                         dp[j] + 1 < dp[i])
                     {
                         dp[i] = dp[j] + 1;
@@ -752,6 +752,13 @@ namespace ArknightsMapViewer
                 col = x,
                 row = y,
             };
+        }
+
+        public static Vector2 PositionToVector2(Vector2Int position)
+        {
+            float x = position.x + 0.5f;
+            float y = position.y + 0.5f;
+            return new Vector2(x, y);
         }
 
         public static Vector2 PositionToVector2(Position position, Offset offset)
