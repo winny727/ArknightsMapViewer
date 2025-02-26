@@ -72,7 +72,7 @@ namespace ArknightsMapViewer
         //    TextRenderer.DrawText(graphics, text, font, rectangle, color ?? Color.Black, textFormatFlags); //单次绘制耗时较大~3ms
         //}
 
-        public static void DrawString(Bitmap bitmap, string text, Rectangle rectangle, Font font, Color? color = null, StringFormat format = null)
+        public static void DrawString(Bitmap bitmap, string text, RectangleF rectangle, Font font, Color? color = null, StringFormat format = null)
         {
             using Graphics graphics = GetGraphics(bitmap);
             using Brush brush = GetSolidBrush(color);

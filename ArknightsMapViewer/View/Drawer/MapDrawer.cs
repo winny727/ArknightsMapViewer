@@ -105,7 +105,8 @@ namespace ArknightsMapViewer
             if (tileInfo != null && !string.IsNullOrEmpty(tileInfo.tileText))
             {
                 Color textColor = tileInfo.textColor ?? Color.Black;
-                DrawUtil.DrawString(bitmap, tileInfo.tileText, rectangle, GlobalDefine.TEXT_FONT, textColor);
+                RectangleF textRectangle = new RectangleF((colIndex - 0.5f) * length, (MapHeight - rowIndex - 1) * length, length * 2, length);
+                DrawUtil.DrawString(bitmap, tileInfo.tileText, textRectangle, GlobalDefine.TEXT_FONT, textColor);
             }
 
             //Draw Index

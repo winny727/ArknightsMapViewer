@@ -83,7 +83,7 @@ namespace ArknightsMapViewer
         public static int CIRCLE_RADIUS = 20;
         public static int POINT_RADIUS = 6;
 
-        public static Font TEXT_FONT = new Font("Consolas", 12.0f);
+        public static Font TEXT_FONT = new Font("Consolas", 11.0f, FontStyle.Bold);
         public static Font INDEX_FONT = new Font("Consolas", 8.0f, FontStyle.Bold);
         public static Font TIME_FONT = new Font("Consolas", 10.0f);
         public static Font PREDEFINED_FONT = new Font("Consolas", 10.0f);
