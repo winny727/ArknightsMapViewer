@@ -23,6 +23,10 @@ namespace ArknightsMapViewer
 
         private Dictionary<Position, List<IMapData>> mapPredefines = new Dictionary<Position, List<IMapData>>();
 
+        private TimelineSimulator curTimelineSimulator;
+        private bool isSimulationEnabled;
+        private bool rawSetValue;
+
         public MainForm()
         {
             Instance = this;
@@ -38,7 +42,7 @@ namespace ArknightsMapViewer
         private void InitControlsBoundsScale()
         {
             controlsBoundScaled.Clear();
-            Control[] controls = new Control[] { tabControl1, flowLayoutPanel3, groupBox1 }; //要自动调整比例的控件
+            Control[] controls = new Control[] { tabControl1, flowLayoutPanel3, groupBox1, groupBox2 }; //要自动调整比例的控件
 
             foreach (Control control in controls)
             {
@@ -73,6 +77,7 @@ namespace ArknightsMapViewer
             Helper.InitEnemyDatabase();
             Helper.InitCharacterTable();
             UpdateView();
+            UpdateTimelineSimulationState();
 
             string[] latestFilePath = Helper.LoadLatestFilePath();
             ReadMapFiles(latestFilePath);
@@ -343,12 +348,15 @@ namespace ArknightsMapViewer
             SpawnView spawnView = spawnsNode?.Tag as SpawnView;
             TreeNode groupsNode = LevelViewHelper.CreateGroupsNode("groups", spawnView);
 
+            TimelineSimulator timelineSimulator = new TimelineSimulator(levelData);
+
             rootNode.Tag = new LevelView()
             {
                 Path = path,
                 Name = fileName,
                 LevelData = levelData,
                 SpawnView = spawnView,
+                TimelineSimulator = timelineSimulator,
                 MapDrawer = MapDrawer.Create(levelData.map),
             };
 
@@ -441,6 +449,7 @@ namespace ArknightsMapViewer
                 }
 
                 UpdateSpawnGroups();
+                UpdateTimelineSimulationState();
             }
 
             pictureBox1.Image?.Dispose();
@@ -537,6 +546,8 @@ namespace ArknightsMapViewer
             PredefineDrawer predefineDrawer = predefineDrawerView?.GetDrawer();
             if (predefineDrawer != null && predefineDrawer.Predefine != null)
             {
+                UpdateSimulationState(false);
+
                 predefineDrawer.IsSelected = checkBox2.Checked;
                 predefineDrawer.Draw(bitmap);
 
@@ -564,6 +575,8 @@ namespace ArknightsMapViewer
             RouteDrawer routeDrawer = routeDrawerView?.GetDrawer();
             if (routeDrawer != null)
             {
+                UpdateSimulationState(false);
+
                 showCheckBox4 = true;
                 routeDrawer.ShowRouteLength = checkBox4.Checked;
                 if (routeSubIndex < 0)
@@ -692,7 +705,8 @@ namespace ArknightsMapViewer
                     {
                         Text = item.Key,
                         Checked = item.Value,
-                        AutoSize = true
+                        AutoSize = true,
+                        TabIndex = flowLayoutPanel2.TabIndex + flowLayoutPanel2.Controls.Count + 1,
                     };
                     checkBox.CheckedChanged += (s, e) =>
                     {
@@ -753,6 +767,8 @@ namespace ArknightsMapViewer
             Filter(treeView1.Nodes);
         }
 
+        #region for debug
+
         public enum LogType
         {
             Log,
@@ -802,6 +818,8 @@ namespace ArknightsMapViewer
                 DrawUtil.DrawLine(bitmap, startPoint, endPoint, color, 2);
             }
         }
+
+        #endregion
 
         private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
         {
@@ -1017,6 +1035,99 @@ namespace ArknightsMapViewer
                 {
                     Process.Start(path);
                 }
+            }
+        }
+
+        private void UpdateTimelineSimulationState()
+        {
+            groupBox2.Enabled = curLevelView != null;
+            if (curLevelView != null)
+            {
+                curTimelineSimulator = curLevelView.TimelineSimulator;
+
+                rawSetValue = true;
+
+                numericUpDown1.Value = 0;
+                trackBar1.Value = 0;
+                numericUpDown1.Maximum = (decimal)curTimelineSimulator.MaxTime;
+                trackBar1.Maximum = (int)(curTimelineSimulator.MaxTime * 100f);
+                numericUpDown1.Value = (decimal)curTimelineSimulator.Time;
+                trackBar1.Value = (int)(curTimelineSimulator.Time * 100f);
+
+                comboBox2.Items.Clear();
+                for (int i = 0; i < curTimelineSimulator.WaveMaxTimes.Count; i++)
+                {
+                    comboBox2.Items.Add(i);
+                }
+
+                comboBox1.SelectedIndex = comboBox1.Items.Count > 0 ? 0 : -1;
+                comboBox2.SelectedIndex = comboBox2.Items.Count > 0 ? 0 : -1;
+
+                rawSetValue = false;
+            }
+            else
+            {
+                UpdateSimulationState(false);
+            }
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (rawSetValue) return;
+            curTimelineSimulator?.SetWaveIndex(comboBox2.SelectedIndex);
+            rawSetValue = true;
+            numericUpDown1.Value = 0;
+            trackBar1.Value = 0;
+            numericUpDown1.Maximum = (decimal)curTimelineSimulator.MaxTime;
+            trackBar1.Maximum = (int)(curTimelineSimulator.MaxTime * 100f);
+            numericUpDown1.Value = (decimal)curTimelineSimulator.Time;
+            trackBar1.Value = (int)(curTimelineSimulator.Time * 100f);
+            rawSetValue = false;
+        }
+
+        private void trackBar1_Scroll(object sender, EventArgs e)
+        {
+            if (rawSetValue) return;
+            rawSetValue = true;
+            numericUpDown1.Value = trackBar1.Value / 100m;
+            curTimelineSimulator?.UpdateTimeline((float)numericUpDown1.Value);
+            rawSetValue = false;
+        }
+
+        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+        {
+            if (rawSetValue) return;
+            rawSetValue = true;
+            trackBar1.Value = (int)(numericUpDown1.Value * 100m);
+            curTimelineSimulator?.UpdateTimeline((float)numericUpDown1.Value);
+            rawSetValue = false;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            UpdateSimulationState(!isSimulationEnabled);
+        }
+
+        private void UpdateSimulationState(bool isEnabled)
+        {
+            isSimulationEnabled = isEnabled;
+            button1.Text = isEnabled ? "Disable" : "Enable";
+            button1.BackColor = isEnabled ? Color.FromKnownColor(KnownColor.ButtonHighlight) : Color.FromKnownColor(KnownColor.Control);
+
+            if (isEnabled && treeView1.SelectedNode != null)
+            {
+                TreeNode rootNode = treeView1.SelectedNode;
+                while (rootNode.Parent != null)
+                {
+                    rootNode = rootNode.Parent;
+                }
+                treeView1.SelectedNode = rootNode;
+                curTimelineSimulator?.UpdateTimeline((float)numericUpDown1.Value);
             }
         }
     }

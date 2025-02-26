@@ -9,6 +9,7 @@ namespace ArknightsMapViewer
         public string Name { get; set; }
         public LevelData LevelData { get; set; }
         public SpawnView SpawnView { get; set; }
+        public TimelineSimulator TimelineSimulator { get; set; }
         public MapDrawer MapDrawer { get; set; }
     }
 }
