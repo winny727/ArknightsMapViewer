@@ -1117,7 +1117,6 @@ namespace ArknightsMapViewer
         {
             isSimulationEnabled = isEnabled;
             button1.Text = isEnabled ? "Disable" : "Enable";
-            button1.BackColor = isEnabled ? Color.FromKnownColor(KnownColor.ButtonHighlight) : Color.FromKnownColor(KnownColor.Control);
 
             if (isEnabled && treeView1.SelectedNode != null)
             {
