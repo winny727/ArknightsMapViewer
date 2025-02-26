@@ -36,7 +36,7 @@ namespace ArknightsMapViewer
             this.pathFinding = pathFinding;
             InitMoveRoute();
 
-            PrintMoveRoute();
+            //PrintMoveRoute();
         }
 
         private void InitMoveRoute()

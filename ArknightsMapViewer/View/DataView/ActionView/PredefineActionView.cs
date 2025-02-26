@@ -23,7 +23,7 @@ namespace ArknightsMapViewer
                 $"{nameof(Action.randomSpawnGroupPackKey)}: {Action.randomSpawnGroupPackKey}\n" +
                 $"{nameof(Action.weight)}: {Action.weight}";
 
-            if (((PredefineDrawer)Drawer).Predefine != null)
+            if (((PredefineDrawer)Drawer)?.Predefine != null)
             {
                 text += $"\n{((PredefineDrawer)Drawer).Predefine}";
             }

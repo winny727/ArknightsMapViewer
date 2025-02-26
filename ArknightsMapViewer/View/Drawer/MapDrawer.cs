@@ -19,13 +19,24 @@ namespace ArknightsMapViewer
             LineAlignment = StringAlignment.Far,
         };
 
-        public MapDrawer(Tile[,] map)
+        private MapDrawer(Tile[,] map)
         {
             Map = map;
 
             HaveUndefinedTiles = false;
             MapWidth = map.GetLength(0);
             MapHeight = map.GetLength(1);
+        }
+
+        public static MapDrawer Create(Tile[,] map)
+        {
+            if (map == null)
+            {
+                MainForm.Instance.Log("Create MapDrawer Failed, Invalid Map", MainForm.LogType.Warning);
+                return null;
+            }
+
+            return new MapDrawer(map);
         }
 
         public void Draw(Bitmap bitmap)

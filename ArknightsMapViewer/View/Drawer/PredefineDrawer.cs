@@ -13,11 +13,22 @@ namespace ArknightsMapViewer
         public int MapWidth { get; private set; }
         public int MapHeight { get; private set; }
 
-        public PredefineDrawer(Predefine.PredefineInst predefine, int mapWidth, int mapHeight)
+        private PredefineDrawer(Predefine.PredefineInst predefine, int mapWidth, int mapHeight)
         {
             Predefine = predefine;
             MapWidth = mapWidth;
             MapHeight = mapHeight;
+        }
+
+        public static PredefineDrawer Create(Predefine.PredefineInst predefine, int mapWidth, int mapHeight)
+        {
+            if (predefine == null)
+            {
+                MainForm.Instance.Log("Create PredefineDrawer Failed, Invalid Predefine", MainForm.LogType.Warning);
+                return null;
+            }
+
+            return new PredefineDrawer(predefine, mapWidth, mapHeight);
         }
 
         public void Draw(Bitmap bitmap)

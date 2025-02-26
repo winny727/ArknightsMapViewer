@@ -25,7 +25,7 @@ namespace ArknightsMapViewer
         {
             if (route == null || route.checkPoints == null)
             {
-                //MainForm.Instance.Log("Create WinformRouteDrawer Failed, Invalid Route", MainForm.LogType.Warning);
+                //MainForm.Instance.Log("Create RouteDrawer Failed, Invalid Route", MainForm.LogType.Warning);
                 return null;
             }
 

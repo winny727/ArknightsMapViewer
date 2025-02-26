@@ -180,6 +180,7 @@ namespace ArknightsMapViewer
         private void toolStripStatusLabel1_Click(object sender, EventArgs e)
         {
             ShowLog();
+            toolStripStatusLabel1.Text = "";
         }
 
         private void showLogToolStripMenuItem_Click(object sender, EventArgs e)
@@ -323,7 +324,7 @@ namespace ArknightsMapViewer
             //TODO SPFA
 
             RouteDrawer routeDrawerCreater(Route route) => RouteDrawer.Create(route, pathFinding, mapWidth, mapHeight);
-            PredefineDrawer predefineDrawerCreater(Predefine.PredefineInst predefine) => new PredefineDrawer(predefine, mapWidth, mapHeight);
+            PredefineDrawer predefineDrawerCreater(Predefine.PredefineInst predefine) => PredefineDrawer.Create(predefine, mapWidth, mapHeight);
 
             TreeNode routesNode = LevelViewHelper.CreateRoutesNode(nameof(levelData.routes), levelData.routes, routeDrawerCreater);
             TreeNode extraRoutesNode = LevelViewHelper.CreateRoutesNode(nameof(levelData.extraRoutes), levelData.extraRoutes, routeDrawerCreater);
@@ -337,7 +338,7 @@ namespace ArknightsMapViewer
             TreeNode predefinesNode = LevelViewHelper.CreatePredefinesNode(nameof(levelData.predefines), levelData.predefines, getPredefineView, predefineDrawerCreater);
 
             TreeNode spawnsNode = LevelViewHelper.CreateSpawnsNode("spawns", spawnActions, totalWeightDict);
-            spawnsNode.ForeColor = Color.Red;
+            //spawnsNode.ForeColor = Color.Red;
 
             SpawnView spawnView = spawnsNode?.Tag as SpawnView;
             TreeNode groupsNode = LevelViewHelper.CreateGroupsNode("groups", spawnView);
@@ -348,7 +349,7 @@ namespace ArknightsMapViewer
                 Name = fileName,
                 LevelData = levelData,
                 SpawnView = spawnView,
-                MapDrawer = new MapDrawer(levelData.map),
+                MapDrawer = MapDrawer.Create(levelData.map),
             };
 
             void AddTreeNode(TreeNode treeNode)
