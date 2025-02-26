@@ -530,7 +530,7 @@
             this.groupBox2.Size = new System.Drawing.Size(826, 49);
             this.groupBox2.TabIndex = 7;
             this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Timeline Simulation";
+            this.groupBox2.Text = "Timeline Simulation （施工中）";
             // 
             // trackBar1
             // 
