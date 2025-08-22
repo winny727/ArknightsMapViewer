@@ -79,6 +79,9 @@ namespace ArknightsMapViewer
             UpdateView();
             UpdateTimelineSimulationState();
 
+            //TODO 地图下载？
+            //https://map.ark-nights.com/data/levels/obt/crisis/v2/level_crisis_v2_03-01.json
+
             string[] latestFilePath = Helper.LoadLatestFilePath();
             ReadMapFiles(latestFilePath);
         }
