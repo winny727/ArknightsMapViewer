@@ -23,10 +23,12 @@ namespace ArknightsMapViewer
             string text = "";
             foreach (FieldInfo field in obj.GetType().GetFields())
             {
+                var textAttr = field.GetCustomAttribute<DbData.TextAttribute>();
+                string name = textAttr != null? textAttr.text: field.Name;
                 DbData.Data value = (DbData.Data)field.GetValue(obj);
                 if (value != null && value.m_defined)
                 {
-                    text += $"{field.Name}: {value}\n";
+                    text += $"{name}: {value}\n";
                 }
             }
             return text;

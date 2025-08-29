@@ -443,6 +443,12 @@ namespace ArknightsMapViewer
     [Serializable]
     public class DbData : IMapData
     {
+        public class TextAttribute : System.Attribute
+        {
+            public string text;
+            public TextAttribute(string text) { this.text = text; }
+        }
+
         public abstract class Data
         {
             public bool m_defined;
@@ -466,33 +472,39 @@ namespace ArknightsMapViewer
         [Serializable]
         public class Attribute : IMapData
         {
-            public Data<int> maxHp;
-            public Data<int> atk;
-            public Data<int> def;
-            public Data<float> magicResistance;
-            public Data<int> cost;
-            public Data<int> blockCnt;
-            public Data<float> moveSpeed;
-            public Data<float> attackSpeed;
-            public Data<float> baseAttackTime;
-            public Data<int> respawnTime;
-            public Data<float> hpRecoveryPerSec;
-            public Data<float> spRecoveryPerSec;
-            public Data<int> maxDeployCount;
-            public Data<int> massLevel;
-            public Data<int> baseForceLevel;
-            public Data<int> tauntLevel;
-            public Data<float> epDamageResistance;
-            public Data<float> epResistance;
-            public Data<float> damageHitratePhysical;
-            public Data<float> damageHitrateMagical;
-            public Data<bool> stunImmune;
-            public Data<bool> silenceImmune;
-            public Data<bool> sleepImmune;
-            public Data<bool> frozenImmune;
-            public Data<bool> levitateImmune;
-            public Data<bool> disarmedCombatImmune;
-            public Data<bool> fearedImmune;
+            // https://m.prts.wiki/w/%E6%95%B0%E5%80%BC%E8%8C%83%E5%9B%B4
+            [Text("最大生命值")] public Data<int> maxHp;
+            [Text("攻击力")] public Data<int> atk;
+            [Text("防御力")] public Data<int> def;
+            [Text("法术抗性")] public Data<float> magicResistance;
+            [Text("部署费用")] public Data<int> cost;
+            [Text("阻挡数")] public Data<int> blockCnt;
+            [Text("移动速度")] public Data<float> moveSpeed;
+            [Text("攻击速度")] public Data<float> attackSpeed;
+            [Text("攻击间隔")] public Data<float> baseAttackTime;
+            [Text("再部署时间")] public Data<int> respawnTime;
+            [Text("生命回复速度")] public Data<float> hpRecoveryPerSec;
+            [Text("技力自然回复速度")] public Data<float> spRecoveryPerSec;
+            [Text("最大部署数")] public Data<int> maxDeployCount;
+            [Text("重量")] public Data<int> massLevel;
+            [Text("基础力度等级")] public Data<int> baseForceLevel;
+            [Text("嘲讽等级")] public Data<int> tauntLevel;
+            [Text("元素抗性")] public Data<float> epDamageResistance;
+            [Text("损伤抵抗")] public Data<float> epResistance;
+            [Text("物理命中率")] public Data<float> damageHitratePhysical;
+            [Text("法术命中率")] public Data<float> damageHitrateMagical;
+            [Text("损伤冷却恢复速度")] public Data<float> epBreakRecoverSpeed;
+
+            //https://prts.wiki/w/%E5%BC%82%E5%B8%B8%E6%95%88%E6%9E%9C
+            [Text("眩晕抗性")] public Data<bool> stunImmune;
+            [Text("沉默抗性")] public Data<bool> silenceImmune;
+            [Text("睡眠抗性")] public Data<bool> sleepImmune;
+            [Text("冻结抗性")] public Data<bool> frozenImmune;
+            [Text("浮空抗性")] public Data<bool> levitateImmune;
+            [Text("战栗抗性")] public Data<bool> disarmedCombatImmune;
+            [Text("恐惧抗性")] public Data<bool> fearedImmune;
+            [Text("麻痹抗性")] public Data<bool> palsyImmune;
+            [Text("诱导抗性")] public Data<bool> attractImmune;
 
             public override string ToString()
             {
