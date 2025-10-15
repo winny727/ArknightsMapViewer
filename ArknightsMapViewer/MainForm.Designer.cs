@@ -82,6 +82,7 @@
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
+            this.stagesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.contextMenuStrip1.SuspendLayout();
@@ -101,6 +102,7 @@
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.menuToolStripMenuItem,
+            this.stagesToolStripMenuItem,
             this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
@@ -122,7 +124,7 @@
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(108, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.openToolStripMenuItem.Text = "&Open";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
@@ -142,8 +144,8 @@
             // 
             this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.showLogToolStripMenuItem,
-            this.informationToolStripMenuItem,
             this.toolStripSeparator5,
+            this.informationToolStripMenuItem,
             this.githubToolStripMenuItem,
             this.downloadMapFileToolStripMenuItem});
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
@@ -153,8 +155,8 @@
             // showLogToolStripMenuItem
             // 
             this.showLogToolStripMenuItem.Name = "showLogToolStripMenuItem";
-            this.showLogToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
-            this.showLogToolStripMenuItem.Text = "Show &Log";
+            this.showLogToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.showLogToolStripMenuItem.Text = "&Show Log";
             this.showLogToolStripMenuItem.Click += new System.EventHandler(this.showLogToolStripMenuItem_Click);
             // 
             // informationToolStripMenuItem
@@ -179,8 +181,8 @@
             // downloadMapFileToolStripMenuItem
             // 
             this.downloadMapFileToolStripMenuItem.Name = "downloadMapFileToolStripMenuItem";
-            this.downloadMapFileToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
-            this.downloadMapFileToolStripMenuItem.Text = "&Download Map File";
+            this.downloadMapFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.downloadMapFileToolStripMenuItem.Text = "&Get Map File";
             this.downloadMapFileToolStripMenuItem.Click += new System.EventHandler(this.downloadMapFileToolStripMenuItem_Click);
             // 
             // pictureBox1
@@ -320,7 +322,7 @@
             this.groupBox1.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(2);
-            this.groupBox1.Size = new System.Drawing.Size(828, 211);
+            this.groupBox1.Size = new System.Drawing.Size(828, 266);
             this.groupBox1.TabIndex = 5;
             this.groupBox1.TabStop = false;
             // 
@@ -340,7 +342,7 @@
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(497, 19);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(160, 187);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(160, 242);
             this.flowLayoutPanel1.TabIndex = 2;
             this.flowLayoutPanel1.WrapContents = false;
             // 
@@ -440,7 +442,7 @@
             this.flowLayoutPanel2.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowLayoutPanel2.Location = new System.Drawing.Point(663, 19);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(160, 187);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(160, 242);
             this.flowLayoutPanel2.TabIndex = 20;
             this.flowLayoutPanel2.WrapContents = false;
             // 
@@ -453,7 +455,7 @@
             this.richTextBox1.Margin = new System.Windows.Forms.Padding(2);
             this.richTextBox1.Name = "richTextBox1";
             this.richTextBox1.ReadOnly = true;
-            this.richTextBox1.Size = new System.Drawing.Size(488, 186);
+            this.richTextBox1.Size = new System.Drawing.Size(488, 241);
             this.richTextBox1.TabIndex = 6;
             this.richTextBox1.Text = "";
             // 
@@ -531,6 +533,7 @@
             this.groupBox2.TabIndex = 7;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Timeline Simulation （施工中）";
+            this.groupBox2.Visible = false;
             // 
             // trackBar1
             // 
@@ -623,6 +626,13 @@
             this.button1.Text = "Enable";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // stagesToolStripMenuItem
+            // 
+            this.stagesToolStripMenuItem.Name = "stagesToolStripMenuItem";
+            this.stagesToolStripMenuItem.Size = new System.Drawing.Size(59, 22);
+            this.stagesToolStripMenuItem.Text = "&Stages";
+            this.stagesToolStripMenuItem.Click += new System.EventHandler(this.stagesToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -725,6 +735,7 @@
         private System.Windows.Forms.NumericUpDown numericUpDown1;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TrackBar trackBar1;
+        private System.Windows.Forms.ToolStripMenuItem stagesToolStripMenuItem;
     }
 }
 

@@ -74,6 +74,21 @@ namespace ArknightsMapViewer
         public string comment;
     }
 
+    [Serializable]
+    public class StageInfo
+    {
+        public string stageId;
+        public string levelId; //文件路径
+        public string zoneId; //分类
+        public string code;
+        public string name;
+        public string description;
+
+        public override string ToString()
+        {
+            return $"[{code}] {name} ({stageId})";
+        }
+    }
 
     public static class GlobalDefine
     {
@@ -106,11 +121,15 @@ namespace ArknightsMapViewer
         public static Color PREDEFINED_SELECTED_BACKCOLOR = Color.LightGray;
         public static Color PREDEFINED_SELECTED_TEXTCOLOR = Color.Black;
 
-        //tileInfo
+        //TileInfo
         public readonly static Dictionary<string, TileInfo> TileInfo = new Dictionary<string, TileInfo>();
+
+        //StageTable
+        public readonly static Dictionary<string, StageInfo> StageTable = new Dictionary<string, StageInfo>();
 
         //Database
         public readonly static Dictionary<string, Dictionary<int, DbData>> EnemyDatabase = new Dictionary<string, Dictionary<int, DbData>>();
         public readonly static Dictionary<string, CharacterData> CharacterTable = new Dictionary<string, CharacterData>();
+
     }
 }

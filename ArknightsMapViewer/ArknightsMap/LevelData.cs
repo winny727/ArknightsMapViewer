@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace ArknightsMapViewer
 {
+    //EnemyData: gamedata/levels/enemydata/enemy_database.json
+    //CharacterTable: gamedata/excel/character_table.json
+
     [Serializable]
     public class LevelData
     {
@@ -342,9 +345,6 @@ namespace ArknightsMapViewer
 
         public string ToSimpleString()
         {
-            //EnemyData: gamedata/levels/enemydata/enemy_database.json
-            //CharacterTable: gamedata/excel/character_table.json
-
             string text = actionType.ToString();
             if (actionType == ActionType.SPAWN || actionType == ActionType.ACTIVATE_PREDEFINED)
             {
@@ -806,6 +806,13 @@ namespace ArknightsMapViewer
         RIGHT = 1,
         DOWN = 2,
         LEFT = 3,
+    }
+
+    public enum Difficulty
+    {
+        NORMAL = 1,
+        FOUR_STAR = 2,
+        SIX_STAR = 3,
     }
 
     #endregion

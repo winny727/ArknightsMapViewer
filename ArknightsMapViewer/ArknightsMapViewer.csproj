@@ -72,6 +72,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArknightsMap\MoveRoute.cs" />
+    <Compile Include="StageForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="StageForm.Designer.cs">
+      <DependentUpon>StageForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="View\Interface\ISpawnAction.cs" />
     <Compile Include="View\Interface\IMapData.cs" />
     <Compile Include="View\Interface\IMapDataView.cs" />
@@ -133,6 +139,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="StageForm.resx">
+      <DependentUpon>StageForm.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="app.manifest" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">

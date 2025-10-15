@@ -76,6 +76,7 @@ namespace ArknightsMapViewer
             Helper.InitTileInfoConfig();
             Helper.InitEnemyDatabase();
             Helper.InitCharacterTable();
+            Helper.InitStageTable();
             UpdateView();
             UpdateTimelineSimulationState();
 
@@ -222,11 +223,11 @@ namespace ArknightsMapViewer
             }
         }
 
-        private void ReadMapFiles(string[] paths)
+        internal bool ReadMapFiles(string[] paths)
         {
             if (paths == null || paths.Length <= 0)
             {
-                return;
+                return false;
             }
 
             if (paths.Length > 1)
@@ -234,9 +235,13 @@ namespace ArknightsMapViewer
                 readingMultiFiles = true;
             }
 
+            bool result = true;
             foreach (string path in paths)
             {
-                ReadMapFile(path);
+                if (!ReadMapFile(path))
+                {
+                    result = false;
+                }
             }
 
             if (readingMultiFiles)
@@ -244,16 +249,18 @@ namespace ArknightsMapViewer
                 readingMultiFiles = false;
                 UpdateView();
             }
+
+            return result;
         }
 
-        private void ReadMapFile(string path)
+        internal bool ReadMapFile(string path)
         {
             Stopwatch stopwatch = Stopwatch.StartNew();
             stopwatch.Start();
 
             if (string.IsNullOrEmpty(path))
             {
-                return;
+                return false;
             }
 
             try
@@ -263,18 +270,17 @@ namespace ArknightsMapViewer
                     if (Directory.Exists(path))
                     {
                         string[] files = Directory.GetFiles(path, "*.json", SearchOption.AllDirectories);
-                        ReadMapFiles(files);
-                        return;
+                        return ReadMapFiles(files);
                     }
 
-                    Log($"Open File Failed, File does not exist.\n{path}", LogType.Error);
-                    return;
+                    Log($"Open File Failed, File does not exist: {path}", LogType.Error);
+                    return false;
                 }
 
                 if (!path.ToLower().EndsWith(".json") || (!File.Exists(path) && Directory.Exists(path)))
                 {
-                    Log($"File Type Error, Request Json Files(*.json)\n{path}", LogType.Error);
-                    return;
+                    Log($"File Type Error, Request Json Files(*.json), {path}", LogType.Error);
+                    return false;
                 }
 
                 string levelJson = File.ReadAllText(path);
@@ -285,6 +291,7 @@ namespace ArknightsMapViewer
                     AddLevelDataToView(path, levelReader.LevelData);
                     stopwatch.Stop();
                     Log($"[{Path.GetFileName(path)}] Open Success ({stopwatch.Elapsed.TotalMilliseconds} ms)");
+                    return true;
                 }
                 else
                 {
@@ -298,6 +305,7 @@ namespace ArknightsMapViewer
                         errorMsg = $"[{Path.GetFileName(path)}] Parse Error, Invalid Level File";
                     }
                     Log(errorMsg, LogType.Error);
+                    return false;
                 }
             }
             catch (Exception ex)
@@ -307,6 +315,7 @@ namespace ArknightsMapViewer
 #if DEBUG
                 Log(ex.StackTrace, LogType.Debug);
 #endif
+                return false;
             }
         }
 
@@ -1131,6 +1140,12 @@ namespace ArknightsMapViewer
                 treeView1.SelectedNode = rootNode;
                 curTimelineSimulator?.UpdateTimeline((float)numericUpDown1.Value);
             }
+        }
+
+        private void stagesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            StageForm stageForm = new StageForm();
+            stageForm.ShowDialog();
         }
     }
 }

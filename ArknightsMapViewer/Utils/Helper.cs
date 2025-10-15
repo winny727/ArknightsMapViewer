@@ -191,7 +191,7 @@ namespace ArknightsMapViewer
             {
                 string json = File.ReadAllText(path);
                 var enemyDatabase = JsonConvert.DeserializeObject<JObject>(json);
-                var enemies = enemyDatabase["enemies"];
+                var enemies = enemyDatabase?["enemies"];
                 if (enemies != null)
                 {
                     foreach (var enemy in enemies)
@@ -241,34 +241,90 @@ namespace ArknightsMapViewer
             try
             {
                 string json = File.ReadAllText(path);
-                var charcterDatabase = JsonConvert.DeserializeObject<Dictionary<string, JObject>>(json);
-                if (charcterDatabase != null)
+                var charcterTable = JsonConvert.DeserializeObject<JObject>(json);
+                if (charcterTable != null)
                 {
-                    foreach (var item in charcterDatabase)
+                    foreach (var item in charcterTable)
                     {
                         string key = item.Key;
-                        JObject data = item.Value;
+                        JToken data = item.Value;
 
-                        //if (data["profession"]?.ToString() == "TRAP")
-                        //{
-                            CharacterData characterData = new CharacterData()
-                            {
-                                name = data["name"]?.ToString(),
-                                description = data["description"]?.ToString(),
-                                appellation = data["appellation"]?.ToString(),
-                                profession = data["profession"]?.ToString(),
-                            };
+                        CharacterData characterData = data.ToObject<CharacterData>();
+                        if (!string.IsNullOrEmpty(key) && !GlobalDefine.CharacterTable.ContainsKey(key))
+                        {
+                            GlobalDefine.CharacterTable.Add(key, characterData);
+                        }
+                        else
+                        {
+                            string errorMsg = $"character_table.json Parse Error, ErrorKey: {key}";
+                            MainForm.Instance.Log(errorMsg, MainForm.LogType.Warning);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                string errorMsg = $"character_table.json Parse Error, {ex.Message}";
+                MainForm.Instance.Log(errorMsg, MainForm.LogType.Error);
+            }
+        }
 
-                            if (!string.IsNullOrEmpty(key) && !GlobalDefine.CharacterTable.ContainsKey(key))
+        public static void InitStageTable()
+        {
+            string path = Path.Combine(Directory.GetCurrentDirectory(), "Config", "stage_table.json");
+            if (!File.Exists(path))
+            {
+                return;
+            }
+
+            try
+            {
+                string json = File.ReadAllText(path);
+                var stageTable = JsonConvert.DeserializeObject<JObject>(json);
+                var stages = stageTable?["stages"];
+                var tileInfos = stageTable?["tileInfo"];
+
+                if (stages != null)
+                {
+                    foreach (var item in stages)
+                    {
+                        if (item is JProperty jProperty)
+                        {
+                            string key = jProperty.Name;
+                            StageInfo stageData = jProperty.Value.ToObject<StageInfo>();
+                            if (!string.IsNullOrEmpty(key) && !GlobalDefine.StageTable.ContainsKey(key))
                             {
-                                GlobalDefine.CharacterTable.Add(key, characterData);
+                                GlobalDefine.StageTable.Add(key, stageData);
                             }
                             else
                             {
-                                string errorMsg = $"character_table.json Parse Error, ErrorKey: {key}";
+                                string errorMsg = $"stage_table.json stages Parse Error, ErrorKey: {key}";
                                 MainForm.Instance.Log(errorMsg, MainForm.LogType.Warning);
                             }
-                        //}
+                        }
+
+                    }
+                }
+
+                if (tileInfos != null)
+                {
+                    foreach (var item in tileInfos)
+                    {
+                        if (item is JProperty jProperty)
+                        {
+                            string key = jProperty.Name;
+                            TileInfo tileInfo = jProperty.Value.ToObject<TileInfo>();
+                            if (!string.IsNullOrEmpty(key) && !GlobalDefine.TileInfo.ContainsKey(key))
+                            {
+                                MainForm.Instance.Log($"Add TileInfo From stage_table.json: {key} [{tileInfo.name}]", MainForm.LogType.Log);
+                                GlobalDefine.TileInfo.Add(key, tileInfo);
+                            }
+                            else
+                            {
+                                //MainForm.Instance.Log($"Skip TileInfo From stage_table.json: {key}", MainForm.LogType.Log);
+                            }
+                        }
+
                     }
                 }
             }
