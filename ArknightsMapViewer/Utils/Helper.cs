@@ -947,6 +947,7 @@ namespace ArknightsMapViewer
             {
                 return;
             }
+            filePath = Path.GetFullPath(filePath);
 
             //Process.Start("explorer.exe", $"/select,\"{filePath}\""); //容易被360误报，很坑
 
