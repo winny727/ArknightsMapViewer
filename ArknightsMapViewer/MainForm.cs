@@ -1167,13 +1167,15 @@ namespace ArknightsMapViewer
 
             if (Directory.Exists(baseDir))
             {
-                // 获取所有文件，包括子文件夹
-                string[] files = Directory.GetFiles(baseDir, "*.json", SearchOption.AllDirectories);
+                // 获取excel中所有文件
+                string[] files = Directory.GetFiles(baseDir + "/excel", "*.json", SearchOption.AllDirectories);
                 foreach (var file in files)
                 {
                     string relativePath = GetRelativePath(baseDir, file).Replace("\\", "/");
                     fileList.Add(relativePath);
                 }
+
+                fileList.Add("levels/enemydata/enemy_database.json");
             }
 
             if (fileList.Count <= 0)
@@ -1229,7 +1231,7 @@ namespace ArknightsMapViewer
                 string file = fileList[i];
                 string url = $"https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/{file}";
 
-                string tempPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + "_" + Path.GetFileName(file));
+                string tempPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"Temp/{Path.GetFileName(file)}.{Guid.NewGuid()}.tmp"); // 临时文件路径
                 string tempDir = Path.GetDirectoryName(tempPath);
                 if (!Directory.Exists(tempDir))
                 {
@@ -1265,6 +1267,16 @@ namespace ArknightsMapViewer
             updateGameDataToolStripMenuItem.Enabled = true;
 
             MessageBox.Show("游戏数据已更新完成，请重启程序以应用更新。", "完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void pRTSMAPToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Process.Start(new ProcessStartInfo("https://map.ark-nights.com/areas") { UseShellExecute = true });
+        }
+
+        private void githubKengxxiaoArknightsGameDataToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Process.Start(new ProcessStartInfo("https://github.com/Kengxxiao/ArknightsGameData/tree/master/zh_CN/gamedata") { UseShellExecute = true });
         }
     }
 }

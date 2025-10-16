@@ -36,11 +36,16 @@
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.dataToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openStagesWindowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
+            this.updateGameDataToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showLogToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.informationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.githubToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
+            this.pRTSMAPToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.githubKengxxiaoArknightsGameDataToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.openToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
@@ -83,8 +88,6 @@
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
-            this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
-            this.updateGameDataToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.contextMenuStrip1.SuspendLayout();
@@ -121,13 +124,13 @@
             this.exitToolStripMenuItem});
             this.menuToolStripMenuItem.Name = "menuToolStripMenuItem";
             this.menuToolStripMenuItem.Size = new System.Drawing.Size(53, 22);
-            this.menuToolStripMenuItem.Text = "&Menu";
+            this.menuToolStripMenuItem.Text = "Menu";
             // 
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
             this.openToolStripMenuItem.Size = new System.Drawing.Size(108, 22);
-            this.openToolStripMenuItem.Text = "&Open";
+            this.openToolStripMenuItem.Text = "Open";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
@@ -139,7 +142,7 @@
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
             this.exitToolStripMenuItem.Size = new System.Drawing.Size(108, 22);
-            this.exitToolStripMenuItem.Text = "&Exit";
+            this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
             // dataToolStripMenuItem
@@ -150,14 +153,26 @@
             this.updateGameDataToolStripMenuItem});
             this.dataToolStripMenuItem.Name = "dataToolStripMenuItem";
             this.dataToolStripMenuItem.Size = new System.Drawing.Size(47, 22);
-            this.dataToolStripMenuItem.Text = "&Data";
+            this.dataToolStripMenuItem.Text = "Data";
             // 
             // openStagesWindowToolStripMenuItem
             // 
             this.openStagesWindowToolStripMenuItem.Name = "openStagesWindowToolStripMenuItem";
             this.openStagesWindowToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
-            this.openStagesWindowToolStripMenuItem.Text = "&Open Stages Window";
+            this.openStagesWindowToolStripMenuItem.Text = "Open Stages Window";
             this.openStagesWindowToolStripMenuItem.Click += new System.EventHandler(this.openStagesWindowToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator6
+            // 
+            this.toolStripSeparator6.Name = "toolStripSeparator6";
+            this.toolStripSeparator6.Size = new System.Drawing.Size(199, 6);
+            // 
+            // updateGameDataToolStripMenuItem
+            // 
+            this.updateGameDataToolStripMenuItem.Name = "updateGameDataToolStripMenuItem";
+            this.updateGameDataToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
+            this.updateGameDataToolStripMenuItem.Text = "Update GameData";
+            this.updateGameDataToolStripMenuItem.Click += new System.EventHandler(this.updateGameDataToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
             // 
@@ -165,36 +180,58 @@
             this.showLogToolStripMenuItem,
             this.toolStripSeparator5,
             this.informationToolStripMenuItem,
-            this.githubToolStripMenuItem});
+            this.githubToolStripMenuItem,
+            this.toolStripSeparator7,
+            this.pRTSMAPToolStripMenuItem,
+            this.githubKengxxiaoArknightsGameDataToolStripMenuItem});
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(47, 22);
-            this.helpToolStripMenuItem.Text = "&Help";
+            this.helpToolStripMenuItem.Text = "Help";
             // 
             // showLogToolStripMenuItem
             // 
             this.showLogToolStripMenuItem.Name = "showLogToolStripMenuItem";
-            this.showLogToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
-            this.showLogToolStripMenuItem.Text = "&Show Log";
+            this.showLogToolStripMenuItem.Size = new System.Drawing.Size(235, 22);
+            this.showLogToolStripMenuItem.Text = "Show Log";
             this.showLogToolStripMenuItem.Click += new System.EventHandler(this.showLogToolStripMenuItem_Click);
             // 
             // toolStripSeparator5
             // 
             this.toolStripSeparator5.Name = "toolStripSeparator5";
-            this.toolStripSeparator5.Size = new System.Drawing.Size(141, 6);
+            this.toolStripSeparator5.Size = new System.Drawing.Size(232, 6);
             // 
             // informationToolStripMenuItem
             // 
             this.informationToolStripMenuItem.Name = "informationToolStripMenuItem";
-            this.informationToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
-            this.informationToolStripMenuItem.Text = "&Information";
+            this.informationToolStripMenuItem.Size = new System.Drawing.Size(235, 22);
+            this.informationToolStripMenuItem.Text = "Information";
             this.informationToolStripMenuItem.Click += new System.EventHandler(this.informationToolStripMenuItem_Click);
             // 
             // githubToolStripMenuItem
             // 
             this.githubToolStripMenuItem.Name = "githubToolStripMenuItem";
-            this.githubToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
-            this.githubToolStripMenuItem.Text = "&Github";
+            this.githubToolStripMenuItem.Size = new System.Drawing.Size(235, 22);
+            this.githubToolStripMenuItem.Text = "Github";
             this.githubToolStripMenuItem.Click += new System.EventHandler(this.githubToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator7
+            // 
+            this.toolStripSeparator7.Name = "toolStripSeparator7";
+            this.toolStripSeparator7.Size = new System.Drawing.Size(232, 6);
+            // 
+            // pRTSMAPToolStripMenuItem
+            // 
+            this.pRTSMAPToolStripMenuItem.Name = "pRTSMAPToolStripMenuItem";
+            this.pRTSMAPToolStripMenuItem.Size = new System.Drawing.Size(235, 22);
+            this.pRTSMAPToolStripMenuItem.Text = "PRTS.MAP";
+            this.pRTSMAPToolStripMenuItem.Click += new System.EventHandler(this.pRTSMAPToolStripMenuItem_Click);
+            // 
+            // githubKengxxiaoArknightsGameDataToolStripMenuItem
+            // 
+            this.githubKengxxiaoArknightsGameDataToolStripMenuItem.Name = "githubKengxxiaoArknightsGameDataToolStripMenuItem";
+            this.githubKengxxiaoArknightsGameDataToolStripMenuItem.Size = new System.Drawing.Size(235, 22);
+            this.githubKengxxiaoArknightsGameDataToolStripMenuItem.Text = "Github/ArknightsGameData";
+            this.githubKengxxiaoArknightsGameDataToolStripMenuItem.Click += new System.EventHandler(this.githubKengxxiaoArknightsGameDataToolStripMenuItem_Click);
             // 
             // pictureBox1
             // 
@@ -227,14 +264,14 @@
             // 
             this.openToolStripMenuItem1.Name = "openToolStripMenuItem1";
             this.openToolStripMenuItem1.Size = new System.Drawing.Size(144, 22);
-            this.openToolStripMenuItem1.Text = "&Open New";
+            this.openToolStripMenuItem1.Text = "Open New";
             this.openToolStripMenuItem1.Click += new System.EventHandler(this.openToolStripMenuItem1_Click);
             // 
             // openFolderToolStripMenuItem
             // 
             this.openFolderToolStripMenuItem.Name = "openFolderToolStripMenuItem";
             this.openFolderToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
-            this.openFolderToolStripMenuItem.Text = "&Explorer To";
+            this.openFolderToolStripMenuItem.Text = "Explorer To";
             this.openFolderToolStripMenuItem.Click += new System.EventHandler(this.openFolderToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
@@ -296,7 +333,7 @@
             // 
             this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
             this.removeToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
-            this.removeToolStripMenuItem.Text = "&Remove";
+            this.removeToolStripMenuItem.Text = "Remove";
             this.removeToolStripMenuItem.Click += new System.EventHandler(this.removeToolStripMenuItem_Click);
             // 
             // removeAllToolStripMenuItem
@@ -638,18 +675,6 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
-            // toolStripSeparator6
-            // 
-            this.toolStripSeparator6.Name = "toolStripSeparator6";
-            this.toolStripSeparator6.Size = new System.Drawing.Size(199, 6);
-            // 
-            // updateGameDataToolStripMenuItem
-            // 
-            this.updateGameDataToolStripMenuItem.Name = "updateGameDataToolStripMenuItem";
-            this.updateGameDataToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
-            this.updateGameDataToolStripMenuItem.Text = "&Update GameData";
-            this.updateGameDataToolStripMenuItem.Click += new System.EventHandler(this.updateGameDataToolStripMenuItem_Click);
-            // 
             // MainForm
             // 
             this.AllowDrop = true;
@@ -754,6 +779,9 @@
         private System.Windows.Forms.ToolStripMenuItem openStagesWindowToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
         private System.Windows.Forms.ToolStripMenuItem updateGameDataToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
+        private System.Windows.Forms.ToolStripMenuItem pRTSMAPToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem githubKengxxiaoArknightsGameDataToolStripMenuItem;
     }
 }
 
