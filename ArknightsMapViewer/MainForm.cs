@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Windows.Forms;
-using System.IO;
-using System.Text;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Diagnostics;
+using System.IO;
+using System.Net;
+using System.Text;
+using System.Windows.Forms;
 
 namespace ArknightsMapViewer
 {
@@ -72,16 +73,19 @@ namespace ArknightsMapViewer
         private void MainForm_Load(object sender, EventArgs e)
         {
             LogText = "";
+
+            Stopwatch stopwatch = Stopwatch.StartNew();
             Helper.InitDrawConfig();
             Helper.InitTileInfoConfig();
             Helper.InitEnemyDatabase();
             Helper.InitCharacterTable();
             Helper.InitStageTable();
+            Helper.ClearGameConfigTableCache();
+            stopwatch.Stop();
+            Log($"Init All Config Completed, Total Time: {stopwatch.Elapsed.TotalMilliseconds} ms");
+
             UpdateView();
             UpdateTimelineSimulationState();
-
-            //TODO 地图下载？
-            //https://map.ark-nights.com/data/levels/obt/crisis/v2/level_crisis_v2_03-01.json
 
             string[] latestFilePath = Helper.LoadLatestFilePath();
             ReadMapFiles(latestFilePath);
@@ -255,14 +259,12 @@ namespace ArknightsMapViewer
 
         internal bool ReadMapFile(string path)
         {
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            stopwatch.Start();
-
             if (string.IsNullOrEmpty(path))
             {
                 return false;
             }
 
+            Stopwatch stopwatch = Stopwatch.StartNew();
             try
             {
                 if (!File.Exists(path))
@@ -934,23 +936,14 @@ namespace ArknightsMapViewer
 
         private void githubToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Process.Start("https://github.com/winny727/ArknightsMapViewer");
-        }
-
-        private void downloadMapFileToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Process.Start("https://github.com/Kengxxiao/ArknightsGameData/tree/master/zh_CN/gamedata/levels");
+            Process.Start(new ProcessStartInfo("https://github.com/winny727/ArknightsMapViewer") { UseShellExecute = true });
         }
 
         private void openFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (curLevelView != null && !string.IsNullOrEmpty(curLevelView.Path))
             {
-                string folderPath = Path.GetDirectoryName(curLevelView.Path);
-                if (!string.IsNullOrEmpty(folderPath) && Directory.Exists(folderPath))
-                {
-                    Process.Start(folderPath);
-                }
+                Helper.SelectExplorerFile(curLevelView.Path);
             }
         }
 
@@ -1045,7 +1038,7 @@ namespace ArknightsMapViewer
                 MessageBox.Show("Export Image Completed.");
                 if (saved > 1)
                 {
-                    Process.Start(path);
+                    Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
                 }
             }
         }
@@ -1142,10 +1135,102 @@ namespace ArknightsMapViewer
             }
         }
 
-        private void stagesToolStripMenuItem_Click(object sender, EventArgs e)
+        private void openStagesWindowToolStripMenuItem_Click(object sender, EventArgs e)
         {
             StageForm stageForm = new StageForm();
             stageForm.ShowDialog();
+        }
+
+        private string GetRelativePath(string basePath, string fullPath)
+        {
+            // 统一斜杠
+            basePath = basePath.Replace('\\', '/');
+            fullPath = fullPath.Replace('\\', '/');
+
+            if (fullPath.StartsWith(basePath))
+            {
+                string relative = fullPath.Substring(basePath.Length);
+                if (relative.StartsWith("/")) relative = relative.Substring(1);
+                return relative;
+            }
+            return fullPath; // 不是 basePath 下的文件就返回原路径
+        }
+
+        private async void updateGameDataToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config/gamedata");
+            List<string> fileList = new List<string>();
+
+            if (Directory.Exists(baseDir))
+            {
+                // 获取所有文件，包括子文件夹
+                string[] files = Directory.GetFiles(baseDir, "*.*", SearchOption.AllDirectories);
+                foreach (var file in files)
+                {
+                    string relativePath = GetRelativePath(baseDir, file).Replace("\\", "/");
+                    fileList.Add(relativePath);
+                }
+            }
+
+            if (fileList.Count <= 0)
+            {
+                MessageBox.Show("没有找到游戏数据文件", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (MessageBox.Show($"当前共有{fileList.Count}个游戏数据文件，是否全部更新？更新完成后需要重新启动程序\n（下载源：Github/Kengxxiao/ArknightsGameData）", "确认", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK)
+            {
+                return;
+            }
+
+            using var client = new WebClient();
+            client.Encoding = Encoding.UTF8;
+
+            Progress<int> progress = new Progress<int>(index =>
+            {
+                toolStripStatusLabel1.Text = $"更新游戏数据中... {index}/{fileList.Count} {fileList[index]}";
+            });
+
+            for (int i = 0; i < fileList.Count; i++)
+            {
+                string file = fileList[i];
+                string url = $"https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/{file}";
+
+                string tempPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + "_" + Path.GetFileName(file));
+                string tempDir = Path.GetDirectoryName(tempPath);
+                if (!Directory.Exists(tempDir))
+                {
+                    Directory.CreateDirectory(tempDir);
+                }
+
+                try
+                {
+                    await client.DownloadFileTaskAsync(new Uri(url), tempPath);
+
+                    // 确保目标目录存在
+                    string dir = Path.GetDirectoryName(file);
+                    if (!Directory.Exists(dir))
+                    {
+                        Directory.CreateDirectory(dir);
+                    }
+
+                    // 覆盖原文件
+                    File.Copy(tempPath, file, true);
+                    File.Delete(tempPath);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"下载失败: {file}\n{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    continue;
+                }
+
+                ((IProgress<int>)progress).Report(i + 1);
+                Application.DoEvents(); // 保证 UI 更新
+            }
+
+            toolStripStatusLabel1.Text = "";
+
+            MessageBox.Show("游戏数据已更新完成，请重启程序以应用更新。", "完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }

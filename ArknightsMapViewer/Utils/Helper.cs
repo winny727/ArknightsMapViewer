@@ -1,19 +1,67 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Drawing;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Text.RegularExpressions;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Windows.Forms;
 
 namespace ArknightsMapViewer
 {
     public static class Helper
     {
+        private static Dictionary<string, JObject> gameConfigTableCache = new Dictionary<string, JObject>();
+
+        private static JObject ReadGameConfigTable(string configPath, bool cache = false)
+        {
+            if (!configPath.EndsWith(".json"))
+            {
+                configPath += ".json";
+            }
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config/gamedata", configPath);
+
+            try
+            {
+                if (gameConfigTableCache.TryGetValue(path, out var jObject))
+                {
+                    return jObject;
+                }
+
+                if (!File.Exists(path))
+                {
+                    MainForm.Instance.Log($"GameConfigTable Not Found: {path}", MainForm.LogType.Warning);
+                    return null;
+                }
+
+                Stopwatch stopwatch = Stopwatch.StartNew();
+
+                string json = File.ReadAllText(path);
+                jObject = JsonConvert.DeserializeObject<JObject>(json);
+
+                MainForm.Instance.Log($"[{Path.GetFileName(path)}] Read GameConfig Table Success ({stopwatch.Elapsed.TotalMilliseconds} ms)");
+
+                if (cache)
+                {
+                    gameConfigTableCache.Add(path, jObject);
+                }
+                return jObject;
+            }
+            catch (Exception ex)
+            {
+                string errorMsg = $"{configPath} Parse Error, {ex.Message}";
+                MainForm.Instance.Log(errorMsg, MainForm.LogType.Error);
+            }
+            return null;
+        }
+
         public static string[] LoadLatestFilePath()
         {
-            string path = Path.Combine(Directory.GetCurrentDirectory(), "Temp", "latest_files.ini");
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Temp", "latest_files.ini");
             if (!File.Exists(path))
             {
                 return null;
@@ -34,7 +82,7 @@ namespace ArknightsMapViewer
 
         public static void SaveLatestFilePath(IEnumerable<string> latestFilePath)
         {
-            string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "Temp");
+            string folderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Temp");
             if (!Directory.Exists(folderPath))
             {
                 Directory.CreateDirectory(folderPath);
@@ -56,7 +104,7 @@ namespace ArknightsMapViewer
         public static void InitDrawConfig()
         {
             DrawConfig drawConfig = null;
-            string path = Path.Combine(Directory.GetCurrentDirectory(), "Config", "draw_config.json");
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config", "draw_config.json");
             if (File.Exists(path))
             {
                 try
@@ -86,7 +134,7 @@ namespace ArknightsMapViewer
                 }
             }
 
-            Graphics g = Graphics.FromHwnd(IntPtr.Zero);
+            using Graphics g = Graphics.FromHwnd(IntPtr.Zero);
             float dpi = Math.Max(g.DpiX, g.DpiY) * 0.01f;
 
             GlobalDefine.TILE_PIXLE = (int)(drawConfig.Size.tilePixle * dpi);
@@ -95,11 +143,11 @@ namespace ArknightsMapViewer
             GlobalDefine.CIRCLE_RADIUS = (int)(drawConfig.Size.circleRadius * dpi);
             GlobalDefine.POINT_RADIUS = (int)(drawConfig.Size.pointRadius * dpi);
 
-            Enum.TryParse(drawConfig.Font.textFontStyle, out FontStyle textFontStyle);
-            Enum.TryParse(drawConfig.Font.indexFontStyle, out FontStyle indexFontStyle);
-            Enum.TryParse(drawConfig.Font.timeFontStyle, out FontStyle timeFontStyle);
-            Enum.TryParse(drawConfig.Font.lenghtFontStyle, out FontStyle lenghtFont);
-            Enum.TryParse(drawConfig.Font.predefinedFontStyle, out FontStyle predefinedFont);
+            Enum.TryParse(drawConfig.Font.textFontStyle, true, out FontStyle textFontStyle);
+            Enum.TryParse(drawConfig.Font.indexFontStyle, true, out FontStyle indexFontStyle);
+            Enum.TryParse(drawConfig.Font.timeFontStyle, true, out FontStyle timeFontStyle);
+            Enum.TryParse(drawConfig.Font.lenghtFontStyle, true, out FontStyle lenghtFont);
+            Enum.TryParse(drawConfig.Font.predefinedFontStyle, true, out FontStyle predefinedFont);
 
             GlobalDefine.TEXT_FONT = new Font(drawConfig.Font.textFont, drawConfig.Font.textFontSize, textFontStyle);
             GlobalDefine.INDEX_FONT = new Font(drawConfig.Font.indexFont, drawConfig.Font.indexFontSize, indexFontStyle);
@@ -141,11 +189,11 @@ namespace ArknightsMapViewer
                 return null;
             }
 
-            string path = Path.Combine(Directory.GetCurrentDirectory(), "Config", "tile_info.csv");
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config", "tile_info.txt");
 
             try
             {
-                TableReader tableReader = new TableReader(path, Encoding.Default, ','); //GB2312
+                TableReader tableReader = new TableReader(path, Encoding.Default, '\t'); //GB2312
                 tableReader.ForEach((tileKey, line) =>
                 {
                     if (!string.IsNullOrEmpty(tileKey))
@@ -173,165 +221,212 @@ namespace ArknightsMapViewer
             }
             catch (Exception ex)
             {
-                string errorMsg = $"tile_info.csv Read Error, {ex.Message}";
+                string errorMsg = $"tile_info.txt Read Error, {ex.Message}";
                 MainForm.Instance.Log(errorMsg, MainForm.LogType.Warning);
                 //MessageBox.Show(errorMsg, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+
+            var stageTable = ReadGameConfigTable("excel/stage_table.json", true);
+            var tileInfos = stageTable?["tileInfo"];
+            if (tileInfos != null)
+            {
+                foreach (var item in tileInfos)
+                {
+                    TileInfo tileInfo = item.ToObject<JProperty>()?.Value?.ToObject<TileInfo>();
+                    if (!string.IsNullOrEmpty(tileInfo.tileKey) && !GlobalDefine.TileInfo.ContainsKey(tileInfo.tileKey))
+                    {
+                        MainForm.Instance.Log($"Add TileInfo From stage_table.json: {tileInfo.tileKey} [{tileInfo.name}]", MainForm.LogType.Debug);
+                        GlobalDefine.TileInfo.Add(tileInfo.tileKey, tileInfo);
+                    }
+                    else
+                    {
+                        MainForm.Instance.Log($"Skip TileInfo From stage_table.json: {tileInfo.tileKey} [{tileInfo.name}]", MainForm.LogType.Debug);
+                    }
+                }
             }
         }
 
         public static void InitEnemyDatabase()
         {
-            string path = Path.Combine(Directory.GetCurrentDirectory(), "Config", "enemy_database.json");
-            if (!File.Exists(path))
+            var enemyDatabase = ReadGameConfigTable("levels/enemydata/enemy_database.json");
+            var enemies = enemyDatabase?["enemies"];
+            if (enemies != null)
             {
-                return;
-            }
-
-            try
-            {
-                string json = File.ReadAllText(path);
-                var enemyDatabase = JsonConvert.DeserializeObject<JObject>(json);
-                var enemies = enemyDatabase?["enemies"];
-                if (enemies != null)
+                foreach (var enemy in enemies)
                 {
-                    foreach (var enemy in enemies)
+                    string key = enemy["Key"]?.ToString();
+                    Dictionary<int, DbData> dbDatas = new Dictionary<int, DbData>();
+                    if (enemy["Value"] is JArray jArray)
                     {
-                        string key = enemy["Key"]?.ToString();
-                        Dictionary<int, DbData> dbDatas = new Dictionary<int, DbData>();
-                        if (enemy["Value"] is JArray jArray)
+                        for (int i = 0; i < jArray.Count; i++)
                         {
-                            for (int i = 0; i < jArray.Count; i++)
+                            int level = jArray[i]["level"].ToObject<int>();
+                            DbData dbData = jArray[i]["enemyData"].ToObject<DbData>();
+                            if (i > 0)
                             {
-                                int level = jArray[i]["level"].ToObject<int>();
-                                DbData dbData = jArray[i]["enemyData"].ToObject<DbData>();
-                                if (i > 0)
-                                {
-                                    dbData.InheritDbData(dbDatas[0]);
-                                }
-                                dbDatas.Add(level, dbData);
+                                dbData.InheritDbData(dbDatas[0]);
                             }
-                        }
-                        if (!string.IsNullOrEmpty(key) && !GlobalDefine.EnemyDatabase.ContainsKey(key))
-                        {
-                            GlobalDefine.EnemyDatabase.Add(key, dbDatas);
-                        }
-                        else
-                        {
-                            string errorMsg = $"enemy_database.json Parse Error, ErrorKey: {key}";
-                            MainForm.Instance.Log(errorMsg, MainForm.LogType.Warning);
+                            dbDatas.Add(level, dbData);
                         }
                     }
+                    if (!string.IsNullOrEmpty(key) && !GlobalDefine.EnemyDatabase.ContainsKey(key))
+                    {
+                        GlobalDefine.EnemyDatabase.Add(key, dbDatas);
+                    }
+                    else
+                    {
+                        string errorMsg = $"enemy_database.json Parse Error, ErrorKey: {key}";
+                        MainForm.Instance.Log(errorMsg, MainForm.LogType.Warning);
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                string errorMsg = $"enemy_database.json Parse Error, {ex.Message}";
-                MainForm.Instance.Log(errorMsg, MainForm.LogType.Error);
             }
         }
 
         public static void InitCharacterTable()
         {
-            string path = Path.Combine(Directory.GetCurrentDirectory(), "Config", "character_table.json");
-            if (!File.Exists(path))
+            var charcterTable = ReadGameConfigTable("excel/character_table.json");
+            if (charcterTable != null)
             {
-                return;
-            }
-
-            try
-            {
-                string json = File.ReadAllText(path);
-                var charcterTable = JsonConvert.DeserializeObject<JObject>(json);
-                if (charcterTable != null)
+                foreach (var item in charcterTable)
                 {
-                    foreach (var item in charcterTable)
-                    {
-                        string key = item.Key;
-                        JToken data = item.Value;
+                    string key = item.Key;
+                    JToken data = item.Value;
 
-                        CharacterData characterData = data.ToObject<CharacterData>();
-                        if (!string.IsNullOrEmpty(key) && !GlobalDefine.CharacterTable.ContainsKey(key))
-                        {
-                            GlobalDefine.CharacterTable.Add(key, characterData);
-                        }
-                        else
-                        {
-                            string errorMsg = $"character_table.json Parse Error, ErrorKey: {key}";
-                            MainForm.Instance.Log(errorMsg, MainForm.LogType.Warning);
-                        }
+                    CharacterData characterData = data.ToObject<CharacterData>();
+                    if (!string.IsNullOrEmpty(key) && !GlobalDefine.CharacterTable.ContainsKey(key))
+                    {
+                        GlobalDefine.CharacterTable.Add(key, characterData);
+                    }
+                    else
+                    {
+                        string errorMsg = $"character_table.json Parse Error, ErrorKey: {key}";
+                        MainForm.Instance.Log(errorMsg, MainForm.LogType.Warning);
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                string errorMsg = $"character_table.json Parse Error, {ex.Message}";
-                MainForm.Instance.Log(errorMsg, MainForm.LogType.Error);
             }
         }
 
         public static void InitStageTable()
         {
-            string path = Path.Combine(Directory.GetCurrentDirectory(), "Config", "stage_table.json");
-            if (!File.Exists(path))
+            ReadStageInfos("stage_table.json", true, "stages");
+            ReadStageInfos("roguelike_table.json", false, "stages"); //集成战略-刻俄柏的灰蕈迷境
+            ReadStageInfos("roguelike_topic_table.json", true, "details", "rogue_1", "stages"); //集成战略-傀影与猩红孤钻
+            ReadStageInfos("roguelike_topic_table.json", true, "details", "rogue_2", "stages"); //集成战略-水月与深蓝之树
+            ReadStageInfos("roguelike_topic_table.json", true, "details", "rogue_3", "stages"); //集成战略-探索者的银凇止境
+            ReadStageInfos("roguelike_topic_table.json", true, "details", "rogue_4", "stages"); //集成战略-萨卡兹的无终奇语
+            ReadStageInfos("roguelike_topic_table.json", true, "details", "rogue_5", "stages"); //集成战略-岁的界园志异
+            //ReadStageInfos("roguelike_topic_table.json", true, "details", "rogue_6", "stages"); //备用
+            //ReadStageInfos("roguelike_topic_table.json", true, "details", "rogue_7", "stages"); //备用
+            //ReadStageInfos("roguelike_topic_table.json", true, "details", "rogue_8", "stages"); //备用
+            //ReadStageInfos("roguelike_topic_table.json", true, "details", "rogue_9", "stages"); //备用
+            ReadStageInfos("sandbox_table.json", false, "sandboxActTables", "act1sandbox", "stageDatas"); //生息演算-沙中之火
+            ReadStageInfos("sandbox_perm_table.json", false, "detail", "SANDBOX_V2", "sandbox_1", "stageData"); //生息演算-沙洲遗闻
+            ReadStageInfos("climb_tower_table.json", false, "levels"); //保全派驻
+            ReadStageInfos("handbook_info_table.json", false, "handbookStageData"); //悖论模拟
+            ReadStageInfos("crisis_v2_table.json", true, "recalRuneData", "seasons", "recalRune_season_1", "stages"); //全息作战矩阵#1
+            //ReadStageInfos("crisis_v2_table.json", true, "recalRuneData", "seasons", "recalRune_season_2", "stages"); //备用
+            //ReadStageInfos("crisis_v2_table.json", true, "recalRuneData", "seasons", "recalRune_season_3", "stages"); //备用
+            //ReadStageInfos("crisis_v2_table.json", true, "recalRuneData", "seasons", "recalRune_season_4", "stages"); //备用
+            //ReadStageInfos("crisis_v2_table.json", true, "recalRuneData", "seasons", "recalRune_season_5", "stages"); //备用
+            //ReadStageInfos("crisis_v2_table.json", true, "recalRuneData", "seasons", "recalRune_season_6", "stages"); //备用
+            //ReadStageInfos("crisis_v2_table.json", true, "recalRuneData", "seasons", "recalRune_season_7", "stages"); //备用
+            //ReadStageInfos("crisis_v2_table.json", true, "recalRuneData", "seasons", "recalRune_season_8", "stages"); //备用
+            //ReadStageInfos("crisis_v2_table.json", true, "recalRuneData", "seasons", "recalRune_season_9", "stages"); //备用
+            ReadStageInfos("retro_table.json", false, "stageList"); //复刻常驻
+            ReadStageInfos("story_review_meta_table.json", false, "trainingCampData", "stageData"); //教学
+            ReadStageInfos("activity_table.json", true, "activity", "TYPE_ACT42D0", "act42d0", "stageInfoData"); //纷争演绎
+            ReadStageInfos("activity_table.json", true, "activity", "TYPE_ACT42D0", "act42d0", "challengeInfoData"); //纷争演绎
+            ReadStageInfos("activity_table.json", true, "actFunData", "stages"); //四月辑录
+
+            //危机合约 多维合作 stage_info.txt
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config", "stage_info.txt");
+            try
+            {
+                TableReader tableReader = new TableReader(path, Encoding.Default, '\t'); //GB2312
+                tableReader.ForEach((stageId, line) =>
+                {
+                    if (!string.IsNullOrEmpty(stageId))
+                    {
+                        StageInfo stageData = new StageInfo()
+                        {
+                            stageId = stageId,
+                            code = line["code"],
+                            levelId = line["levelId"],
+                            name = line["name"],
+                            description = line["description"]
+                        };
+                        if (!GlobalDefine.StageInfo.ContainsKey(stageData.stageId))
+                        {
+                            GlobalDefine.StageInfo.Add(stageData.stageId, new List<StageInfo>());
+                        }
+                        GlobalDefine.StageInfo[stageData.stageId].Add(stageData);
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                string errorMsg = $"stage_info.txt Read Error, {ex.Message}";
+                MainForm.Instance.Log(errorMsg, MainForm.LogType.Warning);
+                //MessageBox.Show(errorMsg, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+        public static void ClearGameConfigTableCache(string key = null)
+        {
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            if (string.IsNullOrEmpty(key))
+            {
+                gameConfigTableCache.Clear();
+            }
+            else if (gameConfigTableCache.ContainsKey(key))
+            {
+                gameConfigTableCache.Remove(key);
+            }
+
+            GC.Collect();
+            stopwatch.Stop();
+
+            string keyText = string.IsNullOrEmpty(key) ? "All" : key;
+            MainForm.Instance.Log($"Clear GameConfigTable Cache [{keyText}] ({stopwatch.Elapsed.TotalMilliseconds} ms)", MainForm.LogType.Log);
+        }
+
+        private static void ReadStageInfos(string configName, bool cache, params string[] stageFieldPath)
+        {
+            if (string.IsNullOrEmpty(configName))
             {
                 return;
             }
 
-            try
+            var configTable = ReadGameConfigTable("excel/" + configName, cache);
+            JToken stages = configTable?.SelectToken(string.Join(".", stageFieldPath));
+            if (stages == null)
             {
-                string json = File.ReadAllText(path);
-                var stageTable = JsonConvert.DeserializeObject<JObject>(json);
-                var stages = stageTable?["stages"];
-                var tileInfos = stageTable?["tileInfo"];
-
-                if (stages != null)
-                {
-                    foreach (var item in stages)
-                    {
-                        if (item is JProperty jProperty)
-                        {
-                            string key = jProperty.Name;
-                            StageInfo stageData = jProperty.Value.ToObject<StageInfo>();
-                            if (!string.IsNullOrEmpty(key) && !GlobalDefine.StageTable.ContainsKey(key))
-                            {
-                                GlobalDefine.StageTable.Add(key, stageData);
-                            }
-                            else
-                            {
-                                string errorMsg = $"stage_table.json stages Parse Error, ErrorKey: {key}";
-                                MainForm.Instance.Log(errorMsg, MainForm.LogType.Warning);
-                            }
-                        }
-
-                    }
-                }
-
-                if (tileInfos != null)
-                {
-                    foreach (var item in tileInfos)
-                    {
-                        if (item is JProperty jProperty)
-                        {
-                            string key = jProperty.Name;
-                            TileInfo tileInfo = jProperty.Value.ToObject<TileInfo>();
-                            if (!string.IsNullOrEmpty(key) && !GlobalDefine.TileInfo.ContainsKey(key))
-                            {
-                                MainForm.Instance.Log($"Add TileInfo From stage_table.json: {key} [{tileInfo.name}]", MainForm.LogType.Log);
-                                GlobalDefine.TileInfo.Add(key, tileInfo);
-                            }
-                            else
-                            {
-                                //MainForm.Instance.Log($"Skip TileInfo From stage_table.json: {key}", MainForm.LogType.Log);
-                            }
-                        }
-
-                    }
-                }
+                MainForm.Instance.Log($"StageInfo Not Found: {configName} {string.Join(".", stageFieldPath)}", MainForm.LogType.Warning);
+                return;
             }
-            catch (Exception ex)
+
+            foreach (var item in stages)
             {
-                string errorMsg = $"character_table.json Parse Error, {ex.Message}";
-                MainForm.Instance.Log(errorMsg, MainForm.LogType.Error);
+                JToken jValue = item.ToObject<JProperty>()?.Value;
+                StageInfo stageInfo = jValue?.ToObject<StageInfo>();
+                if (stageInfo == null)
+                {
+                    continue;
+                }
+
+                stageInfo.stageId ??= jValue?["id"]?.ToString();
+                stageInfo.name ??= jValue?["levelName"]?.ToString();
+                stageInfo.code ??= jValue?["levelCode"]?.ToString();
+                stageInfo.description ??= jValue?["desc"]?.ToString() ?? jValue?["levelDesc"]?.ToString();
+
+                if (!string.IsNullOrEmpty(stageInfo.stageId))
+                {
+                    if (!GlobalDefine.StageInfo.ContainsKey(stageInfo.stageId))
+                    {
+                        GlobalDefine.StageInfo.Add(stageInfo.stageId, new List<StageInfo>());
+                    }
+                    GlobalDefine.StageInfo[stageInfo.stageId].Add(stageInfo);
+                }
             }
         }
 
@@ -840,6 +935,45 @@ namespace ArknightsMapViewer
             else if (val.CompareTo(max) > 0) return max;
             else return val;
         }
+
+        #endregion
+
+        #region
+
+        public static void SelectExplorerFile(string filePath)
+        {
+            if (string.IsNullOrEmpty(filePath))
+            {
+                return;
+            }
+
+            //Process.Start("explorer.exe", $"/select,\"{filePath}\""); //容易被360误报，很坑
+
+            //打开资源管理器并选中日志文件
+            IntPtr pidl = ILCreateFromPath(filePath);
+            if (pidl != IntPtr.Zero)
+            {
+                SHOpenFolderAndSelectItems(pidl, 0, IntPtr.Zero, 0);
+                ILFree(pidl);
+            }
+            else
+            {
+                MessageBox.Show($"目录打开失败: {filePath}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        [DllImport("shell32.dll", ExactSpelling = true)]
+        private static extern int SHOpenFolderAndSelectItems(
+            IntPtr pidlFolder,
+            uint cidl,
+            [In] IntPtr apidl,
+            uint dwFlags);
+
+        [DllImport("shell32.dll", CharSet = CharSet.Auto)]
+        private static extern IntPtr ILCreateFromPath([MarshalAs(UnmanagedType.LPTStr)] string pszPath);
+
+        [DllImport("shell32.dll", ExactSpelling = true)]
+        private static extern void ILFree(IntPtr pidl);
 
         #endregion
     }

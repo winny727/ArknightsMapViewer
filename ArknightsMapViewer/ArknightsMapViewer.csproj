@@ -72,6 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArknightsMap\MoveRoute.cs" />
+    <Compile Include="ArknightsMap\StageData.cs" />
     <Compile Include="StageForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -172,7 +173,7 @@
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy "$(ProjectDir)\..\Config" "$(TargetDir)\Config\" /y
-xcopy "$(ProjectDir)\..\Readme.txt" "$(TargetDir)" /y</PostBuildEvent>
+    <PostBuildEvent>xcopy "$(ProjectDir)\..\Config" "$(TargetDir)\Config\" /E /I /Y
+xcopy "$(ProjectDir)\..\Readme.txt" "$(TargetDir)" /Y</PostBuildEvent>
   </PropertyGroup>
 </Project>
