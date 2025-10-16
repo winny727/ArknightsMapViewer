@@ -13,6 +13,7 @@ namespace ArknightsMapViewer
     {
         private WebClient downloadClient;
         private bool IsDownloading => downloadClient != null;
+        private double lastSpeed = 0;
         private long lastBytes = 0;
         private DateTime lastTime = DateTime.Now;
 
@@ -190,6 +191,7 @@ namespace ArknightsMapViewer
 
             client.Encoding = Encoding.UTF8;
 
+            lastSpeed = 0;
             lastBytes = 0;
             lastTime = DateTime.Now;
 
@@ -211,19 +213,17 @@ namespace ArknightsMapViewer
                 double downloadedKB = e.BytesReceived / 1024.0;
                 double totalKB = e.TotalBytesToReceive / 1024.0;
 
-                double speed = 0;
                 var now = DateTime.Now;
                 var timeDiff = (now - lastTime).TotalSeconds;
                 if (timeDiff > 0.2) // 避免太频繁更新
                 {
                     long bytesDiff = e.BytesReceived - lastBytes;
-                    speed = bytesDiff / 1024.0 / timeDiff; // KB/s
-
+                    lastSpeed = bytesDiff / 1024.0 / timeDiff; // KB/s
                     lastBytes = e.BytesReceived;
                     lastTime = now;
                 }
 
-                toolStripStatusLabel1.Text = $"下载中... {downloadedKB:F1} KB / {totalKB:F1} KB ({percent}%) | {speed:F1} KB/s";
+                toolStripStatusLabel1.Text = $"下载中... {downloadedKB:F1} KB / {totalKB:F1} KB ({percent}%) | {lastSpeed:F1} KB/s";
                 toolStripProgressBar1.Value = percent;
             };
 

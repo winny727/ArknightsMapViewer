@@ -1156,6 +1156,10 @@ namespace ArknightsMapViewer
             return fullPath; // 不是 basePath 下的文件就返回原路径
         }
 
+        private double lastSpeed = 0;
+        private long lastBytes = 0;
+        private DateTime lastTime = DateTime.Now;
+
         private async void updateGameDataToolStripMenuItem_Click(object sender, EventArgs e)
         {
             string baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config/gamedata");
@@ -1183,16 +1187,45 @@ namespace ArknightsMapViewer
                 return;
             }
 
+            lastBytes = 0;
+            lastTime = DateTime.Now;
+            lastSpeed = 0;
+            toolStripStatusLabel1.Text = $"更新游戏数据中... [{0} / {fileList.Count}] {0:F1} KB / {0:F1} KB ({0}%) | {0:F1} KB/s";
+            updateGameDataToolStripMenuItem.Enabled = false;
+
             using var client = new WebClient();
             client.Encoding = Encoding.UTF8;
 
-            Progress<int> progress = new Progress<int>(index =>
+            int updateIndex = 0;
+            client.DownloadProgressChanged += (s, e) =>
             {
-                toolStripStatusLabel1.Text = $"更新游戏数据中... {index}/{fileList.Count} {fileList[index]}";
-            });
+                int percent = e.ProgressPercentage;
+
+                double downloadedKB = e.BytesReceived / 1024.0;
+                double totalKB = e.TotalBytesToReceive / 1024.0;
+
+                var now = DateTime.Now;
+                var timeDiff = (now - lastTime).TotalSeconds;
+                if (timeDiff > 0.2) // 避免太频繁更新
+                {
+                    long bytesDiff = e.BytesReceived - lastBytes;
+                    lastSpeed = bytesDiff / 1024.0 / timeDiff; // KB/s
+                    lastBytes = e.BytesReceived;
+                    lastTime = now;
+                }
+
+                if (updateIndex > 0 && updateIndex <= fileList.Count)
+                {
+                    string file = fileList[updateIndex - 1];
+                    toolStripStatusLabel1.Text = $"更新游戏数据中... [{updateIndex}/{fileList.Count}] {file} {downloadedKB:F1} KB / {totalKB:F1} KB ({percent}%) | {lastSpeed:F1} KB/s";
+                }
+            };
 
             for (int i = 0; i < fileList.Count; i++)
             {
+                lastBytes = 0;
+
+                updateIndex = i + 1;
                 string file = fileList[i];
                 string url = $"https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/{file}";
 
@@ -1208,14 +1241,15 @@ namespace ArknightsMapViewer
                     await client.DownloadFileTaskAsync(new Uri(url), tempPath);
 
                     // 确保目标目录存在
-                    string dir = Path.GetDirectoryName(file);
+                    string savePath = Path.Combine(baseDir, file);
+                    string dir = Path.GetDirectoryName(savePath);
                     if (!Directory.Exists(dir))
                     {
                         Directory.CreateDirectory(dir);
                     }
 
                     // 覆盖原文件
-                    File.Copy(tempPath, file, true);
+                    File.Copy(tempPath, savePath, true);
                     File.Delete(tempPath);
                 }
                 catch (Exception ex)
@@ -1224,11 +1258,11 @@ namespace ArknightsMapViewer
                     continue;
                 }
 
-                ((IProgress<int>)progress).Report(i + 1);
                 Application.DoEvents(); // 保证 UI 更新
             }
 
             toolStripStatusLabel1.Text = "";
+            updateGameDataToolStripMenuItem.Enabled = true;
 
             MessageBox.Show("游戏数据已更新完成，请重启程序以应用更新。", "完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
