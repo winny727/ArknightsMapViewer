@@ -211,7 +211,7 @@ namespace ArknightsMapViewer
 
             MessageBox.Show(
                 $"ProductName: {fileVersionInfo.ProductName} ({fileVersionInfo.Comments})\n" + 
-                $"Version: {fileVersionInfo.ProductVersion}\n" +
+                $"Version: {fileVersionInfo.ProductVersion} (20251016)\n" +
                 $"Author: {fileVersionInfo.LegalCopyright} ({fileVersionInfo.CompanyName})"
                 );
         }
