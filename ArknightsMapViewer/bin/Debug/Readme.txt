@@ -1,12 +1,20 @@
 明日方舟地图文件查看工具
 ArknightsMapViewer
-Version: 0.4
+Version: 0.5 (20251016)
 By winny727
-2025.2.24
 
 https://github.com/winny727/ArknightsMapViewer
-b站专栏：https://www.bilibili.com/opus/873569465823920149
+b站专栏：https://www.bilibili.com/opus/1038286649940770816
 
+================
+2025.10.16 更新
+1. 新增关卡选择窗口，在菜单栏-Data-Open Stages Window打开，通过读取游戏数据（gamedata/excel）中的多个json文件中的关卡配置数据来显示关卡列表。
+（可能不全，游戏数据中不存在的关卡可以在Config/stage_info.txt中手动配置，比如多维合作和危机合约）
+选择关卡后，可以直接下载对应地图文件到本地打开查看。
+（注：部分地图无法正确跳转到PRTS.Map对应页面，不过还是可以正常下载的）
+2. 新增游戏数据更新功能，在菜单栏-Data-Update GameData中执行，可更新用于显示敌人名称等的敌人数据文件或新增关卡列表等；
+
+================
 
 使用说明：
 找到你要查看的地图的文件，并拖拽到程序中打开即可；
