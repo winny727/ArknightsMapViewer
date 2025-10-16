@@ -1168,7 +1168,7 @@ namespace ArknightsMapViewer
             if (Directory.Exists(baseDir))
             {
                 // 获取所有文件，包括子文件夹
-                string[] files = Directory.GetFiles(baseDir, "*.*", SearchOption.AllDirectories);
+                string[] files = Directory.GetFiles(baseDir, "*.json", SearchOption.AllDirectories);
                 foreach (var file in files)
                 {
                     string relativePath = GetRelativePath(baseDir, file).Replace("\\", "/");

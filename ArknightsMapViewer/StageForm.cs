@@ -59,13 +59,19 @@ namespace ArknightsMapViewer
                     if (!string.IsNullOrEmpty(searchText))
                     {
                         string stageId = stageInfo.stageId ?? "";
+                        string levelId = stageInfo.levelId ?? "";
+                        string zoneId = stageInfo.zoneId ?? "";
                         string name = stageInfo.name ?? "";
                         string code = stageInfo.code ?? "";
+                        string description = stageInfo.description ?? "";
 
                         bool match = false;
                         match |= stageId.ToLower().Contains(searchText);
+                        match |= levelId.ToLower().Contains(searchText);
+                        match |= zoneId.ToLower().Contains(searchText);
                         match |= name.ToLower().Contains(searchText);
                         match |= $"[{code}]".ToLower().Contains(searchText);
+                        match |= description.ToLower().Contains(searchText);
 
                         if (!match)
                         {
@@ -119,7 +125,7 @@ namespace ArknightsMapViewer
             return null;
         }
 
-        private string GetCurrentLevelFileUrl()
+        private string GetCurrentStageUrl(bool rawFile)
         {
             string url = "";
             StageInfo stageInfo = GetCurrentStageInfo();
@@ -131,11 +137,25 @@ namespace ArknightsMapViewer
             string stagePath = stageInfo.levelId.ToLower() + ".json";
             if (comboBox1.SelectedIndex == 0)
             {
-                url = $"https://map.ark-nights.com/data/levels/{stagePath}";
+                if (rawFile)
+                {
+                    url = $"https://map.ark-nights.com/data/levels/{stagePath}";
+                }
+                else
+                {
+                    url = $"https://map.ark-nights.com/map/{stageInfo.stageId.ToLower()}"; //有些关卡可能没有
+                }
             }
             else if (comboBox1.SelectedIndex == 1)
             {
-                url = $"https://github.com/Kengxxiao/ArknightsGameData/tree/master/zh_CN/gamedata/levels/{stagePath}";
+                if (rawFile)
+                {
+                    url = $"https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/levels/{stagePath}";
+                }
+                else
+                {
+                    url = $"https://github.com/Kengxxiao/ArknightsGameData/tree/master/zh_CN/gamedata/levels/{stagePath}";
+                }
             }
 
             return url;
@@ -182,8 +202,7 @@ namespace ArknightsMapViewer
                 Directory.CreateDirectory(tempDir);
             }
 
-            string url = GetCurrentLevelFileUrl();
-            url = ConvertToRawGithubUrl(url);
+            string url = GetCurrentStageUrl(true);
 
             using var client = new WebClient();
             downloadClient = client;
@@ -291,18 +310,6 @@ namespace ArknightsMapViewer
             }
         }
 
-        private string ConvertToRawGithubUrl(string url)
-        {
-            // 例： https://github.com/Kengxxiao/.../blob/master/zh_CN/gamedata/levels/xxx.json
-            if (url.Contains("github.com") && (url.Contains("/blob/") || url.Contains("/tree/")))
-            {
-                url = url.Replace("github.com/", "raw.githubusercontent.com/");
-                url = url.Replace("/blob/", "/");
-                url = url.Replace("/tree/", "/");
-            }
-            return url;
-        }
-
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
             UpdateStages();
@@ -341,7 +348,7 @@ namespace ArknightsMapViewer
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            string url = GetCurrentLevelFileUrl();
+            string url = GetCurrentStageUrl(false);
             if (!string.IsNullOrEmpty(url))
             {
                 Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });

@@ -351,6 +351,7 @@ namespace ArknightsMapViewer
                         {
                             stageId = stageId,
                             code = line["code"],
+                            zoneId = line["zoneId"],
                             levelId = line["levelId"],
                             name = line["name"],
                             description = line["description"]

@@ -1,63 +1,63 @@
-stageId	levelId	code	name	description
-level_act17d1_01_a	Activities/ACT17d1/level_act17d1_01_a	MP-01-A	废旧地块残骸	
-level_act17d1_01_b	Activities/ACT17d1/level_act17d1_01_b	MP-01-B	废旧地块残骸	
-level_act17d1_01_c	Activities/ACT17d1/level_act17d1_01_c	MP-01-C	废旧地块残骸	
-level_act17d1_02_a	Activities/ACT17d1/level_act17d1_02_a	MP-02-A	古老废城高塔	
-level_act17d1_02_b	Activities/ACT17d1/level_act17d1_02_b	MP-02-B	古老废城高塔	
-level_act17d1_02_c	Activities/ACT17d1/level_act17d1_02_c	MP-02-C	古老废城高塔	
-level_act17d1_03_a	Activities/ACT17d1/level_act17d1_03_a	MP-03-A	废弃工业厂房	
-level_act17d1_03_b	Activities/ACT17d1/level_act17d1_03_b	MP-03-B	废弃工业厂房	
-level_act17d1_03_c	Activities/ACT17d1/level_act17d1_03_c	MP-03-C	废弃工业厂房	
-rune_01-01_cc_act5d1	Activities/ACT5d1/level_rune_01-01	龙门外环	荒芜广场	位于贫民窟正中间的宽阔空地。除了随意丢弃的垃圾与无家可归的流浪者外，这里还成为了敌人躲藏的最佳窝点。
-rune_01-02_cc_act5d1	Activities/ACT5d1/level_rune_01-02	龙门外环	无人危楼	此处高楼遭到战火毁坏且无人问津，而敌人占据了这处制高点，并利用视野优势据守一方。我们必须夺回这里。
-rune_01-03_cc_act5d1	Activities/ACT5d1/level_rune_01-03	切尔诺伯格	59区废墟	切尔诺伯格分城区，因面积较小、缺乏战略意义而遭到废弃，现已被游荡的敌方单位占据，需阻止敌人穿越我方包围网。
-level_rune_01-01	Obt/Rune/level_rune_01-01	龙门外环	荒芜广场	位于贫民窟正中间的宽阔空地。除了随意丢弃的垃圾与无家可归的流浪者外，这里还成为了敌人躲藏的最佳窝点。
-level_rune_01-02	Obt/Rune/level_rune_01-02	龙门外环	无人危楼	此处高楼遭到战火毁坏且无人问津，而敌人占据了这处制高点，并利用视野优势据守一方。我们必须夺回这里。
-level_rune_01-03	Obt/Rune/level_rune_01-03	切尔诺伯格	59区废墟	切尔诺伯格分城区，因面积较小、缺乏战略意义而遭到废弃，现已被游荡的敌方单位占据，需阻止敌人穿越我方包围网。
-level_rune_02-01	Obt/Rune/level_rune_02-01	未知沙漠	荒漠	地处偏远的无名荒漠，贫瘠崎岖的地形为流窜至此的敌人提供了庇护，有必要在敌方进一步深入荒野前阻止他们。
-level_rune_02-02	Obt/Rune/level_rune_02-02	切尔诺伯格	破碎大道	被战火摧残的街道，路面斑驳，断壁残垣，而造成这一切的罪魁祸首依旧驻扎在这片区域。
-level_rune_02-03	Obt/Rune/level_rune_02-03	龙门	新街	龙门最繁华的街道之一，如今只剩下仓促逃难所遗留的一地残骸，有部分敌人在此区域行动，并对附近的普通市民构成了威胁。
-level_rune_02-04	Obt/Rune/level_rune_02-04	龙门	中转站	龙门赖以生存的物流枢纽，作为重要的战略据点陷入多方的争夺，现在，我们要取回这里的掌控权。
-level_rune_02-05	Obt/Rune/level_rune_02-05	龙门外环	霜冻废墟	在某场战役中被大面积冻结的废墟，依旧有少数敌人及失控的源石生物徘徊。偶尔能看见不合时节的雪花飞舞。
-level_rune_03-01	Obt/Rune/level_rune_03-01	荒野	黄铁峡谷	被黄沙覆盖的峡谷，在阳光下映照下发出如同金属般的光泽。劫掠者时常潜藏在太阳照不到的地方，请小心行事。\n<震撼装置>\n消耗一定部署费用可以开启，伤害并晕眩周围的敌人，开启后所在位置变为可以通行。
-level_rune_03-02	Obt/Rune/level_rune_03-02	龙门	军械库东	龙门近卫局军械库东部，围绕着军械的争夺至今还未结束，请帮助该地区恢复稳定。
-level_rune_04-01	Obt/Rune/level_rune_04-01	切尔诺伯格	荒废工厂	切尔诺伯格境内的废弃工厂，正被整合运动占据。对方以布下伏兵，清缴时请务必活动周边环境。
-level_rune_05-01	Obt/Rune/level_rune_05-01	荒野	风蚀高地	远离移动城市路径的高低，终日被狂风侵蚀，据传有支敌对部队潜藏在这里，请探明情况并击退他们。
-level_rune_05-02	Obt/Rune/level_rune_05-02	切尔诺伯格	6号废墟	切尔诺伯格核心城区之一，在混乱的拉锯战中化为战场，如今这里被残存的整合运动所占据，想要恢复秩序，必须将他们驱逐。
-level_rune_06-01	Obt/Rune/level_rune_06-01	荒野	无序矿区	远离城市的无主矿区，已经成为了无法者聚集的巢穴，请尽快击破他们，还整个地区以安宁。
-level_rune_06-02	Obt/Rune/level_rune_06-02	哥伦比亚	闭所监狱	一座安装了禁锢装置的哥伦比亚监狱发生大规模冲突，请协助狱警平息事态。
-level_rune_07-01	Obt/Rune/level_rune_07-02	卡西米尔	八号竞技场	罗德岛受邀参加骑士训练比赛，对手是卡西米尔的骑士们。请活用场地特点，赢得最后的胜利。
-level_rune_08-01	Obt/Rune/level_rune_08-01	荒野	狂嚎沙原	无主的荒野上，沙暴仍在肆虐，当地人与佣兵迫切想要将他人的财富据为己有，是时候纠正这种错误的想法了。
-level_rune_08-02	Obt/Rune/level_rune_08-02	切尔诺伯格	遗弃地块	一只披着游击队伪装的乌萨斯无人机侦察排仍在切尔诺伯格的废墟中待命。无论他们在等待什么，现在请他们离开这座城市。
-level_rune_09-01	Obt/Rune/level_rune_09-01	炎国	灰齐山麓	夕已经离开了灰齐山，然而夕笔下的生物仍生息与此，要让这些浓墨完全散开，或许还得花点力气。
-level_rune_09-02	Obt/Rune/level_rune_09-02	荒野	炽热溶洞	临近火山的溶洞中，暴徒尝试控制了一只巨型感染生物，你绝对不想看到它横行荒野的样子，请在这队恶徒离开溶洞前阻止他们。
-level_rune_10-01	Obt/Rune/level_rune_10-01	卡西米尔	大骑士领酒吧街	卡西米尔的深夜会有醉酒的骑士四处游荡，但更多的，是在阴影中游走的无胄盟……和某些骑士的狂热模仿者。
-level_rune_10-02	Obt/Rune/level_rune_10-02	萨尔贡	沙海遗迹	萨尔贡的沙漠里埋藏着诸多秘密，而想要获得它们的，可不仅仅是当地的王酋。
-level_rune_11-01	Obt/Rune/level_rune_11-01	伊比利亚	盐风溶洞	昆图斯的灭亡并未终结海嗣在该地区的活动。找到它们，驱逐它们。
-level_rune_11-02	Obt/Rune/level_rune_11-02	炎国	尚蜀山道	蜀道之难，百折回环。这些在漫漫山路间徘徊的器伥和墨魉，是在寻找已经离去的主人，还是它们并不理解的“自由”？
-level_rune_12-01	Obt/Rune/level_rune_12-01	维多利亚	伦蒂尼姆边缘地块	失去家园的萨卡兹，俨然已是伦蒂尼姆的主人，而曾经建造这座城市的工人，反而成了被搜查的对象，请帮助他们。
-level_rune_12-02	Obt/Rune/level_rune_12-02	维多利亚	小丘郡物流站	他们是旧时代的鬼魂，他们的恨意和怒火，依旧在这座尚未复原的城市边缘盘旋。
-level_rune_13-01	Obt/Rune/level_rune_13-01	玻利瓦尔	在建沙滩	坎黛拉女士在多索雷斯人工海滩角落划了一块区域，让新来的杜林设计师们大展才华，但当这些“天才”和当地工人喝完酒开始闹事时，还是需要有人出面给他们点教训。
-level_rune_13-02	Obt/Rune/level_rune_13-02	乌萨斯	冻原矿场	乌萨斯冻原矿场上的恶劣环境使得矿工们不得不尝试逃离以谋求生存，在不暴露身份的情况下，罗德岛小队被允许救助矿工并提供逃难渠道。
-level_rune_14-01	Obt/Rune/level_rune_14-01	荒野	无名庇护所	一座荒野中的藏身之所，古老的萨卡兹祭坛仍在运行。这里不欢迎外人，自然也不会善待拿着武器的罗德岛干员。
-level_rune_14-02	Obt/Rune/level_rune_14-02	维多利亚	迷雾战区	雾气笼罩伦蒂尼姆，萨卡兹隐居其间。注意警戒，小心前行，不要在敌人的偷袭下乱了阵脚。
-level_act38rune_01-01	Activities/ACT38RUNE/level_act38rune_01-01	哥伦比亚	实验基地封锁区	
-level_act38rune_01-02	Activities/ACT38RUNE/level_act38rune_01-02	玻利瓦尔	翻修中沙滩	
-level_act38rune_01-03	Activities/ACT38RUNE/level_act38rune_01-03	维多利亚	淤浊沼泽	
-level_act38rune_01-04	Activities/ACT38RUNE/level_act38rune_01-04	切尔诺伯格	13区废墟	
-level_crisis_v2_01-01	Obt/Crisis/V2/level_crisis_v2_01-01	维多利亚	灰烬泽地	
-level_crisis_v2_01-02	Obt/Crisis/V2/level_crisis_v2_01-02	大炎	设防关隘	
-level_crisis_v2_01-03	Obt/Crisis/V2/level_crisis_v2_01-03	哥伦比亚	联邦监狱	
-level_crisis_v2_01-04	Obt/Crisis/V2/level_crisis_v2_01-04	哥伦比亚	实验基地封锁区	
-level_crisis_v2_01-05	Obt/Crisis/V2/level_crisis_v2_01-05	玻利瓦尔	翻修中沙滩	
-level_crisis_v2_01-06	Obt/Crisis/V2/level_crisis_v2_01-06	维多利亚	淤浊沼泽	
-level_crisis_v2_01-07	Obt/Crisis/V2/level_crisis_v2_01-07	切尔诺伯格	13区废墟	
-level_crisis_v2_02-01	Obt/Crisis/V2/level_crisis_v2_02-01	伊比利亚	不朽厅堂	
-level_crisis_v2_02-02	Obt/Crisis/V2/level_crisis_v2_02-02	莱塔尼亚	月落环巷	
-level_crisis_v2_02-03	Obt/Crisis/V2/level_crisis_v2_02-03	维多利亚	枯萎泥淖	
-level_crisis_v2_03-01	Obt/Crisis/V2/level_crisis_v2_03-01	维多利亚	浸血焦土	
-level_crisis_v2_03-02	Obt/Crisis/V2/level_crisis_v2_03-02	莱塔尼亚	落尘狭路	
-level_crisis_v2_03-03	Obt/Crisis/V2/level_crisis_v2_03-03	谢拉格	蚀裂冰湖	
-level_crisis_v2_04-01	Obt/Crisis/V2/level_crisis_v2_04-01	哥伦比亚	滞空焦点	
-level_crisis_v2_04-03	Obt/Crisis/V2/level_crisis_v2_04-03	卡兹戴尔	熔炉检修口	
-level_crisis_v2_04-05	Obt/Crisis/V2/level_crisis_v2_04-05	维多利亚	巫诅骸地	
+stageId	levelId	zoneId	code	name	description
+act17d1_01_a	Activities/ACT17d1/level_act17d1_01_a	act17d1	MP-01-A	废旧地块残骸	
+act17d1_01_b	Activities/ACT17d1/level_act17d1_01_b	act17d1	MP-01-B	废旧地块残骸	
+act17d1_01_c	Activities/ACT17d1/level_act17d1_01_c	act17d1	MP-01-C	废旧地块残骸	
+act17d1_02_a	Activities/ACT17d1/level_act17d1_02_a	act17d1	MP-02-A	古老废城高塔	
+act17d1_02_b	Activities/ACT17d1/level_act17d1_02_b	act17d1	MP-02-B	古老废城高塔	
+act17d1_02_c	Activities/ACT17d1/level_act17d1_02_c	act17d1	MP-02-C	古老废城高塔	
+act17d1_03_a	Activities/ACT17d1/level_act17d1_03_a	act17d1	MP-03-A	废弃工业厂房	
+act17d1_03_b	Activities/ACT17d1/level_act17d1_03_b	act17d1	MP-03-B	废弃工业厂房	
+act17d1_03_c	Activities/ACT17d1/level_act17d1_03_c	act17d1	MP-03-C	废弃工业厂房	
+rune_01-01_cc_act5d1	Activities/ACT5d1/level_rune_01-01	cc_act5d1	龙门外环	荒芜广场	位于贫民窟正中间的宽阔空地。除了随意丢弃的垃圾与无家可归的流浪者外，这里还成为了敌人躲藏的最佳窝点。
+rune_01-02_cc_act5d1	Activities/ACT5d1/level_rune_01-02	cc_act5d1	龙门外环	无人危楼	此处高楼遭到战火毁坏且无人问津，而敌人占据了这处制高点，并利用视野优势据守一方。我们必须夺回这里。
+rune_01-03_cc_act5d1	Activities/ACT5d1/level_rune_01-03	cc_act5d1	切尔诺伯格	59区废墟	切尔诺伯格分城区，因面积较小、缺乏战略意义而遭到废弃，现已被游荡的敌方单位占据，需阻止敌人穿越我方包围网。
+level_rune_01-01	Obt/Rune/level_rune_01-01	cc0	龙门外环	荒芜广场	位于贫民窟正中间的宽阔空地。除了随意丢弃的垃圾与无家可归的流浪者外，这里还成为了敌人躲藏的最佳窝点。
+level_rune_01-02	Obt/Rune/level_rune_01-02	cc0	龙门外环	无人危楼	此处高楼遭到战火毁坏且无人问津，而敌人占据了这处制高点，并利用视野优势据守一方。我们必须夺回这里。
+level_rune_01-03	Obt/Rune/level_rune_01-03	cc0	切尔诺伯格	59区废墟	切尔诺伯格分城区，因面积较小、缺乏战略意义而遭到废弃，现已被游荡的敌方单位占据，需阻止敌人穿越我方包围网。
+level_rune_02-01	Obt/Rune/level_rune_02-01	cc1	未知沙漠	荒漠	地处偏远的无名荒漠，贫瘠崎岖的地形为流窜至此的敌人提供了庇护，有必要在敌方进一步深入荒野前阻止他们。
+level_rune_02-02	Obt/Rune/level_rune_02-02	cc1	切尔诺伯格	破碎大道	被战火摧残的街道，路面斑驳，断壁残垣，而造成这一切的罪魁祸首依旧驻扎在这片区域。
+level_rune_02-03	Obt/Rune/level_rune_02-03	cc1	龙门	新街	龙门最繁华的街道之一，如今只剩下仓促逃难所遗留的一地残骸，有部分敌人在此区域行动，并对附近的普通市民构成了威胁。
+level_rune_02-04	Obt/Rune/level_rune_02-04	cc1	龙门	中转站	龙门赖以生存的物流枢纽，作为重要的战略据点陷入多方的争夺，现在，我们要取回这里的掌控权。
+level_rune_02-05	Obt/Rune/level_rune_02-05	cc1	龙门外环	霜冻废墟	在某场战役中被大面积冻结的废墟，依旧有少数敌人及失控的源石生物徘徊。偶尔能看见不合时节的雪花飞舞。
+level_rune_03-01	Obt/Rune/level_rune_03-01	cc1	荒野	黄铁峡谷	被黄沙覆盖的峡谷，在阳光下映照下发出如同金属般的光泽。劫掠者时常潜藏在太阳照不到的地方，请小心行事。\n<震撼装置>\n消耗一定部署费用可以开启，伤害并晕眩周围的敌人，开启后所在位置变为可以通行。
+level_rune_03-02	Obt/Rune/level_rune_03-02	cc1	龙门	军械库东	龙门近卫局军械库东部，围绕着军械的争夺至今还未结束，请帮助该地区恢复稳定。
+level_rune_04-01	Obt/Rune/level_rune_04-01	cc2	切尔诺伯格	荒废工厂	切尔诺伯格境内的废弃工厂，正被整合运动占据。对方以布下伏兵，清缴时请务必活动周边环境。
+level_rune_05-01	Obt/Rune/level_rune_05-01	cc3	荒野	风蚀高地	远离移动城市路径的高低，终日被狂风侵蚀，据传有支敌对部队潜藏在这里，请探明情况并击退他们。
+level_rune_05-02	Obt/Rune/level_rune_05-02	cc3	切尔诺伯格	6号废墟	切尔诺伯格核心城区之一，在混乱的拉锯战中化为战场，如今这里被残存的整合运动所占据，想要恢复秩序，必须将他们驱逐。
+level_rune_06-01	Obt/Rune/level_rune_06-01	cc4	荒野	无序矿区	远离城市的无主矿区，已经成为了无法者聚集的巢穴，请尽快击破他们，还整个地区以安宁。
+level_rune_06-02	Obt/Rune/level_rune_06-02	cc4	哥伦比亚	闭所监狱	一座安装了禁锢装置的哥伦比亚监狱发生大规模冲突，请协助狱警平息事态。
+level_rune_07-01	Obt/Rune/level_rune_07-01	cc5	卡西米尔	八号竞技场	罗德岛受邀参加骑士训练比赛，对手是卡西米尔的骑士们。请活用场地特点，赢得最后的胜利。
+level_rune_08-01	Obt/Rune/level_rune_08-01	cc6	荒野	狂嚎沙原	无主的荒野上，沙暴仍在肆虐，当地人与佣兵迫切想要将他人的财富据为己有，是时候纠正这种错误的想法了。
+level_rune_08-02	Obt/Rune/level_rune_08-02	cc6	切尔诺伯格	遗弃地块	一只披着游击队伪装的乌萨斯无人机侦察排仍在切尔诺伯格的废墟中待命。无论他们在等待什么，现在请他们离开这座城市。
+level_rune_09-01	Obt/Rune/level_rune_09-01	cc7	炎国	灰齐山麓	夕已经离开了灰齐山，然而夕笔下的生物仍生息与此，要让这些浓墨完全散开，或许还得花点力气。
+level_rune_09-02	Obt/Rune/level_rune_09-02	cc7	荒野	炽热溶洞	临近火山的溶洞中，暴徒尝试控制了一只巨型感染生物，你绝对不想看到它横行荒野的样子，请在这队恶徒离开溶洞前阻止他们。
+level_rune_10-01	Obt/Rune/level_rune_10-01	cc8	卡西米尔	大骑士领酒吧街	卡西米尔的深夜会有醉酒的骑士四处游荡，但更多的，是在阴影中游走的无胄盟……和某些骑士的狂热模仿者。
+level_rune_10-02	Obt/Rune/level_rune_10-02	cc8	萨尔贡	沙海遗迹	萨尔贡的沙漠里埋藏着诸多秘密，而想要获得它们的，可不仅仅是当地的王酋。
+level_rune_11-01	Obt/Rune/level_rune_11-01	cc9	伊比利亚	盐风溶洞	昆图斯的灭亡并未终结海嗣在该地区的活动。找到它们，驱逐它们。
+level_rune_11-02	Obt/Rune/level_rune_11-02	cc9	炎国	尚蜀山道	蜀道之难，百折回环。这些在漫漫山路间徘徊的器伥和墨魉，是在寻找已经离去的主人，还是它们并不理解的“自由”？
+level_rune_12-01	Obt/Rune/level_rune_12-01	cc10	维多利亚	伦蒂尼姆边缘地块	失去家园的萨卡兹，俨然已是伦蒂尼姆的主人，而曾经建造这座城市的工人，反而成了被搜查的对象，请帮助他们。
+level_rune_12-02	Obt/Rune/level_rune_12-02	cc10	维多利亚	小丘郡物流站	他们是旧时代的鬼魂，他们的恨意和怒火，依旧在这座尚未复原的城市边缘盘旋。
+level_rune_13-01	Obt/Rune/level_rune_13-01	cc11	玻利瓦尔	在建沙滩	坎黛拉女士在多索雷斯人工海滩角落划了一块区域，让新来的杜林设计师们大展才华，但当这些“天才”和当地工人喝完酒开始闹事时，还是需要有人出面给他们点教训。
+level_rune_13-02	Obt/Rune/level_rune_13-02	cc11	乌萨斯	冻原矿场	乌萨斯冻原矿场上的恶劣环境使得矿工们不得不尝试逃离以谋求生存，在不暴露身份的情况下，罗德岛小队被允许救助矿工并提供逃难渠道。
+level_rune_14-01	Obt/Rune/level_rune_14-01	cc12	荒野	无名庇护所	一座荒野中的藏身之所，古老的萨卡兹祭坛仍在运行。这里不欢迎外人，自然也不会善待拿着武器的罗德岛干员。
+level_rune_14-02	Obt/Rune/level_rune_14-02	cc12	维多利亚	迷雾战区	雾气笼罩伦蒂尼姆，萨卡兹隐居其间。注意警戒，小心前行，不要在敌人的偷袭下乱了阵脚。
+level_act38rune_01-01	Activities/ACT38RUNE/level_act38rune_01-01	cc_act38d1	哥伦比亚	实验基地封锁区	
+level_act38rune_01-02	Activities/ACT38RUNE/level_act38rune_01-02	cc_act38d1	玻利瓦尔	翻修中沙滩	
+level_act38rune_01-03	Activities/ACT38RUNE/level_act38rune_01-03	cc_act38d1	维多利亚	淤浊沼泽	
+level_act38rune_01-04	Activities/ACT38RUNE/level_act38rune_01-04	cc_act38d1	切尔诺伯格	13区废墟	
+level_crisis_v2_01-01	Obt/Crisis/V2/level_crisis_v2_01-01	crisis_v2_season_1_1	维多利亚	灰烬泽地	
+level_crisis_v2_01-02	Obt/Crisis/V2/level_crisis_v2_01-02	crisis_v2_season_1_1	大炎	设防关隘	
+level_crisis_v2_01-03	Obt/Crisis/V2/level_crisis_v2_01-03	crisis_v2_season_1_1	哥伦比亚	联邦监狱	
+level_crisis_v2_01-04	Obt/Crisis/V2/level_crisis_v2_01-04	crisis_v2_season_1_1	哥伦比亚	实验基地封锁区	
+level_crisis_v2_01-05	Obt/Crisis/V2/level_crisis_v2_01-05	crisis_v2_season_1_1	玻利瓦尔	翻修中沙滩	
+level_crisis_v2_01-06	Obt/Crisis/V2/level_crisis_v2_01-06	crisis_v2_season_1_1	维多利亚	淤浊沼泽	
+level_crisis_v2_01-07	Obt/Crisis/V2/level_crisis_v2_01-07	crisis_v2_season_1_1	切尔诺伯格	13区废墟	
+level_crisis_v2_02-01	Obt/Crisis/V2/level_crisis_v2_02-01	crisis_v2_season_2_1	伊比利亚	不朽厅堂	
+level_crisis_v2_02-02	Obt/Crisis/V2/level_crisis_v2_02-02	crisis_v2_season_2_1	莱塔尼亚	月落环巷	
+level_crisis_v2_02-03	Obt/Crisis/V2/level_crisis_v2_02-03	crisis_v2_season_2_1	维多利亚	枯萎泥淖	
+level_crisis_v2_03-01	Obt/Crisis/V2/level_crisis_v2_03-01	crisis_v2_season_3_1	维多利亚	浸血焦土	
+level_crisis_v2_03-02	Obt/Crisis/V2/level_crisis_v2_03-02	crisis_v2_season_3_1	莱塔尼亚	落尘狭路	
+level_crisis_v2_03-03	Obt/Crisis/V2/level_crisis_v2_03-03	crisis_v2_season_3_1	谢拉格	蚀裂冰湖	
+level_crisis_v2_04-01	Obt/Crisis/V2/level_crisis_v2_04-01	crisis_v2_season_4_1	哥伦比亚	滞空焦点	
+level_crisis_v2_04-03	Obt/Crisis/V2/level_crisis_v2_04-03	crisis_v2_season_4_1	卡兹戴尔	熔炉检修口	
+level_crisis_v2_04-05	Obt/Crisis/V2/level_crisis_v2_04-05	crisis_v2_season_4_1	维多利亚	巫诅骸地	

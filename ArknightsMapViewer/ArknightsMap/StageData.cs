@@ -8,6 +8,7 @@ namespace ArknightsMapViewer
     {
         public string stageId;
         public string levelId; //文件路径
+        public string zoneId;
         public string code;
         public string name;
         public string description;
