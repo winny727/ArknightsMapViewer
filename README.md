@@ -4,11 +4,9 @@
 
 ArknightsMapViewer
 
-Version: 0.3
+Version: 0.5 (20251016)
 
 By winny727
-
-2025.2.11
 
 https://github.com/winny727/ArknightsMapViewer
 
