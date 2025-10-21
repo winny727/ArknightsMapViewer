@@ -771,6 +771,8 @@ namespace ArknightsMapViewer
         WITHDRAW_PREDEFINED, //预撤回单位生效
         DIALOG, //对话
 
+        EMPTY,
+
         E_NUM,
     }
 

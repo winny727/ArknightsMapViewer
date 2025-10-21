@@ -951,7 +951,7 @@ namespace ArknightsMapViewer
 
             //Process.Start("explorer.exe", $"/select,\"{filePath}\""); //容易被360误报，很坑
 
-            //打开资源管理器并选中日志文件
+            //打开资源管理器并选中文件
             IntPtr pidl = ILCreateFromPath(filePath);
             if (pidl != IntPtr.Zero)
             {
