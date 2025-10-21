@@ -28,6 +28,8 @@ namespace ArknightsMapViewer
         private bool isSimulationEnabled;
         private bool rawSetValue;
 
+        private const string lastBuildDate = "20251021";
+
         public MainForm()
         {
             Instance = this;
@@ -211,7 +213,7 @@ namespace ArknightsMapViewer
 
             MessageBox.Show(
                 $"ProductName: {fileVersionInfo.ProductName} ({fileVersionInfo.Comments})\n" + 
-                $"Version: {fileVersionInfo.ProductVersion} (20251016)\n" +
+                $"Version: {fileVersionInfo.ProductVersion} ({lastBuildDate})\n" +
                 $"Author: {fileVersionInfo.LegalCopyright} ({fileVersionInfo.CompanyName})"
                 );
         }

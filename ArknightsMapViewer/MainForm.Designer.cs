@@ -158,19 +158,19 @@
             // openStagesWindowToolStripMenuItem
             // 
             this.openStagesWindowToolStripMenuItem.Name = "openStagesWindowToolStripMenuItem";
-            this.openStagesWindowToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
-            this.openStagesWindowToolStripMenuItem.Text = "Open Stages Window";
+            this.openStagesWindowToolStripMenuItem.Size = new System.Drawing.Size(209, 22);
+            this.openStagesWindowToolStripMenuItem.Text = "Open MapList Window";
             this.openStagesWindowToolStripMenuItem.Click += new System.EventHandler(this.openStagesWindowToolStripMenuItem_Click);
             // 
             // toolStripSeparator6
             // 
             this.toolStripSeparator6.Name = "toolStripSeparator6";
-            this.toolStripSeparator6.Size = new System.Drawing.Size(199, 6);
+            this.toolStripSeparator6.Size = new System.Drawing.Size(206, 6);
             // 
             // updateGameDataToolStripMenuItem
             // 
             this.updateGameDataToolStripMenuItem.Name = "updateGameDataToolStripMenuItem";
-            this.updateGameDataToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
+            this.updateGameDataToolStripMenuItem.Size = new System.Drawing.Size(209, 22);
             this.updateGameDataToolStripMenuItem.Text = "Update GameData";
             this.updateGameDataToolStripMenuItem.Click += new System.EventHandler(this.updateGameDataToolStripMenuItem_Click);
             // 

@@ -162,7 +162,7 @@
             this.Name = "StageForm";
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Stages";
+            this.Text = "MapList";
             this.Load += new System.EventHandler(this.StageForm_Load);
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
