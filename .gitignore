@@ -3,5 +3,9 @@
 obj/
 
 /ArknightsMapViewer/bin/Debug/Temp/
+/ArknightsMapViewer/bin/Debug/Config/gamedata/levels/obt
+/ArknightsMapViewer/bin/Debug/Config/gamedata/levels/activities
 /ArknightsMapViewer/bin/Release/Temp/
+/ArknightsMapViewer/bin/Release/Config/gamedata/levels/obt
+/ArknightsMapViewer/bin/Release/Config/gamedata/levels/activities
 /ArknightsGameData-master
