@@ -320,7 +320,8 @@ namespace ArknightsMapViewer
             //ReadStageInfos("roguelike_topic_table.json", true, "details", "rogue_8", "stages"); //备用
             //ReadStageInfos("roguelike_topic_table.json", true, "details", "rogue_9", "stages"); //备用
             ReadStageInfos("sandbox_table.json", false, "sandboxActTables", "act1sandbox", "stageDatas"); //生息演算-沙中之火
-            ReadStageInfos("sandbox_perm_table.json", false, "detail", "SANDBOX_V2", "sandbox_1", "stageData"); //生息演算-沙洲遗闻
+            ReadStageInfos("sandbox_perm_table.json", true, "detail", "SANDBOX_V2", "sandbox_1", "stageData"); //生息演算-沙洲遗闻
+            ReadStageInfos("sandbox_perm_table.json", true, "detail", "SANDBOX_V3", "sandbox_2", "stageData"); //生息演算-重启锚点
             ReadStageInfos("climb_tower_table.json", false, "levels"); //保全派驻
             ReadStageInfos("handbook_info_table.json", false, "handbookStageData"); //悖论模拟
             ReadStageInfos("crisis_v2_table.json", true, "recalRuneData", "seasons", "recalRune_season_1", "stages"); //全息作战矩阵#1
