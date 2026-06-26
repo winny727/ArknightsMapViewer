@@ -61,3 +61,6 @@ level_crisis_v2_03-03	Obt/Crisis/V2/level_crisis_v2_03-03	crisis_v2_season_3_1	Ğ
 level_crisis_v2_04-01	Obt/Crisis/V2/level_crisis_v2_04-01	crisis_v2_season_4_1	¸çÂ×±ÈÑÇ	ÖÍ¿Õ½¹µã	
 level_crisis_v2_04-03	Obt/Crisis/V2/level_crisis_v2_04-03	crisis_v2_season_4_1	¿¨×È´÷¶û	ÈÛÂ¯¼ìĞŞ¿Ú	
 level_crisis_v2_04-05	Obt/Crisis/V2/level_crisis_v2_04-05	crisis_v2_season_4_1	Î¬¶àÀûÑÇ	Î××çº¡µØ	
+level_crisis_v2_05-01	Obt/Crisis/V2/level_crisis_v2_05-01	crisis_v2_season_5_1	´óÑ×	Ä«È¾Êé¸ó	
+level_crisis_v2_05-03	Obt/Crisis/V2/level_crisis_v2_05-03	crisis_v2_season_5_1	¸çÂ×±ÈÑÇ	ÒõÓôÓ°Åï	
+level_crisis_v2_05-05	Obt/Crisis/V2/level_crisis_v2_05-05	crisis_v2_season_5_1	ÎÚÈøË¹	Ñª´Ì¿ÓµÀ	
