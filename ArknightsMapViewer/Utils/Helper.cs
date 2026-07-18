@@ -315,7 +315,7 @@ namespace ArknightsMapViewer
             ReadStageInfos("roguelike_topic_table.json", true, "details", "rogue_3", "stages"); //集成战略-探索者的银凇止境
             ReadStageInfos("roguelike_topic_table.json", true, "details", "rogue_4", "stages"); //集成战略-萨卡兹的无终奇语
             ReadStageInfos("roguelike_topic_table.json", true, "details", "rogue_5", "stages"); //集成战略-岁的界园志异
-            //ReadStageInfos("roguelike_topic_table.json", true, "details", "rogue_6", "stages"); //备用
+            ReadStageInfos("roguelike_topic_table.json", true, "details", "rogue_6", "stages"); //集成战略-沉沦者的黑流树海
             //ReadStageInfos("roguelike_topic_table.json", true, "details", "rogue_7", "stages"); //备用
             //ReadStageInfos("roguelike_topic_table.json", true, "details", "rogue_8", "stages"); //备用
             //ReadStageInfos("roguelike_topic_table.json", true, "details", "rogue_9", "stages"); //备用
@@ -325,7 +325,7 @@ namespace ArknightsMapViewer
             ReadStageInfos("climb_tower_table.json", false, "levels"); //保全派驻
             ReadStageInfos("handbook_info_table.json", false, "handbookStageData"); //悖论模拟
             ReadStageInfos("crisis_v2_table.json", true, "recalRuneData", "seasons", "recalRune_season_1", "stages"); //全息作战矩阵#1
-            //ReadStageInfos("crisis_v2_table.json", true, "recalRuneData", "seasons", "recalRune_season_2", "stages"); //备用
+            ReadStageInfos("crisis_v2_table.json", true, "recalRuneData", "seasons", "recalRune_season_2", "stages"); //全息作战矩阵#2
             //ReadStageInfos("crisis_v2_table.json", true, "recalRuneData", "seasons", "recalRune_season_3", "stages"); //备用
             //ReadStageInfos("crisis_v2_table.json", true, "recalRuneData", "seasons", "recalRune_season_4", "stages"); //备用
             //ReadStageInfos("crisis_v2_table.json", true, "recalRuneData", "seasons", "recalRune_season_5", "stages"); //备用
