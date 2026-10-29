@@ -110,12 +110,13 @@ namespace ArknightsMapViewer
                 try
                 {
                     string json = File.ReadAllText(path);
-                    drawConfig = JsonConvert.DeserializeObject<DrawConfig>(json);
+                    drawConfig = DrawConfigValidator.Parse(json, message => MainForm.Instance.Log($"draw_config.json: {message}", MainForm.LogType.Warning));
                 }
                 catch (Exception ex)
                 {
                     string errorMsg = $"draw_config.json Parse Error, {ex.Message}";
-                    MainForm.Instance.Log(errorMsg, MainForm.LogType.Error);
+                    MainForm.Instance.Log(errorMsg + "，使用默认绘图配置。", MainForm.LogType.Warning);
+                    drawConfig = new DrawConfig();
                 }
             }
 
@@ -137,42 +138,21 @@ namespace ArknightsMapViewer
                 catch (Exception ex)
                 {
                     string errorMsg = $"draw_config.json Write Error, {ex.Message}";
-                    MainForm.Instance.Log(errorMsg, MainForm.LogType.Error);
+                    MainForm.Instance.Log(errorMsg, MainForm.LogType.Warning);
                 }
             }
 
-            using Graphics g = Graphics.FromHwnd(IntPtr.Zero);
-            float dpi = Math.Max(g.DpiX, g.DpiY) * 0.01f;
-
-            GlobalDefine.TILE_PIXLE = (int)(drawConfig.Size.tilePixle * dpi);
-            GlobalDefine.LINE_WIDTH = (int)(drawConfig.Size.lineWidth * dpi);
-            GlobalDefine.CIRCLE_EDGE_WIDTH = (int)(drawConfig.Size.circleEdgeWidth * dpi);
-            GlobalDefine.CIRCLE_RADIUS = (int)(drawConfig.Size.circleRadius * dpi);
-            GlobalDefine.POINT_RADIUS = (int)(drawConfig.Size.pointRadius * dpi);
-
-            Enum.TryParse(drawConfig.Font.textFontStyle, true, out FontStyle textFontStyle);
-            Enum.TryParse(drawConfig.Font.indexFontStyle, true, out FontStyle indexFontStyle);
-            Enum.TryParse(drawConfig.Font.timeFontStyle, true, out FontStyle timeFontStyle);
-            Enum.TryParse(drawConfig.Font.lenghtFontStyle, true, out FontStyle lenghtFont);
-            Enum.TryParse(drawConfig.Font.predefinedFontStyle, true, out FontStyle predefinedFont);
-
-            GlobalDefine.TEXT_FONT = new Font(drawConfig.Font.textFont, drawConfig.Font.textFontSize, textFontStyle);
-            GlobalDefine.INDEX_FONT = new Font(drawConfig.Font.indexFont, drawConfig.Font.indexFontSize, indexFontStyle);
-            GlobalDefine.TIME_FONT = new Font(drawConfig.Font.timeFont, drawConfig.Font.timeFontSize, timeFontStyle);
-            GlobalDefine.LENGTH_FONT = new Font(drawConfig.Font.lenghtFont, drawConfig.Font.lenghtFontSize, lenghtFont);
-            GlobalDefine.PREDEFINED_FONT = new Font(drawConfig.Font.predefinedFont, drawConfig.Font.predefinedFontSize, predefinedFont);
-            GlobalDefine.TEXT_COLOR = ColorTranslator.FromHtml(drawConfig.Color.textColor);
-            GlobalDefine.LINE_COLOR = ColorTranslator.FromHtml(drawConfig.Color.lineColor);
-            GlobalDefine.CIRCLE_COLOR = ColorTranslator.FromHtml(drawConfig.Color.circleColor);
-            GlobalDefine.LENGTH_COLOR = ColorTranslator.FromHtml(drawConfig.Color.lengthColor);
-            GlobalDefine.DEFAULT_ROAD_COLOR = ColorTranslator.FromHtml(drawConfig.Color.defaultRoadColor);
-            GlobalDefine.DEFAULT_WALL_COLOR = ColorTranslator.FromHtml(drawConfig.Color.defaultWallColor);
-            GlobalDefine.DEFAULT_FLOOR_COLOR = ColorTranslator.FromHtml(drawConfig.Color.defaultFloorColor);
-            GlobalDefine.DEFAULT_FORBIDDEN_COLOR = ColorTranslator.FromHtml(drawConfig.Color.defaultForbiddenColor);
-            GlobalDefine.PREDEFINED_LINECOLOR = ColorTranslator.FromHtml(drawConfig.Color.predefinedForeColor);
-            GlobalDefine.PREDEFINED_BACKCOLOR = ColorTranslator.FromHtml(drawConfig.Color.predefinedBackColor);
-            GlobalDefine.PREDEFINED_SELECTED_BACKCOLOR = ColorTranslator.FromHtml(drawConfig.Color.predefinedSelectedBackColor);
-            GlobalDefine.PREDEFINED_SELECTED_TEXTCOLOR = ColorTranslator.FromHtml(drawConfig.Color.predefinedSelectedTextColor);
+            try
+            {
+                using Graphics g = Graphics.FromHwnd(IntPtr.Zero);
+                float dpi = Math.Max(g.DpiX, g.DpiY) * 0.01f;
+                DrawConfigValidator.Apply(drawConfig, dpi,
+                    message => MainForm.Instance.Log($"draw_config.json: {message}", MainForm.LogType.Warning));
+            }
+            catch (Exception ex)
+            {
+                MainForm.Instance.Log($"draw_config.json Apply Error，保留原有绘图配置: {ex.Message}", MainForm.LogType.Warning);
+            }
         }
 
         public static void InitTileInfoConfig()
