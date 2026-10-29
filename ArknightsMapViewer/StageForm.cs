@@ -161,6 +161,24 @@ namespace ArknightsMapViewer
             return url;
         }
 
+        private bool TryGetStageFilePath(StageInfo stageInfo, bool forDownload, out string path)
+        {
+            path = null;
+            try
+            {
+                string relativePath = "levels/" + stageInfo.levelId.ToLower() + ".json";
+                path = forDownload
+                    ? DataPaths.GetUserGameDataPath(relativePath)
+                    : DataPaths.GetGameDataReadPath(relativePath);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"无效关卡路径:\n{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+        }
+
         private void CancelDownload()
         {
             if (IsDownloading)
@@ -183,8 +201,10 @@ namespace ArknightsMapViewer
                 return;
             }
 
-            string stagePath = stageInfo.levelId.ToLower() + ".json";
-            string savePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config/gamedata/levels", stagePath);
+            if (!TryGetStageFilePath(stageInfo, true, out string savePath))
+            {
+                return;
+            }
             string tempPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"Temp/{Path.GetFileName(savePath)}.{Guid.NewGuid()}.tmp"); // 临时文件路径
 
             if (File.Exists(savePath))
@@ -193,13 +213,6 @@ namespace ArknightsMapViewer
                 {
                     return;
                 }
-            }
-
-            // 确保目标目录存在
-            string tempDir = Path.GetDirectoryName(tempPath);
-            if (!Directory.Exists(tempDir))
-            {
-                Directory.CreateDirectory(tempDir);
             }
 
             string url = GetCurrentStageUrl(true);
@@ -253,7 +266,11 @@ namespace ArknightsMapViewer
                 downloadClient = null;
                 UpdateUIState();
 
-                if (e.Error == null)
+                if (e.Cancelled)
+                {
+                    DeleteTempFile();
+                }
+                else if (e.Error == null)
                 {
                     try
                     {
@@ -279,11 +296,6 @@ namespace ArknightsMapViewer
                         MessageBox.Show($"移动文件失败:\n{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
-                else if (e.Cancelled)
-                {
-                    // 取消时删除临时文件
-                    DeleteTempFile();
-                }
                 else
                 {
                     DeleteTempFile();
@@ -292,6 +304,7 @@ namespace ArknightsMapViewer
 
             try
             {
+                Directory.CreateDirectory(Path.GetDirectoryName(tempPath));
                 await client.DownloadFileTaskAsync(new Uri(url), tempPath);
             }
             catch (WebException ex) when (ex.Status == WebExceptionStatus.RequestCanceled)
@@ -328,8 +341,10 @@ namespace ArknightsMapViewer
                 return;
             }
 
-            string stagePath = stageInfo.levelId.ToLower() + ".json";
-            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config/gamedata/levels", stagePath);
+            if (!TryGetStageFilePath(stageInfo, false, out string path))
+            {
+                return;
+            }
 
             if (File.Exists(path))
             {

@@ -100,6 +100,7 @@
       <DependentUpon>LogForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Utils\Helper.cs" />
+    <Compile Include="Utils\DataPaths.cs" />
     <Compile Include="Global\GlobalDefine.cs" />
     <Compile Include="Utils\DrawUtil.cs" />
     <Compile Include="MainForm.cs">
@@ -170,10 +171,15 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="..\Config\**\*">
+      <Link>Config\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Readme.txt">
+      <Link>Readme.txt</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>xcopy "$(ProjectDir)\..\Config" "$(TargetDir)\Config\" /E /I /Y
-xcopy "$(ProjectDir)\..\Readme.txt" "$(TargetDir)" /Y</PostBuildEvent>
-  </PropertyGroup>
 </Project>

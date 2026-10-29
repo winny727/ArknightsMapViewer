@@ -223,6 +223,7 @@ namespace ArknightsMapViewer
             OpenFileDialog dialog = new OpenFileDialog();
             dialog.Multiselect = true;
             dialog.Filter = "Json Files|*.json";
+            dialog.InitialDirectory = Environment.CurrentDirectory;
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 ReadMapFiles(dialog.FileNames);
@@ -1143,50 +1144,24 @@ namespace ArknightsMapViewer
             stageForm.ShowDialog();
         }
 
-        private string GetRelativePath(string basePath, string fullPath)
-        {
-            // 统一斜杠
-            basePath = basePath.Replace('\\', '/');
-            fullPath = fullPath.Replace('\\', '/');
-
-            if (fullPath.StartsWith(basePath))
-            {
-                string relative = fullPath.Substring(basePath.Length);
-                if (relative.StartsWith("/")) relative = relative.Substring(1);
-                return relative;
-            }
-            return fullPath; // 不是 basePath 下的文件就返回原路径
-        }
-
         private double lastSpeed = 0;
         private long lastBytes = 0;
         private DateTime lastTime = DateTime.Now;
 
         private async void updateGameDataToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config/gamedata");
-            List<string> fileList = new List<string>();
-
-            if (Directory.Exists(baseDir))
+            List<string> fileList;
+            try
             {
-                // 获取excel中所有文件
-                string[] files = Directory.GetFiles(baseDir + "/excel", "*.json", SearchOption.AllDirectories);
-                foreach (var file in files)
-                {
-                    string relativePath = GetRelativePath(baseDir, file).Replace("\\", "/");
-                    fileList.Add(relativePath);
-                }
-
-                fileList.Add("levels/enemydata/enemy_database.json");
+                fileList = DataPaths.GetGameDataUpdateFiles();
             }
-
-            if (fileList.Count <= 0)
+            catch (Exception ex)
             {
-                MessageBox.Show("没有找到游戏数据文件", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"读取游戏数据文件列表失败:\n{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            if (MessageBox.Show($"当前共有{fileList.Count}个游戏数据文件，是否全部更新？更新完成后需要重新启动程序\n（下载源：Github/Kengxxiao/ArknightsGameData）", "确认", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK)
+            if (MessageBox.Show($"当前共有{fileList.Count}个游戏数据文件，是否全部更新？\n更新保存到程序目录下的 UserData/gamedata，完成后需要重新启动程序。\n（下载源：Github/Kengxxiao/ArknightsGameData）", "确认", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK)
             {
                 return;
             }
@@ -1225,6 +1200,7 @@ namespace ArknightsMapViewer
                 }
             };
 
+            int updatedCount = 0;
             for (int i = 0; i < fileList.Count; i++)
             {
                 lastBytes = 0;
@@ -1234,27 +1210,23 @@ namespace ArknightsMapViewer
                 string url = $"https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/{file}";
 
                 string tempPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"Temp/{Path.GetFileName(file)}.{Guid.NewGuid()}.tmp"); // 临时文件路径
-                string tempDir = Path.GetDirectoryName(tempPath);
-                if (!Directory.Exists(tempDir))
-                {
-                    Directory.CreateDirectory(tempDir);
-                }
-
                 try
                 {
+                    Directory.CreateDirectory(Path.GetDirectoryName(tempPath));
                     await client.DownloadFileTaskAsync(new Uri(url), tempPath);
 
                     // 确保目标目录存在
-                    string savePath = Path.Combine(baseDir, file);
+                    string savePath = DataPaths.GetUserGameDataPath(file);
                     string dir = Path.GetDirectoryName(savePath);
                     if (!Directory.Exists(dir))
                     {
                         Directory.CreateDirectory(dir);
                     }
 
-                    // 覆盖原文件
+                    // 只更新用户数据，不修改随程序提供的默认数据。
                     File.Copy(tempPath, savePath, true);
                     File.Delete(tempPath);
+                    updatedCount++;
                 }
                 catch (Exception ex)
                 {
@@ -1268,7 +1240,7 @@ namespace ArknightsMapViewer
             toolStripStatusLabel1.Text = "";
             updateGameDataToolStripMenuItem.Enabled = true;
 
-            MessageBox.Show("游戏数据已更新完成，请重启程序以应用更新。", "完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show($"游戏数据更新结束：成功 {updatedCount}/{fileList.Count} 个。\n请重启程序以应用更新。", "完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void pRTSMAPToolStripMenuItem_Click(object sender, EventArgs e)

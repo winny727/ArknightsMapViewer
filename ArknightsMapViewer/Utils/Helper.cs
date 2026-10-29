@@ -23,7 +23,7 @@ namespace ArknightsMapViewer
             {
                 configPath += ".json";
             }
-            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config/gamedata", configPath);
+            string path = DataPaths.GetGameDataReadPath(configPath);
 
             try
             {
@@ -104,7 +104,7 @@ namespace ArknightsMapViewer
         public static void InitDrawConfig()
         {
             DrawConfig drawConfig = null;
-            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config", "draw_config.json");
+            string path = DataPaths.GetConfigReadPath("draw_config.json");
             if (File.Exists(path))
             {
                 try
@@ -124,8 +124,15 @@ namespace ArknightsMapViewer
                 drawConfig = new DrawConfig();
                 try
                 {
-                    string json = JsonConvert.SerializeObject(drawConfig, Formatting.Indented);
-                    File.WriteAllText(path, json);
+                    string userPath = DataPaths.GetUserConfigPath("draw_config.json");
+                    if (!File.Exists(userPath))
+                    {
+                        Directory.CreateDirectory(Path.GetDirectoryName(userPath));
+                        string json = JsonConvert.SerializeObject(drawConfig, Formatting.Indented);
+                        using var stream = new FileStream(userPath, FileMode.CreateNew, FileAccess.Write);
+                        using var writer = new StreamWriter(stream);
+                        writer.Write(json);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -189,7 +196,7 @@ namespace ArknightsMapViewer
                 return null;
             }
 
-            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config", "tile_info.txt");
+            string path = DataPaths.GetConfigReadPath("tile_info.txt");
 
             try
             {
@@ -340,7 +347,7 @@ namespace ArknightsMapViewer
             ReadStageInfos("activity_table.json", true, "actFunData", "stages"); //四月辑录
 
             //危机合约 多维合作 stage_info.txt
-            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config", "stage_info.txt");
+            string path = DataPaths.GetConfigReadPath("stage_info.txt");
             try
             {
                 TableReader tableReader = new TableReader(path, Encoding.Default, '\t'); //GB2312
