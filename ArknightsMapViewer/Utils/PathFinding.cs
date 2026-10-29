@@ -63,7 +63,7 @@ namespace ArknightsMapViewer
         public class Node
         {
             public Vector2Int position;
-            public float cost;//该点到目标点的预计代价
+            public float cost;//从起点经过该点到终点的预计总代价（g + h）
             public float pre_cost;//从起点移动到该点的总代价
             public float nex_cost;//从该点到终点的预计代价
             public Node parent;//前置节点
@@ -77,17 +77,17 @@ namespace ArknightsMapViewer
             public Node(Vector2Int location, Vector2Int destination)
             {
                 this.position = location;
-                //cost = (destination - position).sqrMagnitude;
-                cost = Helper.ManhattanDistance(destination, position); //曼哈顿距离
+                nex_cost = Helper.ManhattanDistance(destination, position); //曼哈顿距离
+                cost = nex_cost;
                 parent = null;
             }
             //带有父节点（前置节点）的Node
             public Node(Vector2Int location, Vector2Int destination, Node parent, int cost = 0)
             {
                 this.position = location;
-                //移动代价+1
-                this.pre_cost = parent.pre_cost;
-                nex_cost = (destination - position).sqrMagnitude + cost;
+                //累计进入当前格子的代价；四向移动的最小代价为1。
+                this.pre_cost = parent.pre_cost + cost;
+                nex_cost = Helper.ManhattanDistance(destination, position);
                 this.cost = pre_cost + nex_cost;
                 this.parent = parent;
             }
@@ -112,7 +112,7 @@ namespace ArknightsMapViewer
                 //找出open中权值最小的结点移出open，加入close，并作为当前点
                 minLocation = 0;
                 min = open[0].cost;
-                for (int i = 0; i < open.ToArray().Length; i++)
+                for (int i = 0; i < open.Count; i++)
                 {
                     minLocation = open[i].cost < min ? i : minLocation;
                     min = open[i].cost < min ? open[i].cost : min;
@@ -138,17 +138,15 @@ namespace ArknightsMapViewer
                     //open中是否已经存在，如果不存在，添加进open，如果存在，看所在路径是否需要更新
                     Node temp = new Node(neighbor, destination, current, cost);
 
-                    if (!open.Exists(t => t.position == neighbor))
-
+                    index = open.FindIndex(t => t.position == neighbor);
+                    if (index < 0)
                     {
                         open.Add(temp);
                     }
                     else
                     {
-                        index = open.FindIndex(t => t.position == neighbor);
-
                         //如果以current点为父节点计算出来的代价比现有代价小，改变其前置结点
-                        if (open[index].cost > temp.cost)
+                        if (open[index].pre_cost > temp.pre_cost)
                         {
                             open.RemoveAt(index);
                             open.Add(temp);

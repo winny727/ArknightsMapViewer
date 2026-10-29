@@ -21,6 +21,7 @@ namespace ArknightsMapViewer
         private bool needUpdateMap;
         private bool readingMultiFiles;
         private bool rawSetCheckBox;
+        private bool isExporting;
 
         private Dictionary<Position, List<IMapData>> mapPredefines = new Dictionary<Position, List<IMapData>>();
 
@@ -135,7 +136,19 @@ namespace ArknightsMapViewer
 
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            curLevelView?.SpawnView?.UpdateRandomSpawnGroupNodes(treeView1.SelectedNode);
+            if (isExporting)
+            {
+                return;
+            }
+
+            TreeNode rootNode = e.Node;
+            while (rootNode?.Parent != null)
+            {
+                rootNode = rootNode.Parent;
+            }
+
+            LevelView selectedLevelView = rootNode?.Tag as LevelView;
+            selectedLevelView?.SpawnView?.UpdateRandomSpawnGroupNodes(e.Node);
             UpdateView();
         }
 
@@ -223,7 +236,7 @@ namespace ArknightsMapViewer
             OpenFileDialog dialog = new OpenFileDialog();
             dialog.Multiselect = true;
             dialog.Filter = "Json Files|*.json";
-            dialog.InitialDirectory = Environment.CurrentDirectory;
+            //dialog.InitialDirectory = Environment.CurrentDirectory;
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 ReadMapFiles(dialog.FileNames);
@@ -963,17 +976,89 @@ namespace ArknightsMapViewer
                 return;
             }
 
-            FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
+            using var folderBrowserDialog = new FolderBrowserDialog();
             if (folderBrowserDialog.ShowDialog() != DialogResult.OK)
             {
                 return;
             }
 
             string path = folderBrowserDialog.SelectedPath;
-            if (!Directory.Exists(path))
+            int saved;
+            try
             {
-                Directory.CreateDirectory(path);
+                saved = ExportImages(selectedNode, path, saveBackground, saveRoute, saveFull);
             }
+            catch (Exception ex)
+            {
+                Log($"Export Image Failed: {ex.Message}", LogType.Error);
+                MessageBox.Show($"导出图片失败，部分图片可能已经保存。\n{ex.Message}", "导出失败", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (saved > 0)
+            {
+                MessageBox.Show("Export Image Completed.");
+                if (saved > 1)
+                {
+                    Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+                }
+            }
+        }
+
+        private static string GetExportFileStem(string name)
+        {
+            char[] invalidChars = Path.GetInvalidFileNameChars();
+            var builder = new StringBuilder();
+            foreach (char character in name ?? "")
+            {
+                builder.Append(char.IsControl(character) || Array.IndexOf(invalidChars, character) >= 0 ? '_' : character);
+            }
+            string stem = builder.ToString().Trim().TrimEnd('.', ' ');
+            if (stem.Length == 0) stem = "Image";
+
+            // 给扩展名和重名后缀留出空间，避免长分组标签超过单个文件名的长度限制。
+            if (stem.Length > 120)
+            {
+                int length = char.IsHighSurrogate(stem[119]) ? 119 : 120;
+                stem = stem.Substring(0, length).TrimEnd('.', ' ');
+            }
+
+            // Windows设备名即使带扩展名也不能作为普通文件使用；截断后的名字也要检查。
+            string deviceName = stem.Split('.')[0].TrimEnd(' ').ToUpperInvariant();
+            if (deviceName == "CON" || deviceName == "PRN" || deviceName == "AUX" || deviceName == "NUL" ||
+                deviceName == "CONIN$" || deviceName == "CONOUT$" ||
+                (deviceName.Length == 4 && (deviceName.StartsWith("COM") || deviceName.StartsWith("LPT")) &&
+                 "123456789¹²³".IndexOf(deviceName[3]) >= 0)) stem = "_" + stem;
+            return stem;
+        }
+
+        private static void SaveExportImage(Image image, string directory, string name)
+        {
+            string stem = GetExportFileStem(name);
+            for (int number = 1; ; number++)
+            {
+                string suffix = number == 1 ? "" : $"_{number}";
+                string fullPath = Path.Combine(directory, $"{stem}{suffix}.png");
+                if (File.Exists(fullPath) || Directory.Exists(fullPath)) continue;
+
+                FileStream stream;
+                try
+                {
+                    stream = new FileStream(fullPath, FileMode.CreateNew, FileAccess.Write);
+                }
+                catch (IOException) when (File.Exists(fullPath) || Directory.Exists(fullPath))
+                {
+                    // 名称检查后又被占用时换一个后缀，不能覆盖已有图片。
+                    continue;
+                }
+                using (stream) image.Save(stream, ImageFormat.Png);
+                return;
+            }
+        }
+
+        private int ExportImages(TreeNode selectedNode, string path, bool saveBackground, bool saveRoute, bool saveFull)
+        {
+            Directory.CreateDirectory(path);
 
             int saved = 0;
             bool backGroundSaved = false;
@@ -1001,25 +1086,22 @@ namespace ArknightsMapViewer
 
                     if (saveBackground && !backGroundSaved && pictureBox1.BackgroundImage != null)
                     {
-                        string fullPath = Path.Combine(path, $"{curLevelView.Name}_Background.png");
-                        pictureBox1.BackgroundImage.Save(fullPath, ImageFormat.Png);
+                        SaveExportImage(pictureBox1.BackgroundImage, path, $"{curLevelView.Name}_Background");
                         saved++;
                         backGroundSaved = true;
                     }
 
                     if (saveRoute && pictureBox1.Image != null)
                     {
-                        string fullPath = Path.Combine(path, $"{curLevelView.Name}_{treeNode.Parent.Text}_R{treeNode.Index}.png");
-                        pictureBox1.Image.Save(fullPath, ImageFormat.Png);
+                        SaveExportImage(pictureBox1.Image, path, $"{curLevelView.Name}_{treeNode.Parent?.Text}_R{treeNode.Index}");
                         saved++;
                     }
 
                     if (saveFull)
                     {
-                        string fullPath = Path.Combine(path, $"{curLevelView.Name}_{treeNode.Parent.Text}_F{treeNode.Index}.png");
-                        Bitmap bitmap = new Bitmap(pictureBox1.Width, pictureBox1.Height);
+                        using Bitmap bitmap = new Bitmap(pictureBox1.Width, pictureBox1.Height);
                         pictureBox1.DrawToBitmap(bitmap, new Rectangle(0, 0, pictureBox1.Width, pictureBox1.Height));
-                        bitmap.Save(fullPath, ImageFormat.Png);
+                        SaveExportImage(bitmap, path, $"{curLevelView.Name}_{treeNode.Parent?.Text}_F{treeNode.Index}");
                         saved++;
                     }
                 }
@@ -1030,18 +1112,23 @@ namespace ArknightsMapViewer
                 }
             }
 
-            ForEachRouteNode(selectedNode);
-
-            //还原
-            treeView1.SelectedNode = selectedNode;
-            UpdateView();
-
-            if (saved > 0)
+            isExporting = true;
+            try
             {
-                MessageBox.Show("Export Image Completed.");
-                if (saved > 1)
+                ForEachRouteNode(selectedNode);
+                return saved;
+            }
+            finally
+            {
+                try
                 {
-                    Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+                    // 恢复选择时仍禁用 AfterSelect，避免改变随机分组。
+                    treeView1.SelectedNode = selectedNode;
+                    UpdateView();
+                }
+                finally
+                {
+                    isExporting = false;
                 }
             }
         }

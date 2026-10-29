@@ -83,16 +83,16 @@ namespace ArknightsMapViewer
                     {
                         if (treeNode.Tag is ISpawnAction curSpawnAction)
                         {
-                            bool isValid;
-                            if (spawnAction != curSpawnAction && (string.IsNullOrEmpty(curSpawnAction.RandomSpawnGroupPackKey) ||
-                                spawnAction.RandomSpawnGroupPackKey != curSpawnAction.RandomSpawnGroupPackKey))
-                            {
-                                isValid = false;
-                            }
-                            else
-                            {
-                                isValid = true;
-                            }
+                            bool sameAction =
+                                spawnAction.WaveIndex == curSpawnAction.WaveIndex &&
+                                spawnAction.SpawnIndexInWave == curSpawnAction.SpawnIndexInWave;
+
+                            bool samePack =
+                                !string.IsNullOrEmpty(spawnAction.RandomSpawnGroupPackKey) &&
+                                spawnAction.RandomSpawnGroupPackKey ==
+                                    curSpawnAction.RandomSpawnGroupPackKey;
+
+                            bool isValid = sameAction || samePack;
 
                             if (ValidSpawnNodes.ContainsKey(treeNode))
                             {

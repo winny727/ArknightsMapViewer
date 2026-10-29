@@ -133,51 +133,34 @@ namespace ArknightsMapViewer
 
             if (needPathFinding)
             {
-                //PathFinding
                 List<Vector2Int> path = PathFinding.GetPath(prevPosition, curPosition);
-                List<Vector2Int> optimizedPath = Helper.OptimizePath(path, PathFinding.IsBarrier);
-
-                if (optimizedPath != null && optimizedPath.Count > 0)
-                {
-                    if (optimizedPath.Count > 2)
-                    {
-                        for (int i = 0; i < optimizedPath.Count - 1; i++)
-                        {
-                            Position position = optimizedPath[i];
-                            Offset offset = default;
-                            Position nextPosition = optimizedPath[i + 1];
-                            Offset nextOffset = default;
-                            if (i == 0)
-                            {
-                                offset = prevOffset;
-                            }
-                            if (i == optimizedPath.Count - 2)
-                            {
-                                nextOffset = curOffset;
-                            }
-                            Point point = GetPoint(position, offset);
-                            Point nextPoint = GetPoint(nextPosition, nextOffset);
-                            DrawUtil.DrawLine(bitmap, point, nextPoint, color, GlobalDefine.LINE_WIDTH);
-                            if (ShowRouteLength)
-                            {
-                                float deltaCol = (position.col + offset.x) - (nextPosition.col + nextOffset.x);
-                                float deltaRow = (position.row + offset.y) - (nextPosition.row + nextOffset.y);
-                                float length = (float)Math.Sqrt(deltaCol * deltaCol + deltaRow * deltaRow);
-                                Rectangle rectangle = new Rectangle(
-                                    Math.Min(point.X, nextPoint.X),
-                                    Math.Min(point.Y, nextPoint.Y),
-                                    Math.Max(Math.Abs(point.X - nextPoint.X), GlobalDefine.TILE_PIXLE),
-                                    Math.Max(Math.Abs(point.Y - nextPoint.Y), GlobalDefine.TILE_PIXLE / 2));
-                                DrawUtil.DrawString(bitmap, $"({length:f2})", rectangle, GlobalDefine.LENGTH_FONT, GlobalDefine.LENGTH_COLOR);
-                            }
-                        }
-                        return;
-                    }
-                }
-                else
+                List<Vector2> points = Helper.OptimizeRoutePath(path, PathFinding.Grid, (Vector2)prevOffset, (Vector2)curOffset);
+                if (points.Count == 0)
                 {
                     MainForm.Instance.Log($"PathFinding Failed, checkPointIndex: {checkPointIndex}", MainForm.LogType.Warning);
+                    return;
                 }
+
+                for (int i = 0; i < points.Count - 1; i++)
+                {
+                    Point point = Helper.Vector2ToPoint(points[i], MapHeight);
+                    Point nextPoint = Helper.Vector2ToPoint(points[i + 1], MapHeight);
+                    DrawUtil.DrawLine(bitmap, point, nextPoint, color, GlobalDefine.LINE_WIDTH);
+                    if (ShowRouteLength)
+                    {
+                        Vector2 delta = points[i + 1] - points[i];
+                        float length = (float)Math.Sqrt(delta.x * delta.x + delta.y * delta.y);
+                        Rectangle rectangle = new Rectangle(
+                            Math.Min(point.X, nextPoint.X),
+                            Math.Min(point.Y, nextPoint.Y),
+                            Math.Max(Math.Abs(point.X - nextPoint.X), GlobalDefine.TILE_PIXLE),
+                            Math.Max(Math.Abs(point.Y - nextPoint.Y), GlobalDefine.TILE_PIXLE / 2));
+                        string label = points.Count > 2 ? $"({length:f2})" : $"{length:f2}";
+                        DrawUtil.DrawString(bitmap, label, rectangle, GlobalDefine.LENGTH_FONT, GlobalDefine.LENGTH_COLOR);
+                    }
+                }
+                // 地面路线无解时也不回退到穿越障碍的直线；飞行和传送仍走下方直绘逻辑。
+                return;
             }
 
             Point prevPoint = GetPoint(prevPosition, prevOffset);

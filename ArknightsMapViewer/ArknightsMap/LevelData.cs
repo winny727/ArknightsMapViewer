@@ -506,6 +506,49 @@ namespace ArknightsMapViewer
             [Text("麻痹抗性")] public Data<bool> palsyImmune;
             [Text("诱导抗性")] public Data<bool> attractImmune;
 
+            public void InheritFrom(Attribute baseline)
+            {
+                if (baseline == null) return;
+
+                maxHp = InheritValue(maxHp, baseline.maxHp);
+                atk = InheritValue(atk, baseline.atk);
+                def = InheritValue(def, baseline.def);
+                magicResistance = InheritValue(magicResistance, baseline.magicResistance);
+                cost = InheritValue(cost, baseline.cost);
+                blockCnt = InheritValue(blockCnt, baseline.blockCnt);
+                moveSpeed = InheritValue(moveSpeed, baseline.moveSpeed);
+                attackSpeed = InheritValue(attackSpeed, baseline.attackSpeed);
+                baseAttackTime = InheritValue(baseAttackTime, baseline.baseAttackTime);
+                respawnTime = InheritValue(respawnTime, baseline.respawnTime);
+                hpRecoveryPerSec = InheritValue(hpRecoveryPerSec, baseline.hpRecoveryPerSec);
+                spRecoveryPerSec = InheritValue(spRecoveryPerSec, baseline.spRecoveryPerSec);
+                maxDeployCount = InheritValue(maxDeployCount, baseline.maxDeployCount);
+                massLevel = InheritValue(massLevel, baseline.massLevel);
+                baseForceLevel = InheritValue(baseForceLevel, baseline.baseForceLevel);
+                tauntLevel = InheritValue(tauntLevel, baseline.tauntLevel);
+                epDamageResistance = InheritValue(epDamageResistance, baseline.epDamageResistance);
+                epResistance = InheritValue(epResistance, baseline.epResistance);
+                damageHitratePhysical = InheritValue(damageHitratePhysical, baseline.damageHitratePhysical);
+                damageHitrateMagical = InheritValue(damageHitrateMagical, baseline.damageHitrateMagical);
+                epBreakRecoverSpeed = InheritValue(epBreakRecoverSpeed, baseline.epBreakRecoverSpeed);
+                stunImmune = InheritValue(stunImmune, baseline.stunImmune);
+                silenceImmune = InheritValue(silenceImmune, baseline.silenceImmune);
+                sleepImmune = InheritValue(sleepImmune, baseline.sleepImmune);
+                frozenImmune = InheritValue(frozenImmune, baseline.frozenImmune);
+                levitateImmune = InheritValue(levitateImmune, baseline.levitateImmune);
+                disarmedCombatImmune = InheritValue(disarmedCombatImmune, baseline.disarmedCombatImmune);
+                fearedImmune = InheritValue(fearedImmune, baseline.fearedImmune);
+                palsyImmune = InheritValue(palsyImmune, baseline.palsyImmune);
+                attractImmune = InheritValue(attractImmune, baseline.attractImmune);
+            }
+
+            private static Data<T> InheritValue<T>(Data<T> current, Data<T> baseline) where T : struct
+            {
+                // 明确定义的0和false也是有效覆盖；只补缺失值，并避免共享基础等级的属性对象。
+                if (current?.m_defined == true || baseline?.m_defined != true) return current;
+                return new Data<T> { m_defined = true, m_value = baseline.m_value };
+            }
+
             public override string ToString()
             {
                 return StringHelper.GetDbDataValueString(this);
@@ -602,7 +645,11 @@ namespace ArknightsMapViewer
         {
             if (!name.m_defined && dbData.name.m_defined) name = dbData.name;
             if (!description.m_defined && dbData.description.m_defined) description = dbData.description;
-            if (attributes == null && dbData.attributes != null) attributes = dbData.attributes;
+            if (dbData.attributes != null)
+            {
+                attributes ??= new Attribute();
+                attributes.InheritFrom(dbData.attributes);
+            }
             if (!applyWay.m_defined && dbData.applyWay.m_defined) applyWay = dbData.applyWay;
             if (!motion.m_defined && dbData.motion.m_defined) motion = dbData.motion;
             if (!enemyTags.m_defined && dbData.enemyTags.m_defined) enemyTags = dbData.enemyTags;

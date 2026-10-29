@@ -547,114 +547,109 @@ namespace ArknightsMapViewer
         }
 
         /// <summary>
-        /// 拉绳（漏斗）算法，优化相连的方格的路径的行走位置的优化（贴边走） TODO 推广到优化后的不相连路径
+        /// 在四邻接格子组成的通道内拉直路径，默认使用首尾格中心。
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
         public static List<Vector2> StringPulling(List<Vector2Int> path)
         {
-            if (path == null)
+            if (path == null || path.Count == 0) return new List<Vector2>();
+            return StringPulling(path, PositionToVector2(path[0]), PositionToVector2(path[path.Count - 1]));
+        }
+
+        /// <summary>
+        /// 使用实际首尾坐标的完整漏斗算法。门户取相邻格的共享边，允许贴边但不扩张到通道外。
+        /// 无效通道或端点不在首尾格内时返回空列表，由调用方选择安全回退并校验碰撞。
+        /// </summary>
+        public static List<Vector2> StringPulling(List<Vector2Int> path, Vector2 startPos, Vector2 endPos)
+        {
+            var result = new List<Vector2>();
+            if (path == null || path.Count == 0 || !IsFinite(startPos.x) || !IsFinite(startPos.y) ||
+                !IsFinite(endPos.x) || !IsFinite(endPos.y)) return result;
+
+            bool InCell(Vector2 point, Vector2Int cell) =>
+                point.x >= cell.x && point.x <= cell.x + 1d && point.y >= cell.y && point.y <= cell.y + 1d;
+            if (!InCell(startPos, path[0]) || !InCell(endPos, path[path.Count - 1])) return result;
+
+            var leftPortals = new List<Vector2> { startPos };
+            var rightPortals = new List<Vector2> { startPos };
+            for (int i = 1; i < path.Count; i++)
             {
-                return null;
+                Vector2Int from = path[i - 1];
+                Vector2Int to = path[i];
+                long dx = (long)to.x - from.x;
+                long dy = (long)to.y - from.y;
+                if (dx == 0 && dy == 0) continue;
+                if (Math.Abs(dx) + Math.Abs(dy) != 1) return result;
+
+                // 面向行进方向，左端点为共享边中心加左法向量的半格偏移。
+                Vector2 middle = new Vector2(from.x + 0.5f + dx * 0.5f, from.y + 0.5f + dy * 0.5f);
+                Vector2 side = new Vector2(-dy * 0.5f, dx * 0.5f);
+                leftPortals.Add(middle + side);
+                rightPortals.Add(middle - side);
+            }
+            leftPortals.Add(endPos);
+            rightPortals.Add(endPos);
+
+            double Area(Vector2 a, Vector2 b, Vector2 c) =>
+                ((double)b.x - a.x) * ((double)c.y - a.y) - ((double)b.y - a.y) * ((double)c.x - a.x);
+            void AddPoint(Vector2 point)
+            {
+                if (result.Count == 0 || !result[result.Count - 1].Equals(point)) result.Add(point);
             }
 
-            if (path.Count >= 2)
+            Vector2 apex = startPos;
+            Vector2 left = apex;
+            Vector2 right = apex;
+            int apexIndex = 0, leftIndex = 0, rightIndex = 0;
+            AddPoint(apex);
+
+            // 终点的退化门户也必须参与收紧；转弯后从新顶点所在门户重新扫描。
+            for (int i = 1; i < leftPortals.Count; i++)
             {
-                //一次遍历获取所有左右边
-                float offset = 0.4f; //距正方形中心距离
-                List<Vector2> leftVertexs = new List<Vector2>();
-                List<Vector2> rightVertexs = new List<Vector2>();
-                Vector2 startPos = new Vector2
+                Vector2 nextLeft = leftPortals[i];
+                Vector2 nextRight = rightPortals[i];
+                if (Area(apex, right, nextRight) >= 0)
                 {
-                    x = path[0].x + 0.5f,
-                    y = path[0].y + 0.5f,
-                };
-                Vector2 endPos = new Vector2
-                {
-                    x = path[path.Count - 1].x + 0.5f,
-                    y = path[path.Count - 1].y + 0.5f,
-                };
-
-                leftVertexs.Add(startPos);
-                rightVertexs.Add(startPos);
-                for (int i = 1; i < path.Count; i++)
-                {
-                    Vector2Int curPoint = path[i];
-                    Vector2Int prevPoint = path[i - 1];
-
-                    if (prevPoint.y == curPoint.y)
+                    if (apex.Equals(right) || Area(apex, left, nextRight) < 0)
                     {
-                        //x方向移动
-                        int dir = curPoint.x - prevPoint.x;
-                        float vertexOffset = offset * (curPoint.x - prevPoint.x);
-                        leftVertexs.Add(new Vector2(curPoint.x + 0.5f - dir * 0.5f, curPoint.y + vertexOffset + 0.5f));
-                        rightVertexs.Add(new Vector2(curPoint.x + 0.5f - dir * 0.5f, curPoint.y - vertexOffset + 0.5f));
+                        right = nextRight;
+                        rightIndex = i;
                     }
-                    else if (prevPoint.x == curPoint.x)
+                    else
                     {
-                        //y方向移动
-                        int dir = curPoint.y - prevPoint.y;
-                        float vertexOffset = offset * (curPoint.y - prevPoint.y);
-                        leftVertexs.Add(new Vector2(curPoint.x - vertexOffset + 0.5f, curPoint.y + 0.5f - dir * 0.5f));
-                        rightVertexs.Add(new Vector2(curPoint.x + vertexOffset + 0.5f, curPoint.y + 0.5f - dir * 0.5f));
-                    }
-                }
-                leftVertexs.Add(endPos);
-                rightVertexs.Add(endPos);
-
-                List<Vector2> newPath = new List<Vector2>();
-                Vector2 apex = leftVertexs[0];
-                Vector2 left = apex;
-                Vector2 right = apex;
-
-                newPath.Add(apex);
-
-                for (int i = 1; i < path.Count; i++)
-                {
-                    Vector2 curLeft = leftVertexs[i];
-                    Vector2 curRight = rightVertexs[i];
-
-                    //判断当前左方向在右方向的左侧
-                    if (Vector2.Cross(curLeft - apex, right - apex) <= 0)
-                    {
-                        //判断新的左方向在原左方向的右侧（收窄）
-                        if (apex == left || Vector2.Cross(curLeft - apex, left - apex) >= 0)
-                        {
-                            left = curLeft;
-                        }
-                        else
-                        {
-                            apex = left;
-                            left = apex;
-                            right = apex;
-                            newPath.Add(apex);
-                        }
-                    }
-
-                    //判断当前右方向在左方向的右侧
-                    if (Vector2.Cross(curRight - apex, left - apex) >= 0)
-                    {
-                        //判断新的右方向在原右方向的左侧（收窄）
-                        if (apex == right || Vector2.Cross(curRight - apex, right - apex) <= 0)
-                        {
-                            right = curRight;
-                        }
-                        else
-                        {
-                            apex = right;
-                            left = apex;
-                            right = apex;
-                            newPath.Add(apex);
-                        }
+                        AddPoint(left);
+                        apex = left;
+                        apexIndex = leftIndex;
+                        left = right = apex;
+                        leftIndex = rightIndex = apexIndex;
+                        i = apexIndex;
+                        continue;
                     }
                 }
 
-                newPath.Add(endPos);
-
-                return newPath;
+                if (Area(apex, left, nextLeft) <= 0)
+                {
+                    if (apex.Equals(left) || Area(apex, right, nextLeft) > 0)
+                    {
+                        left = nextLeft;
+                        leftIndex = i;
+                    }
+                    else
+                    {
+                        AddPoint(right);
+                        apex = right;
+                        apexIndex = rightIndex;
+                        left = right = apex;
+                        leftIndex = rightIndex = apexIndex;
+                        i = apexIndex;
+                        continue;
+                    }
+                }
             }
 
-            return null;
+            AddPoint(endPos);
+            return result;
         }
 
         /// <summary>
@@ -720,97 +715,215 @@ namespace ArknightsMapViewer
         }
 
         /// <summary>
-        /// 判断两点之间有无碰撞体，类似射线
+        /// 从实际端点拉紧路径通道，只保留绕障碍必需的转折。
+        /// 绘制中心线允许贴墙；保留格中心路径作为安全候选及必要高代价格的连接。
+        /// </summary>
+        public static List<Vector2> OptimizeRoutePath(List<Vector2Int> path, int[,] grid, Vector2 startOffset, Vector2 endOffset)
+        {
+            var result = new List<Vector2>();
+            if (path == null || path.Count == 0) return result;
+
+            var points = new List<Vector2>();
+            void AddPoint(Vector2 point)
+            {
+                if (points.Count == 0 || !points[points.Count - 1].Equals(point)) points.Add(point);
+            }
+
+            AddPoint(PositionToVector2(path[0]) + startOffset);
+            foreach (Vector2Int position in path) AddPoint(PositionToVector2(position));
+            AddPoint(PositionToVector2(path[path.Count - 1]) + endOffset);
+
+            bool[,] barriers = new bool[grid.GetLength(0), grid.GetLength(1)];
+            bool[,] shortcutBarriers = new bool[grid.GetLength(0), grid.GetLength(1)];
+            for (int x = 0; x < grid.GetLength(0); x++)
+            {
+                for (int y = 0; y < grid.GetLength(1); y++)
+                {
+                    barriers[x, y] = grid[x, y] == int.MaxValue;
+                    shortcutBarriers[x, y] = grid[x, y] > 1;
+                }
+            }
+
+            double Distance(Vector2 a, Vector2 b)
+            {
+                double dx = (double)a.x - b.x;
+                double dy = (double)a.y - b.y;
+                return Math.Sqrt(dx * dx + dy * dy);
+            }
+
+            List<Vector2> Shorten(List<Vector2> candidates, bool allowOriginalEdges)
+            {
+                var shortened = new List<Vector2>();
+                if (candidates == null || candidates.Count == 0 ||
+                    HasCollider(candidates[0], candidates[0], barriers, 0)) return shortened;
+
+                double[] lengths = new double[candidates.Count];
+                int[] segments = new int[candidates.Count];
+                int[] previous = new int[candidates.Count];
+                for (int i = 0; i < candidates.Count; i++)
+                {
+                    lengths[i] = double.PositiveInfinity;
+                    segments[i] = int.MaxValue;
+                    previous[i] = -1;
+                }
+                lengths[0] = 0;
+                segments[0] = 0;
+                for (int i = 1; i < candidates.Count; i++)
+                {
+                    for (int j = 0; j < i; j++)
+                    {
+                        if (double.IsPositiveInfinity(lengths[j])) continue;
+                        double length = lengths[j] + Distance(candidates[i], candidates[j]);
+                        if (length > lengths[i] + 1e-9 ||
+                            (Math.Abs(length - lengths[i]) <= 1e-9 && segments[j] + 1 >= segments[i])) continue;
+                        bool originalEdge = allowOriginalEdges && j == i - 1;
+                        if (HasCollider(candidates[j], candidates[i], originalEdge ? barriers : shortcutBarriers, 0)) continue;
+                        lengths[i] = length;
+                        segments[i] = segments[j] + 1;
+                        previous[i] = j;
+                    }
+                }
+
+                if (double.IsPositiveInfinity(lengths[candidates.Count - 1])) return shortened;
+                for (int i = candidates.Count - 1; i >= 0; i = previous[i]) shortened.Add(candidates[i]);
+                shortened.Reverse();
+                return shortened;
+            }
+
+            double Length(List<Vector2> route)
+            {
+                if (route.Count == 0) return double.PositiveInfinity;
+                double length = 0;
+                for (int i = 1; i < route.Count; i++) length += Distance(route[i], route[i - 1]);
+                return length;
+            }
+
+            var fallback = Shorten(points, true);
+            var pulled = Shorten(StringPulling(path, points[0], points[points.Count - 1]), false);
+            // 共线门户可能保留不同的等长拐点；双向拉绳后再选短线，避免捷径受遍历方向影响。
+            var reversePath = new List<Vector2Int>(path);
+            reversePath.Reverse();
+            var reversePulled = StringPulling(reversePath, points[points.Count - 1], points[0]);
+            reversePulled.Reverse();
+            reversePulled = Shorten(reversePulled, false);
+            if (Length(reversePulled) < Length(pulled) ||
+                (Length(reversePulled) == Length(pulled) && reversePulled.Count < pulled.Count)) pulled = reversePulled;
+            double pulledLength = Length(pulled);
+            double fallbackLength = Length(fallback);
+            return pulledLength < fallbackLength ||
+                (pulledLength == fallbackLength && pulled.Count < fallback.Count) ? pulled : fallback;
+        }
+
+        /// <summary>
+        /// 判断线段及其半径是否碰到障碍格；半径为0时只检查障碍内部，允许从边界向外移动。
         /// </summary>
         /// <param name="startPos">起点</param>
         /// <param name="endPos">终点</param>
         /// <returns></returns>
         public static bool HasCollider(Vector2 startPos, Vector2 endPos, bool[,] isBarrier, float characterRadius = 0.2f)
         {
-            int mapWidth = isBarrier.GetLength(0);
-            int mapHeight = isBarrier.GetLength(1);
+            if (!IsFinite(startPos.x) || !IsFinite(startPos.y) || !IsFinite(endPos.x) ||
+                !IsFinite(endPos.y) || !IsFinite(characterRadius)) return true;
 
-            //xy都相等则为同一点
-            if (startPos.x == endPos.x && startPos.y == endPos.y)
-            {
-                if (isBarrier[(int)startPos.x, (int)startPos.y]) return true;
-                else return false;
-            }
-            //若为竖直
-            else if (startPos.x == endPos.x)
-            {
-                for (int i = 1; i < Math.Abs(endPos.y - startPos.y); i++)
-                {
-                    if (isBarrier[(int)startPos.x,
-                        (int)(startPos.y + i * Math.Sign(endPos.y - startPos.y))]) return true;
-                }
-                return false;
-            }
-            //若为水平
-            else if (startPos.y == endPos.y)
-            {
-                for (int i = 1; i < Math.Abs(endPos.x - startPos.x); i++)
-                {
-                    if (isBarrier[(int)(startPos.x + i * Math.Sign(endPos.x - startPos.x)),
-                        (int)startPos.y]) return true;
-                }
-                return false;
-            }
-            //若为倾斜
-            else
-            {
-                float deltax = endPos.x - startPos.x;
-                float deltay = endPos.y - startPos.y;
-                //法向单位向量
-                Vector2 verticalUnit = new Vector2(deltay, -deltax).normalized;
+            double radius = Math.Max(0, characterRadius);
+            double minX = Math.Max(0, Math.Ceiling(Math.Min(startPos.x, endPos.x) - radius) - 1);
+            double minY = Math.Max(0, Math.Ceiling(Math.Min(startPos.y, endPos.y) - radius) - 1);
+            double maxX = Math.Min(isBarrier.GetLength(0) - 1, Math.Floor(Math.Max(startPos.x, endPos.x) + radius));
+            double maxY = Math.Min(isBarrier.GetLength(1) - 1, Math.Floor(Math.Max(startPos.y, endPos.y) + radius));
+            if (minX > maxX || minY > maxY) return false;
 
-                //检测两点连线之间是否有相交；同时检测两条偏移平行线，以消除敌人模型半径穿模影响
-                for (int v = -1; v <= 1; v++)
+            for (int x = (int)minX; x <= (int)maxX; x++)
+            {
+                for (int y = (int)minY; y <= (int)maxY; y++)
                 {
-                    //偏移平行线，将点往法方向偏移固定距离
-                    Vector2 startOffset = startPos + verticalUnit * v * characterRadius;
-                    Vector2 endOffset = endPos + verticalUnit * v * characterRadius;
+                    if (!isBarrier[x, y]) continue;
+                    double enter = 0, exit = 1;
+                    bool interiorOnly = radius == 0;
+                    if (ClipSegmentAxis(startPos.x, (double)endPos.x - startPos.x, x, x + 1, interiorOnly, ref enter, ref exit) &&
+                        ClipSegmentAxis(startPos.y, (double)endPos.y - startPos.y, y, y + 1, interiorOnly, ref enter, ref exit) &&
+                        (!interiorOnly || enter < exit)) return true;
 
-                    //遍历两点所作矩形之间的所有小正方形再加外围一圈小正方形
-                    for (int i = -1; i <= Math.Abs(deltax) + 1; i++)
+                    if (radius <= 0)
                     {
-                        for (int j = -1; j <= Math.Abs(deltay) + 1; j++)
+                        // 对角相接的障碍没有可走的缝；顶点作为折点也不能绕过这一限制。
+                        for (int dx = -1; dx <= 1; dx += 2)
                         {
-                            int rectx = (int)startPos.x + i * (int)Math.Sign(deltax);
-                            int recty = (int)startPos.y + j * (int)Math.Sign(deltay);
-                            //若这个方形不可穿过
-                            if (rectx >= 0 && rectx < mapWidth &&
-                                recty < mapHeight && recty >= 0 &&
-                                isBarrier[rectx, recty])
+                            for (int dy = -1; dy <= 1; dy += 2)
                             {
-                                //MainForm.Instance.DebugDrawLine(startOffset, endOffset, Color.Green);
-                                //MainForm.Instance.DebugDrawLine(new Vector2(rectx, recty), new Vector2(rectx, recty + 1f), Color.Red);
-                                //MainForm.Instance.DebugDrawLine(new Vector2(rectx, recty + 1f), new Vector2(rectx + 1f, recty + 1f), Color.Red);
-                                //MainForm.Instance.DebugDrawLine(new Vector2(rectx + 1f, recty + 1f), new Vector2(rectx + 1f, recty), Color.Red);
-                                //MainForm.Instance.DebugDrawLine(new Vector2(rectx + 1f, recty), new Vector2(rectx, recty), Color.Red);
-
-                                //拿到正方形的四条边，判断是否与线段相交
-                                if (GetIntersection(startOffset, endOffset,
-                                    new Vector2(rectx, recty),
-                                    new Vector2(rectx, recty + 1f))) return true;
-
-                                if (GetIntersection(startOffset, endOffset,
-                                    new Vector2(rectx, recty + 1f),
-                                    new Vector2(rectx + 1f, recty + 1f))) return true;
-
-                                if (GetIntersection(startOffset, endOffset,
-                                    new Vector2(rectx + 1f, recty + 1f),
-                                    new Vector2(rectx + 1f, recty))) return true;
-
-                                if (GetIntersection(startOffset, endOffset,
-                                    new Vector2(rectx + 1f, recty),
-                                    new Vector2(rectx, recty))) return true;
+                                int nx = x + dx, ny = y + dy;
+                                if (nx < 0 || ny < 0 || nx >= isBarrier.GetLength(0) || ny >= isBarrier.GetLength(1) ||
+                                    !isBarrier[nx, ny] || isBarrier[nx, y] || isBarrier[x, ny]) continue;
+                                int cornerX = x + (dx > 0 ? 1 : 0);
+                                int cornerY = y + (dy > 0 ? 1 : 0);
+                                if (PointSegmentDistanceSquared(cornerX, cornerY, startPos, endPos) <= 1e-18) return true;
                             }
                         }
+                        // 两个障碍格的公共边仍在墙内，不能把沿公共边的线当成贴外墙移动。
+                        if (startPos.x == endPos.x && startPos.y != endPos.y &&
+                            ((startPos.x == x && x > 0 && isBarrier[x - 1, y]) ||
+                             (startPos.x == x + 1 && x + 1 < isBarrier.GetLength(0) && isBarrier[x + 1, y])))
+                        {
+                            enter = 0; exit = 1;
+                            if (ClipSegmentAxis(startPos.y, (double)endPos.y - startPos.y, y, y + 1, true, ref enter, ref exit) && enter < exit) return true;
+                        }
+                        if (startPos.y == endPos.y && startPos.x != endPos.x &&
+                            ((startPos.y == y && y > 0 && isBarrier[x, y - 1]) ||
+                             (startPos.y == y + 1 && y + 1 < isBarrier.GetLength(1) && isBarrier[x, y + 1])))
+                        {
+                            enter = 0; exit = 1;
+                            if (ClipSegmentAxis(startPos.x, (double)endPos.x - startPos.x, x, x + 1, true, ref enter, ref exit) && enter < exit) return true;
+                        }
+                        continue;
                     }
+                    double distanceSquared = Math.Min(PointRectangleDistanceSquared(startPos, x, y), PointRectangleDistanceSquared(endPos, x, y));
+                    distanceSquared = Math.Min(distanceSquared, PointSegmentDistanceSquared(x, y, startPos, endPos));
+                    distanceSquared = Math.Min(distanceSquared, PointSegmentDistanceSquared(x + 1, y, startPos, endPos));
+                    distanceSquared = Math.Min(distanceSquared, PointSegmentDistanceSquared(x, y + 1, startPos, endPos));
+                    distanceSquared = Math.Min(distanceSquared, PointSegmentDistanceSquared(x + 1, y + 1, startPos, endPos));
+                    if (distanceSquared <= radius * radius) return true;
                 }
             }
             return false;
+        }
+
+        private static bool IsFinite(float value)
+        {
+            return !float.IsNaN(value) && !float.IsInfinity(value);
+        }
+
+        private static bool ClipSegmentAxis(double start, double delta, double minimum, double maximum, bool interiorOnly, ref double enter, ref double exit)
+        {
+            if (delta == 0) return interiorOnly ? start > minimum && start < maximum : start >= minimum && start <= maximum;
+            double first = (minimum - start) / delta;
+            double last = (maximum - start) / delta;
+            if (first > last)
+            {
+                double swap = first;
+                first = last;
+                last = swap;
+            }
+            enter = Math.Max(enter, first);
+            exit = Math.Min(exit, last);
+            return enter <= exit;
+        }
+
+        private static double PointRectangleDistanceSquared(Vector2 point, int x, int y)
+        {
+            double dx = Math.Max(Math.Max(x - (double)point.x, 0), point.x - (double)x - 1);
+            double dy = Math.Max(Math.Max(y - (double)point.y, 0), point.y - (double)y - 1);
+            return dx * dx + dy * dy;
+        }
+
+        private static double PointSegmentDistanceSquared(double x, double y, Vector2 start, Vector2 end)
+        {
+            double dx = (double)end.x - start.x;
+            double dy = (double)end.y - start.y;
+            double lengthSquared = dx * dx + dy * dy;
+            double t = lengthSquared == 0 ? 0 : ((x - start.x) * dx + (y - start.y) * dy) / lengthSquared;
+            t = Math.Max(0, Math.Min(1, t));
+            double distanceX = x - (start.x + t * dx);
+            double distanceY = y - (start.y + t * dy);
+            return distanceX * distanceX + distanceY * distanceY;
         }
 
         #region 判断两条线是否相交
