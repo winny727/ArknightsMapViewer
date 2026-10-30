@@ -658,7 +658,6 @@ namespace ArknightsMapViewer
             if (!rangeRadius.m_defined && dbData.rangeRadius.m_defined) rangeRadius = dbData.rangeRadius;
             if (!numOfExtraDrops.m_defined && dbData.numOfExtraDrops.m_defined) numOfExtraDrops = dbData.numOfExtraDrops;
             if (!viewRadius.m_defined && dbData.viewRadius.m_defined) viewRadius = dbData.viewRadius;
-            if (!viewRadius.m_defined && dbData.viewRadius.m_defined) viewRadius = dbData.viewRadius;
             if (!notCountInTotal.m_defined && dbData.notCountInTotal.m_defined) notCountInTotal = dbData.notCountInTotal;
             if (talentBlackboard == null && dbData.talentBlackboard != null) talentBlackboard = dbData.talentBlackboard;
             if (skills == null && dbData.skills != null) skills = dbData.skills;

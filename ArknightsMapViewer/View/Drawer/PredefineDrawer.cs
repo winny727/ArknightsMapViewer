@@ -1,6 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Windows.Forms;
 using System.Drawing;
 using System.Text.RegularExpressions;
 
@@ -10,17 +7,15 @@ namespace ArknightsMapViewer
     {
         public Predefine.PredefineInst Predefine { get; private set; }
         public bool IsSelected { get; set; } = false;
-        public int MapWidth { get; private set; }
         public int MapHeight { get; private set; }
 
-        private PredefineDrawer(Predefine.PredefineInst predefine, int mapWidth, int mapHeight)
+        private PredefineDrawer(Predefine.PredefineInst predefine, int mapHeight)
         {
             Predefine = predefine;
-            MapWidth = mapWidth;
             MapHeight = mapHeight;
         }
 
-        public static PredefineDrawer Create(Predefine.PredefineInst predefine, int mapWidth, int mapHeight)
+        public static PredefineDrawer Create(Predefine.PredefineInst predefine, int mapHeight)
         {
             if (predefine == null)
             {
@@ -28,7 +23,7 @@ namespace ArknightsMapViewer
                 return null;
             }
 
-            return new PredefineDrawer(predefine, mapWidth, mapHeight);
+            return new PredefineDrawer(predefine, mapHeight);
         }
 
         public void Draw(Bitmap bitmap)
@@ -70,12 +65,10 @@ namespace ArknightsMapViewer
 
         private void DrawPosition(Bitmap bitmap, Point point, string name)
         {
-            DrawUtil.FillCircle(bitmap, point, GlobalDefine.CIRCLE_RADIUS, IsSelected ? GlobalDefine.PREDEFINED_SELECTED_BACKCOLOR : GlobalDefine.PREDEFINED_BACKCOLOR);
-            DrawUtil.DrawCircle(bitmap, point, GlobalDefine.CIRCLE_RADIUS, GlobalDefine.PREDEFINED_LINECOLOR, GlobalDefine.CIRCLE_EDGE_WIDTH);
-
-            int length = GlobalDefine.TILE_PIXLE;
-            Rectangle rectangle = new Rectangle(point.X - length, point.Y - length, 2 * length, 2 * length);
-            DrawUtil.DrawString(bitmap, name, rectangle, GlobalDefine.PREDEFINED_FONT, IsSelected ? GlobalDefine.PREDEFINED_SELECTED_TEXTCOLOR : GlobalDefine.TEXT_COLOR);
+            DrawUtil.DrawCircleLabel(bitmap, point, name, GlobalDefine.PREDEFINED_FONT,
+                IsSelected ? GlobalDefine.PREDEFINED_SELECTED_TEXTCOLOR : GlobalDefine.TEXT_COLOR,
+                IsSelected ? GlobalDefine.PREDEFINED_SELECTED_BACKCOLOR : GlobalDefine.PREDEFINED_BACKCOLOR,
+                GlobalDefine.PREDEFINED_LINECOLOR, GlobalDefine.CIRCLE_EDGE_WIDTH + (IsSelected ? 0.5f : 0f));
         }
 
         private Point GetPoint(Position position)

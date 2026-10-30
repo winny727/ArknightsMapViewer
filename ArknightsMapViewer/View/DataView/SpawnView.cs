@@ -36,14 +36,8 @@ namespace ArknightsMapViewer
                     }
 
                     string groupName = spawnAction.HiddenGroup;
-                    if (string.IsNullOrEmpty(groupName))
-                    {
-                        treeNode.Text = $"#{SpawnsNode.Nodes.Count} {spawnAction.ToSimpleString()}";
-                        SpawnsNode.Nodes.Add(treeNode);
-                        continue;
-                    }
-
-                    if (!string.IsNullOrEmpty(groupName) && HiddenGroups.ContainsKey(groupName) && HiddenGroups[groupName])
+                    if (string.IsNullOrEmpty(groupName) ||
+                        (HiddenGroups.ContainsKey(groupName) && HiddenGroups[groupName]))
                     {
                         treeNode.Text = $"#{SpawnsNode.Nodes.Count} {spawnAction.ToSimpleString()}";
                         SpawnsNode.Nodes.Add(treeNode);

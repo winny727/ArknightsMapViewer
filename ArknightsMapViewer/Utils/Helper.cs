@@ -344,11 +344,7 @@ namespace ArknightsMapViewer
                             name = line["name"],
                             description = line["description"]
                         };
-                        if (!GlobalDefine.StageInfo.ContainsKey(stageData.stageId))
-                        {
-                            GlobalDefine.StageInfo.Add(stageData.stageId, new List<StageInfo>());
-                        }
-                        GlobalDefine.StageInfo[stageData.stageId].Add(stageData);
+                        AddStageInfo(stageData);
                     }
                 });
             }
@@ -410,13 +406,19 @@ namespace ArknightsMapViewer
 
                 if (!string.IsNullOrEmpty(stageInfo.stageId))
                 {
-                    if (!GlobalDefine.StageInfo.ContainsKey(stageInfo.stageId))
-                    {
-                        GlobalDefine.StageInfo.Add(stageInfo.stageId, new List<StageInfo>());
-                    }
-                    GlobalDefine.StageInfo[stageInfo.stageId].Add(stageInfo);
+                    AddStageInfo(stageInfo);
                 }
             }
+        }
+
+        private static void AddStageInfo(StageInfo stageInfo)
+        {
+            if (!GlobalDefine.StageInfo.TryGetValue(stageInfo.stageId, out var stages))
+            {
+                stages = new List<StageInfo>();
+                GlobalDefine.StageInfo.Add(stageInfo.stageId, stages);
+            }
+            stages.Add(stageInfo);
         }
 
         /// <summary>
@@ -786,9 +788,14 @@ namespace ArknightsMapViewer
             var reversePulled = StringPulling(reversePath, points[points.Count - 1], points[0]);
             reversePulled.Reverse();
             reversePulled = Shorten(reversePulled, false);
-            if (Length(reversePulled) < Length(pulled) ||
-                (Length(reversePulled) == Length(pulled) && reversePulled.Count < pulled.Count)) pulled = reversePulled;
             double pulledLength = Length(pulled);
+            double reverseLength = Length(reversePulled);
+            if (reverseLength < pulledLength ||
+                (reverseLength == pulledLength && reversePulled.Count < pulled.Count))
+            {
+                pulled = reversePulled;
+                pulledLength = reverseLength;
+            }
             double fallbackLength = Length(fallback);
             return pulledLength < fallbackLength ||
                 (pulledLength == fallbackLength && pulled.Count < fallback.Count) ? pulled : fallback;
@@ -921,39 +928,12 @@ namespace ArknightsMapViewer
             // 判断异常 
             if (Math.Abs(b.y - a.y) + Math.Abs(b.x - a.x) + Math.Abs(d.y - c.y) + Math.Abs(d.x - c.x) == 0)
             {
-                if ((c.x - a.x) + (c.y - a.y) == 0)
-                {
-                    //ABCD是同一个点
-                }
-                else
-                {
-                    //AB是一个点，CD是一个点，且AC不同
-                }
                 return false;
             }
 
             if (Math.Abs(b.y - a.y) + Math.Abs(b.x - a.x) == 0)
             {
-                if ((a.x - d.x) * (c.y - d.y) - (a.y - d.y) * (c.x - d.x) == 0)
-                {
-                    //A、B是一个点，且在CD线段上
-                }
-                else
-                {
-                    //A、B是一个点，且不在CD线段上
-                }
                 return false;
-            }
-            if (Math.Abs(d.y - c.y) + Math.Abs(d.x - c.x) == 0)
-            {
-                if ((d.x - b.x) * (a.y - b.y) - (d.y - b.y) * (a.x - b.x) == 0)
-                {
-                    //C、D是一个点，且在AB线段上
-                }
-                else
-                {
-                    //C、D是一个点，且不在AB线段上
-                }
             }
 
             if ((b.y - a.y) * (c.x - d.x) - (b.x - a.x) * (c.y - d.y) == 0)
@@ -971,19 +951,10 @@ namespace ArknightsMapViewer
                     / ((b.x - a.x) * (c.y - d.y) - (b.y - a.y) * (c.x - d.x))
             };
 
-            if ((contractPoint.x - a.x) * (contractPoint.x - b.x) <= 0
+            return (contractPoint.x - a.x) * (contractPoint.x - b.x) <= 0
                     && (contractPoint.x - c.x) * (contractPoint.x - d.x) <= 0
                     && (contractPoint.y - a.y) * (contractPoint.y - b.y) <= 0
-                    && (contractPoint.y - c.y) * (contractPoint.y - d.y) <= 0)
-            {
-                //线段相交于点contractPoint
-                return true; // '相交  
-            }
-            else
-            {
-                //线段相交于虚交点contractPoint
-                return false; // '相交但不在线段上  
-            }
+                    && (contractPoint.y - c.y) * (contractPoint.y - d.y) <= 0;
         }
         #endregion
 

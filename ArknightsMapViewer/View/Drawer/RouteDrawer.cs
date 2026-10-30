@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Windows.Forms;
 using System.Drawing;
 
 namespace ArknightsMapViewer
@@ -10,18 +9,16 @@ namespace ArknightsMapViewer
         public Route Route { get; private set; }
         public bool ShowRouteLength { get; set; }
         public PathFinding PathFinding { get; private set; }
-        public int MapWidth { get; private set; }
         public int MapHeight { get; private set; }
 
-        private RouteDrawer(Route route, PathFinding pathFinding, int mapWidth, int mapHeight)
+        private RouteDrawer(Route route, PathFinding pathFinding, int mapHeight)
         {
             Route = route;
             PathFinding = pathFinding;
-            MapWidth = mapWidth;
             MapHeight = mapHeight;
         }
 
-        public static RouteDrawer Create(Route route, PathFinding pathFinding, int mapWidth, int mapHeight)
+        public static RouteDrawer Create(Route route, PathFinding pathFinding, int mapHeight)
         {
             if (route == null || route.checkPoints == null)
             {
@@ -29,7 +26,7 @@ namespace ArknightsMapViewer
                 return null;
             }
 
-            return new RouteDrawer(route, pathFinding, mapWidth, mapHeight);
+            return new RouteDrawer(route, pathFinding, mapHeight);
         }
 
 
@@ -145,7 +142,7 @@ namespace ArknightsMapViewer
                 {
                     Point point = Helper.Vector2ToPoint(points[i], MapHeight);
                     Point nextPoint = Helper.Vector2ToPoint(points[i + 1], MapHeight);
-                    DrawUtil.DrawLine(bitmap, point, nextPoint, color, GlobalDefine.LINE_WIDTH);
+                    DrawUtil.DrawRouteLine(bitmap, point, nextPoint, color, GlobalDefine.LINE_WIDTH);
                     if (ShowRouteLength)
                     {
                         Vector2 delta = points[i + 1] - points[i];
@@ -156,7 +153,7 @@ namespace ArknightsMapViewer
                             Math.Max(Math.Abs(point.X - nextPoint.X), GlobalDefine.TILE_PIXLE),
                             Math.Max(Math.Abs(point.Y - nextPoint.Y), GlobalDefine.TILE_PIXLE / 2));
                         string label = points.Count > 2 ? $"({length:f2})" : $"{length:f2}";
-                        DrawUtil.DrawString(bitmap, label, rectangle, GlobalDefine.LENGTH_FONT, GlobalDefine.LENGTH_COLOR);
+                        DrawUtil.DrawRouteLabel(bitmap, label, rectangle, GlobalDefine.LENGTH_FONT, GlobalDefine.LENGTH_COLOR);
                     }
                 }
                 // 地面路线无解时也不回退到穿越障碍的直线；飞行和传送仍走下方直绘逻辑。
@@ -165,7 +162,7 @@ namespace ArknightsMapViewer
 
             Point prevPoint = GetPoint(prevPosition, prevOffset);
             Point curPoint = GetPoint(curPosition, curOffset);
-            DrawUtil.DrawLine(bitmap, prevPoint, curPoint, color, GlobalDefine.LINE_WIDTH);
+            DrawUtil.DrawRouteLine(bitmap, prevPoint, curPoint, color, GlobalDefine.LINE_WIDTH);
             if (ShowRouteLength)
             {
                 float deltaCol = (prevPosition.col + prevOffset.x) - (curPosition.col + curOffset.x);
@@ -176,22 +173,22 @@ namespace ArknightsMapViewer
                     Math.Min(prevPoint.Y, curPoint.Y), 
                     Math.Max(Math.Abs(prevPoint.X - curPoint.X), GlobalDefine.TILE_PIXLE), 
                     Math.Max(Math.Abs(prevPoint.Y - curPoint.Y), GlobalDefine.TILE_PIXLE / 2));
-                DrawUtil.DrawString(bitmap, $"{length:f2}", rectangle, GlobalDefine.LENGTH_FONT, GlobalDefine.LENGTH_COLOR);
+                Color labelColor = Color.FromArgb(Math.Min(color.A, GlobalDefine.LENGTH_COLOR.A), GlobalDefine.LENGTH_COLOR);
+                DrawUtil.DrawRouteLabel(bitmap, $"{length:f2}", rectangle, GlobalDefine.LENGTH_FONT, labelColor);
             }
         }
 
         private void DrawMovePosition(Bitmap bitmap, Point point)
         {
-            DrawUtil.DrawPoint(bitmap, point, GlobalDefine.LINE_COLOR, GlobalDefine.POINT_RADIUS);
+            int radius = GlobalDefine.POINT_RADIUS;
+            DrawUtil.FillCircle(bitmap, point, radius + 1, Color.FromArgb(230, 18, 18, 18));
+            DrawUtil.DrawCircle(bitmap, point, radius, GlobalDefine.LINE_COLOR, Math.Max(1f, GlobalDefine.LINE_WIDTH * 0.45f));
         }
 
         private void DrawWaitPosition(Bitmap bitmap, Point point, float time)
         {
-            int length = GlobalDefine.TILE_PIXLE;
-            Rectangle rectangle = new Rectangle(point.X - length, point.Y - length, 2 * length, 2 * length);
-            DrawUtil.FillCircle(bitmap, point, GlobalDefine.CIRCLE_RADIUS, GlobalDefine.CIRCLE_COLOR);
-            DrawUtil.DrawCircle(bitmap, point, GlobalDefine.CIRCLE_RADIUS, GlobalDefine.LINE_COLOR, GlobalDefine.CIRCLE_EDGE_WIDTH);
-            DrawUtil.DrawString(bitmap, time + "s", rectangle, GlobalDefine.TIME_FONT, GlobalDefine.TEXT_COLOR);
+            DrawUtil.DrawCircleLabel(bitmap, point, time + "s", GlobalDefine.TIME_FONT, GlobalDefine.TEXT_COLOR,
+                GlobalDefine.CIRCLE_COLOR, GlobalDefine.LINE_COLOR, GlobalDefine.CIRCLE_EDGE_WIDTH);
         }
 
         private Point GetPrevMovePoint(int checkPointIndex)

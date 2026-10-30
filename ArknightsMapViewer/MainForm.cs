@@ -22,6 +22,13 @@ namespace ArknightsMapViewer
         private bool readingMultiFiles;
         private bool rawSetCheckBox;
         private bool isExporting;
+        private readonly MapLegend mapLegend;
+        // Control.Visible 会受父容器隐藏影响；组布局需要各选项自身的显示状态。
+        private readonly Dictionary<CheckBox, bool> optionVisibility = new Dictionary<CheckBox, bool>();
+        private readonly List<(GroupBox Group, CheckBox[] Options)> optionGroups = new List<(GroupBox, CheckBox[])>();
+        private TableLayoutPanel optionGrid;
+        private GroupBox spawnFilterGroup;
+        private int optionGroupWidth;
 
         private Dictionary<Position, List<IMapData>> mapPredefines = new Dictionary<Position, List<IMapData>>();
 
@@ -35,9 +42,164 @@ namespace ArknightsMapViewer
         {
             Instance = this;
             InitializeComponent();
+            mapLegend = new MapLegend { Visible = false };
+            InitializeOptionGroups();
+            flowLayoutPanel3.FlowDirection = FlowDirection.TopDown;
+            flowLayoutPanel3.WrapContents = false;
+            flowLayoutPanel3.Padding = new Padding(12);
+            flowLayoutPanel3.BackColor = Color.FromArgb(28, 28, 28);
+            pictureBox1.Margin = Padding.Empty;
+            pictureBox1.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            flowLayoutPanel3.Controls.Add(mapLegend);
+            flowLayoutPanel3.Controls.SetChildIndex(pictureBox1, 0);
+            flowLayoutPanel3.SizeChanged += (sender, args) =>
+                mapLegend.Width = Math.Max(112, flowLayoutPanel3.ClientSize.Width - 44);
+            mapLegend.Width = Math.Max(112, flowLayoutPanel3.ClientSize.Width - 44);
             InitControlsBoundsScale();
         }
 
+        private void InitializeOptionGroups()
+        {
+            // 表格统一每一行的组框高度；外层只负责整组选项的滚动。
+            optionGroupWidth = Math.Max(166, checkBoxTileName.GetPreferredSize(Size.Empty).Width + 20);
+            flowLayoutPanel1.SuspendLayout();
+            optionGrid = new TableLayoutPanel
+            {
+                AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                Margin = Padding.Empty, Padding = Padding.Empty,
+                GrowStyle = TableLayoutPanelGrowStyle.FixedSize,
+            };
+            flowLayoutPanel1.Controls.Add(optionGrid);
+            var toolTip = new ToolTip(components);
+            toolTip.SetToolTip(checkBoxTileName, "控制未配置固定文字时的地块名称；配置中的固定地块文字始终显示，地图图例始终显示在地图下方。");
+            AddOptionGroup("地图显示", checkBoxTileName, checkBox1, checkBox2, checkBox3, checkBox7);
+            AddOptionGroup("路径与敌人", checkBox4, checkBox5, checkBox6);
+            spawnFilterGroup = AddOptionGroup("分组筛选", checkBox8);
+            var filterBody = (FlowLayoutPanel)spawnFilterGroup.Controls[0];
+            flowLayoutPanel2.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            flowLayoutPanel2.AutoScroll = false;
+            flowLayoutPanel2.AutoSize = true;
+            flowLayoutPanel2.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            flowLayoutPanel2.MinimumSize = new Size(optionGroupWidth - 18, 0);
+            flowLayoutPanel2.MaximumSize = new Size(optionGroupWidth - 18, 0);
+            flowLayoutPanel2.Margin = Padding.Empty;
+            flowLayoutPanel2.Size = new Size(optionGroupWidth - 18, 0);
+            filterBody.Controls.Add(flowLayoutPanel2);
+            groupBox1.SizeChanged += (sender, args) => LayoutOptionPanel();
+            LayoutOptionPanel();
+            flowLayoutPanel1.ResumeLayout(true);
+        }
+
+        private GroupBox AddOptionGroup(string title, params CheckBox[] options)
+        {
+            var group = new GroupBox
+            {
+                Text = title, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                MinimumSize = new Size(optionGroupWidth, 0), Dock = DockStyle.Fill,
+                Padding = new Padding(6, 16, 6, 6), Margin = new Padding(0, 0, 6, 8),
+            };
+            var body = new FlowLayoutPanel
+            {
+                AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                FlowDirection = FlowDirection.TopDown, WrapContents = false,
+                Dock = DockStyle.Top, Margin = Padding.Empty,
+                MinimumSize = new Size(optionGroupWidth - 12, 0), MaximumSize = new Size(optionGroupWidth - 12, 0),
+            };
+            foreach (CheckBox option in options)
+            {
+                option.MaximumSize = new Size(optionGroupWidth - 18, 0);
+                body.Controls.Add(option);
+                optionVisibility[option] = false;
+                option.Visible = false;
+            }
+            group.Controls.Add(body);
+            optionGroups.Add((group, options));
+            return group;
+        }
+
+        private void LayoutOptionPanel()
+        {
+            if (Disposing || IsDisposed) return;
+            int width = Math.Min(2 * (optionGroupWidth + 6) + SystemInformation.VerticalScrollBarWidth + 4,
+                Math.Max(optionGroupWidth + SystemInformation.VerticalScrollBarWidth + 10, groupBox1.ClientSize.Width / 2));
+            int height = Math.Max(1, groupBox1.ClientSize.Height - 24);
+            flowLayoutPanel1.SetBounds(groupBox1.ClientSize.Width - width - 6, 18, width, height);
+            richTextBox1.SetBounds(6, 18, Math.Max(1, flowLayoutPanel1.Left - 12), height);
+            LayoutOptionGrid();
+        }
+
+        private void SetOptionVisible(CheckBox option, bool visible)
+        {
+            optionVisibility[option] = visible;
+            option.Visible = visible;
+        }
+
+        private void LayoutOptionGrid()
+        {
+            if (Disposing || IsDisposed || optionGrid == null || optionGrid.Disposing || optionGrid.IsDisposed) return;
+            int width = Math.Max(optionGroupWidth + 6,
+                flowLayoutPanel1.Width - SystemInformation.VerticalScrollBarWidth - 2);
+            int columns = width >= 2 * (optionGroupWidth + 6) ? 2 : 1;
+            width -= width % columns;
+            var visibleGroups = new List<GroupBox>();
+            foreach (var item in optionGroups)
+            {
+                bool show = item.Group == spawnFilterGroup && flowLayoutPanel2.Controls.Count > 0;
+                foreach (CheckBox option in item.Options)
+                    show |= optionVisibility.TryGetValue(option, out bool visible) && visible;
+                if (show && curLevelView?.MapDrawer != null) visibleGroups.Add(item.Group);
+            }
+            bool changed = optionGrid.ColumnCount != columns || optionGrid.Controls.Count != visibleGroups.Count;
+            for (int index = 0; !changed && index < visibleGroups.Count; index++)
+                changed = optionGrid.GetControlFromPosition(index % columns, index / columns) != visibleGroups[index];
+            optionGrid.MinimumSize = new Size(width, 0);
+            optionGrid.MaximumSize = new Size(width, 0);
+            if (!changed)
+            {
+                optionGrid.PerformLayout();
+                return;
+            }
+            Point scrollPosition = flowLayoutPanel1.AutoScrollPosition;
+            flowLayoutPanel1.SuspendLayout();
+            optionGrid.SuspendLayout();
+            try
+            {
+                // 隐藏的组仍保留在窗体控件树中，切换地图后可以恢复并正确释放资源。
+                optionGrid.Controls.Clear();
+                foreach (var item in optionGroups)
+                {
+                    item.Group.Visible = false;
+                    flowLayoutPanel1.Controls.Add(item.Group);
+                }
+                optionGrid.ColumnCount = columns;
+                optionGrid.RowCount = Math.Max(1, (visibleGroups.Count + columns - 1) / columns);
+                optionGrid.ColumnStyles.Clear();
+                optionGrid.RowStyles.Clear();
+                for (int column = 0; column < columns; column++)
+                    optionGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f / columns));
+                for (int row = 0; row < optionGrid.RowCount; row++)
+                    optionGrid.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+                for (int index = 0; index < visibleGroups.Count; index++)
+                {
+                    GroupBox group = visibleGroups[index];
+                    optionGrid.Controls.Add(group, index % columns, index / columns);
+                    group.Visible = true;
+                }
+            }
+            finally
+            {
+                optionGrid.ResumeLayout(true);
+                flowLayoutPanel1.ResumeLayout(true);
+                flowLayoutPanel1.AutoScrollPosition = new Point(-scrollPosition.X, -scrollPosition.Y);
+            }
+        }
+
+        private void checkBoxTileName_CheckedChanged(object sender, EventArgs e)
+        {
+            needUpdateMap = true;
+            UpdateView();
+            flowLayoutPanel3.PerformLayout();
+        }
         ~MainForm()
         {
             Instance = null;
@@ -350,7 +512,6 @@ namespace ArknightsMapViewer
 
             TreeNode rootNode = treeView1.Nodes.Add(fileName, fileName);
 
-            int mapWidth = levelData.mapWidth;
             int mapHeight = levelData.mapHeight;
             PathFinding pathFinding = new AStarPathFinding();
             //PathFinding pathFinding = new DijkstraPathFinding();
@@ -358,8 +519,8 @@ namespace ArknightsMapViewer
 
             //TODO SPFA
 
-            RouteDrawer routeDrawerCreater(Route route) => RouteDrawer.Create(route, pathFinding, mapWidth, mapHeight);
-            PredefineDrawer predefineDrawerCreater(Predefine.PredefineInst predefine) => PredefineDrawer.Create(predefine, mapWidth, mapHeight);
+            RouteDrawer routeDrawerCreater(Route route) => RouteDrawer.Create(route, pathFinding, mapHeight);
+            PredefineDrawer predefineDrawerCreater(Predefine.PredefineInst predefine) => PredefineDrawer.Create(predefine, mapHeight);
 
             TreeNode routesNode = LevelViewHelper.CreateRoutesNode(nameof(levelData.routes), levelData.routes, routeDrawerCreater);
             TreeNode extraRoutesNode = LevelViewHelper.CreateRoutesNode(nameof(levelData.extraRoutes), levelData.extraRoutes, routeDrawerCreater);
@@ -421,7 +582,6 @@ namespace ArknightsMapViewer
             }
 
             LevelView levelView = null;
-            SpawnActionView spawnActionView = null;
             EnemySpawnView enemySpawnView = null;
             int routeSubIndex = -1;
 
@@ -446,7 +606,6 @@ namespace ArknightsMapViewer
                 }
                 else
                 {
-                    spawnActionView ??= treeNode.Tag as SpawnActionView;
                     enemySpawnView ??= treeNode.Tag as EnemySpawnView;
                     routeDrawerView ??= treeNode.Tag as IDrawerView<RouteDrawer>;
                     predefineDrawerView ??= treeNode.Tag as IDrawerView<PredefineDrawer>;
@@ -460,7 +619,8 @@ namespace ArknightsMapViewer
                 treeNode = treeNode.Parent;
             }
 
-            if (curLevelView != levelView || needUpdateMap)
+            bool levelChanged = curLevelView != levelView;
+            if (levelChanged || needUpdateMap)
             {
                 curLevelView = levelView;
                 pictureBox1.BackgroundImage?.Dispose();
@@ -472,19 +632,27 @@ namespace ArknightsMapViewer
                     Bitmap bitmap = Helper.CreateBitmap(curLevelView.LevelData);
 
                     curLevelView.MapDrawer.MarkUndefinedTile = checkBox1.Checked;
+                    curLevelView.MapDrawer.ShowTileName = checkBoxTileName.Checked;
                     curLevelView.MapDrawer.Draw(bitmap);
                     pictureBox1.Width = bitmap.Width;
                     pictureBox1.Height = bitmap.Height;
                     pictureBox1.BackgroundImage = bitmap;
+                    mapLegend.SetEntries(curLevelView.MapDrawer.GetLegendEntries());
                 }
+                else mapLegend.SetEntries(null);
 
-                UpdateSpawnGroups();
-                UpdateTimelineSimulationState();
+                // 显示选项只重绘底图；切换关卡时才重建分组与时间轴控件。
+                if (levelChanged)
+                {
+                    UpdateSpawnGroups();
+                    UpdateTimelineSimulationState();
+                }
             }
 
             pictureBox1.Image?.Dispose();
             pictureBox1.Image = null;
 
+            SetOptionVisible(checkBoxTileName, curLevelView?.MapDrawer != null);
             if (curLevelView != null)
             {
                 Bitmap bitmap = Helper.CreateBitmap(curLevelView.LevelData);
@@ -496,25 +664,27 @@ namespace ArknightsMapViewer
 
                 if (curLevelView.MapDrawer != null)
                 {
-                    checkBox1.Visible = curLevelView.MapDrawer.HaveUndefinedTiles;
+                    SetOptionVisible(checkBox1, curLevelView.MapDrawer.HaveUndefinedTiles);
                 }
-                checkBox6.Visible = enemySpawnView != null;
+                SetOptionVisible(checkBox6, enemySpawnView != null);
             }
             else
             {
-                checkBox1.Visible = false;
-                checkBox2.Visible = false;
-                checkBox3.Visible = false;
-                checkBox4.Visible = false;
-                checkBox5.Visible = false;
-                checkBox6.Visible = false;
-                checkBox7.Visible = false;
-                checkBox8.Visible = false;
+                SetOptionVisible(checkBox1, false);
+                SetOptionVisible(checkBox2, false);
+                SetOptionVisible(checkBox3, false);
+                SetOptionVisible(checkBox4, false);
+                SetOptionVisible(checkBox5, false);
+                SetOptionVisible(checkBox6, false);
+                SetOptionVisible(checkBox7, false);
+                SetOptionVisible(checkBox8, false);
             }
 
             UpdateLabelInfo(routeSubIndex);
             FilterTreeNode();
 
+            LayoutOptionGrid();
+            mapLegend.Visible = curLevelView?.MapDrawer != null;
             pictureBox1.Refresh();
         }
 
@@ -593,8 +763,8 @@ namespace ArknightsMapViewer
                 }
             }
 
-            checkBox2.Visible = predefineRootNode != null && predefineRootNode.Nodes.Count > 0;
-            checkBox3.Visible = showCheckBox3;
+            SetOptionVisible(checkBox2, predefineRootNode != null && predefineRootNode.Nodes.Count > 0);
+            SetOptionVisible(checkBox3, showCheckBox3);
         }
 
         private void UpdateRoute(Bitmap bitmap, IDrawerView<RouteDrawer> routeDrawerView, int routeSubIndex)
@@ -631,8 +801,8 @@ namespace ArknightsMapViewer
                 }
             }
 
-            checkBox4.Visible = showCheckBox4;
-            checkBox5.Visible = showCheckBox5;
+            SetOptionVisible(checkBox4, showCheckBox4);
+            SetOptionVisible(checkBox5, showCheckBox5);
         }
 
         private void UpdateLabelInfo(int routeSubIndex)
@@ -722,7 +892,9 @@ namespace ArknightsMapViewer
         private void UpdateSpawnGroups()
         {
             SpawnView spawnView = curLevelView?.SpawnView;
-            flowLayoutPanel2.Controls.Clear();
+            while (flowLayoutPanel2.Controls.Count > 0) flowLayoutPanel2.Controls[0].Dispose();
+            SetOptionVisible(checkBox7, false);
+            SetOptionVisible(checkBox8, false);
             if (spawnView != null)
             {
                 rawSetCheckBox = true;
@@ -737,6 +909,7 @@ namespace ArknightsMapViewer
                         Checked = item.Value,
                         AutoSize = true,
                         TabIndex = flowLayoutPanel2.TabIndex + flowLayoutPanel2.Controls.Count + 1,
+                        MaximumSize = new Size(optionGroupWidth - 22, 0),
                     };
                     checkBox.CheckedChanged += (s, e) =>
                     {
@@ -750,7 +923,7 @@ namespace ArknightsMapViewer
                 {
                     if (treeNode.Tag is PredefineView)
                     {
-                        checkBox7.Visible = true;
+                        SetOptionVisible(checkBox7, true);
                         break;
                     }
                 }
@@ -758,14 +931,10 @@ namespace ArknightsMapViewer
                 {
                     if (!item.Value)
                     {
-                        checkBox8.Visible = true;
+                        SetOptionVisible(checkBox8, true);
                         break;
                     }
                 }
-            }
-            else
-            {
-                checkBox8.Visible = false;
             }
         }
 
@@ -1142,12 +1311,7 @@ namespace ArknightsMapViewer
 
                 rawSetValue = true;
 
-                numericUpDown1.Value = 0;
-                trackBar1.Value = 0;
-                numericUpDown1.Maximum = (decimal)curTimelineSimulator.MaxTime;
-                trackBar1.Maximum = (int)(curTimelineSimulator.MaxTime * 100f);
-                numericUpDown1.Value = (decimal)curTimelineSimulator.Time;
-                trackBar1.Value = (int)(curTimelineSimulator.Time * 100f);
+                SyncTimelineControls();
 
                 comboBox2.Items.Clear();
                 for (int i = 0; i < curTimelineSimulator.WaveMaxTimes.Count; i++)
@@ -1156,7 +1320,8 @@ namespace ArknightsMapViewer
                 }
 
                 comboBox1.SelectedIndex = comboBox1.Items.Count > 0 ? 0 : -1;
-                comboBox2.SelectedIndex = comboBox2.Items.Count > 0 ? 0 : -1;
+                comboBox2.SelectedIndex = curTimelineSimulator.WaveIndex >= 0 && curTimelineSimulator.WaveIndex < comboBox2.Items.Count
+                    ? curTimelineSimulator.WaveIndex : -1;
 
                 rawSetValue = false;
             }
@@ -1166,23 +1331,23 @@ namespace ArknightsMapViewer
             }
         }
 
-        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
         private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (rawSetValue) return;
             curTimelineSimulator?.SetWaveIndex(comboBox2.SelectedIndex);
             rawSetValue = true;
+            SyncTimelineControls();
+            rawSetValue = false;
+        }
+
+        private void SyncTimelineControls()
+        {
             numericUpDown1.Value = 0;
             trackBar1.Value = 0;
             numericUpDown1.Maximum = (decimal)curTimelineSimulator.MaxTime;
             trackBar1.Maximum = (int)(curTimelineSimulator.MaxTime * 100f);
             numericUpDown1.Value = (decimal)curTimelineSimulator.Time;
             trackBar1.Value = (int)(curTimelineSimulator.Time * 100f);
-            rawSetValue = false;
         }
 
         private void trackBar1_Scroll(object sender, EventArgs e)
@@ -1338,6 +1503,184 @@ namespace ArknightsMapViewer
         private void githubKengxxiaoArknightsGameDataToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Process.Start(new ProcessStartInfo("https://github.com/Kengxxiao/ArknightsGameData/tree/master/zh_CN/gamedata") { UseShellExecute = true });
+        }
+    }
+
+    internal sealed class MapLegend : Control
+    {
+        private sealed class ItemLayout
+        {
+            internal TileLegendEntry Entry;
+            internal string Text;
+            internal Rectangle Bounds;
+            internal Rectangle TextBounds;
+            internal readonly List<Rectangle> Swatches = new List<Rectangle>();
+        }
+
+        private const int SwatchWidth = 18;
+        private const int SwatchHeight = 16;
+        private const int SwatchStride = 22;
+        private const TextFormatFlags TextFlags = TextFormatFlags.WordBreak | TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix;
+        private IReadOnlyList<TileLegendEntry> entries = Array.Empty<TileLegendEntry>();
+        private readonly List<ItemLayout> items = new List<ItemLayout>();
+        private readonly ToolTip toolTip = new ToolTip { InitialDelay = 350, ReshowDelay = 100, AutoPopDelay = 15000, ShowAlways = true };
+        private bool arranging;
+        private string hoverText;
+
+        public MapLegend()
+        {
+            SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint |
+                ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
+            BackColor = Color.FromArgb(28, 28, 28);
+            ForeColor = Color.FromArgb(220, 220, 220);
+            Margin = new Padding(0, 12, 0, 0);
+            AccessibleName = "当前地图地块类型图例";
+        }
+
+        internal void SetEntries(IReadOnlyList<TileLegendEntry> value)
+        {
+            entries = value ?? Array.Empty<TileLegendEntry>();
+            SetHoverText(null);
+            ArrangeItems();
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            ArrangeItems();
+        }
+
+        protected override void OnFontChanged(EventArgs e)
+        {
+            base.OnFontChanged(e);
+            ArrangeItems();
+        }
+
+        private static string DisplayName(TileLegendEntry entry) =>
+            !string.IsNullOrWhiteSpace(entry.Name) ? entry.Name :
+                !string.IsNullOrEmpty(entry.TileKey) ? entry.TileKey : "（未指定类型）";
+
+        private void ArrangeItems()
+        {
+            if (arranging || items == null || entries == null) return;
+            arranging = true;
+            try
+            {
+                items.Clear();
+                var nameCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+                foreach (TileLegendEntry entry in entries)
+                {
+                    string name = DisplayName(entry);
+                    nameCounts[name] = nameCounts.TryGetValue(name, out int count) ? count + 1 : 1;
+                }
+                int available = Math.Max(1, Width - 8);
+                int columns = Math.Max(1, available / Math.Max(220, Font.Height * 14));
+                int cellWidth = Math.Max(1, available / columns);
+                int y = 4;
+                for (int first = 0; first < entries.Count; first += columns)
+                {
+                    int rowHeight = 0;
+                    int last = Math.Min(entries.Count, first + columns);
+                    for (int index = first; index < last; index++)
+                    {
+                        TileLegendEntry entry = entries[index];
+                        string name = DisplayName(entry);
+                        if (nameCounts[name] > 1 && !string.Equals(name, entry.TileKey, StringComparison.Ordinal))
+                            name += " · " + entry.TileKey;
+                        int x = 4 + (index - first) * cellWidth;
+                        int count = entry.Variants.Count;
+                        int swatchColumns = Math.Max(1, Math.Min(count, Math.Max(1, cellWidth / 2 / SwatchStride)));
+                        int swatchRows = (count + swatchColumns - 1) / swatchColumns;
+                        int swatchWidth = count == 0 ? 0 : swatchColumns * SwatchStride - 4;
+                        int swatchHeight = swatchRows * SwatchStride;
+                        int textX = x + swatchWidth + (count > 0 ? 8 : 0);
+                        int textWidth = Math.Max(1, x + cellWidth - 8 - textX);
+                        int textHeight = TextRenderer.MeasureText(name, Font, new Size(textWidth, int.MaxValue), TextFlags).Height;
+                        int contentHeight = Math.Max(textHeight, swatchHeight);
+                        var item = new ItemLayout
+                        {
+                            Entry = entry, Text = name,
+                            Bounds = new Rectangle(x, y, Math.Max(1, cellWidth - 8), contentHeight + 8),
+                            TextBounds = new Rectangle(textX, y + 4 + (contentHeight - textHeight) / 2, textWidth, textHeight),
+                        };
+                        for (int variant = 0; variant < count; variant++)
+                            item.Swatches.Add(new Rectangle(x + variant % swatchColumns * SwatchStride,
+                                y + 4 + (contentHeight - swatchHeight) / 2 + variant / swatchColumns * SwatchStride + 3,
+                                SwatchWidth, SwatchHeight));
+                        items.Add(item);
+                        rowHeight = Math.Max(rowHeight, item.Bounds.Height);
+                    }
+                    y += rowHeight;
+                }
+                Height = entries.Count == 0 ? 0 : y + 4;
+                Invalidate();
+            }
+            finally
+            {
+                arranging = false;
+            }
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+            foreach (ItemLayout item in items)
+            {
+                for (int index = 0; index < item.Swatches.Count; index++)
+                {
+                    TileLegendVariant variant = item.Entry.Variants[index];
+                    Rectangle rect = item.Swatches[index];
+                    using (var brush = new SolidBrush(variant.Color)) e.Graphics.FillRectangle(brush, rect);
+                    if (variant.Hatched) MapDrawer.DrawDeploymentHatch(e.Graphics, rect, variant.Color);
+                    using var border = new Pen(Color.FromArgb(100, ForeColor));
+                    e.Graphics.DrawRectangle(border, rect.X, rect.Y, rect.Width - 1, rect.Height - 1);
+                }
+                TextRenderer.DrawText(e.Graphics, item.Text, Font, item.TextBounds, ForeColor, TextFlags);
+            }
+        }
+
+        private static string VariantDescription(TileLegendVariant variant)
+        {
+            string height = variant.HeightType == HeightType.HIGHLAND ? "高台" :
+                variant.HeightType == HeightType.LOWLAND ? "地面" : "高度：" + variant.HeightType;
+            return $"{height}；{(variant.CanDeploy ? "可部署" : "不可部署")}；数量：{variant.Count}";
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+            foreach (ItemLayout item in items)
+            {
+                if (!item.Bounds.Contains(e.Location)) continue;
+                var text = new StringBuilder(DisplayName(item.Entry));
+                text.Append("\n类型：").Append(item.Entry.TileKey);
+                int variant = item.Swatches.FindIndex(rect => rect.Contains(e.Location));
+                if (variant >= 0) text.Append('\n').Append(VariantDescription(item.Entry.Variants[variant]));
+                else foreach (TileLegendVariant value in item.Entry.Variants)
+                        text.Append('\n').Append(VariantDescription(value));
+                SetHoverText(text.ToString());
+                return;
+            }
+            SetHoverText(null);
+        }
+
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+            SetHoverText(null);
+        }
+
+        private void SetHoverText(string text)
+        {
+            if (hoverText == text) return;
+            hoverText = text;
+            toolTip.SetToolTip(this, text);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing) toolTip.Dispose();
+            base.Dispose(disposing);
         }
     }
 }

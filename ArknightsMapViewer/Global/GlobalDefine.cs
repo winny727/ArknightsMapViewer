@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
-using Newtonsoft.Json.Linq;
 
 namespace ArknightsMapViewer
 {
@@ -13,25 +12,25 @@ namespace ArknightsMapViewer
         {
             public int tilePixle = 50;
             public int lineWidth = 3;
-            public int circleEdgeWidth = 3;
-            public int circleRadius = 20;
-            public int pointRadius = 6;
+            public int circleEdgeWidth = 2;
+            public int circleRadius = 18;
+            public int pointRadius = 5;
         }
 
         [Serializable]
         public class FontConfig
         {
-            public string textFont = "Consolas";
-            public float textFontSize = 12.0f;
+            public string textFont = "Segoe UI";
+            public float textFontSize = 10.0f;
             public string textFontStyle = "Regular";
             public string indexFont = "Consolas";
-            public float indexFontSize = 8.0f;
-            public string indexFontStyle = "Bold";
-            public string timeFont = "Consolas";
-            public float timeFontSize = 10.0f;
+            public float indexFontSize = 7.0f;
+            public string indexFontStyle = "Regular";
+            public string timeFont = "Segoe UI";
+            public float timeFontSize = 9.0f;
             public string timeFontStyle = "Regular";
-            public string predefinedFont = "Consolas";
-            public float predefinedFontSize = 10.0f;
+            public string predefinedFont = "Segoe UI";
+            public float predefinedFontSize = 9.0f;
             public string predefinedFontStyle = "Regular";
             public string lenghtFont = "Consolas";
             public float lenghtFontSize = 8.0f;
@@ -41,20 +40,20 @@ namespace ArknightsMapViewer
         [Serializable]
         public class ColorConfig
         {
-            public string textColor = "#ffffff";
-            public string lineColor = "#ff0000";
-            public string circleColor = "#767676";
-            public string lengthColor = "#00ff00";
+            public string textColor = "#EFEFEF";
+            public string lineColor = "#FF0000";
+            public string circleColor = "#383838";
+            public string lengthColor = "#FFE1A3";
 
             public string defaultRoadColor = "#767676";
             public string defaultWallColor = "#bbbbbb";
             public string defaultFloorColor = "#343434";
             public string defaultForbiddenColor = "#161616";
 
-            public string predefinedForeColor = "#ff4500";
-            public string predefinedBackColor = "#808080";
-            public string predefinedSelectedBackColor = "#d3d3d3";
-            public string predefinedSelectedTextColor = "#000000";
+            public string predefinedForeColor = "#B8B8B8";
+            public string predefinedBackColor = "#3B3B3B";
+            public string predefinedSelectedBackColor = "#DADADA";
+            public string predefinedSelectedTextColor = "#202020";
         }
 
         public SizeConfig Size = new SizeConfig();
@@ -78,32 +77,51 @@ namespace ArknightsMapViewer
     {
         public static int TILE_PIXLE = 50;
         public static int LINE_WIDTH = 3;
-        public static int CIRCLE_EDGE_WIDTH = 3;
-        public static int CIRCLE_RADIUS = 20;
-        public static int POINT_RADIUS = 6;
+        public static int CIRCLE_EDGE_WIDTH = 2;
+        public static int CIRCLE_RADIUS = 18;
+        public static int POINT_RADIUS = 5;
 
-        public static Font TEXT_FONT = new Font("Consolas", 11.0f, FontStyle.Bold);
-        public static Font INDEX_FONT = new Font("Consolas", 8.0f, FontStyle.Bold);
-        public static Font TIME_FONT = new Font("Consolas", 10.0f);
-        public static Font PREDEFINED_FONT = new Font("Consolas", 10.0f);
+        public static Font TEXT_FONT = new Font("Segoe UI", 10.0f, FontStyle.Regular);
+        public static Font INDEX_FONT = new Font("Consolas", 7.0f, FontStyle.Regular);
+        public static Font TIME_FONT = new Font("Segoe UI", 9.0f, FontStyle.Regular);
+        public static Font PREDEFINED_FONT = new Font("Segoe UI", 9.0f, FontStyle.Regular);
         public static Font LENGTH_FONT = new Font("Consolas", 8.0f);
 
-        public static Color TEXT_COLOR = Color.White;
-        public static Color LINE_COLOR = Color.Red;
-        public static Color CIRCLE_COLOR = Color.FromArgb(255, 118, 118, 118);
-        public static Color LENGTH_COLOR = Color.Green;
+        public static Color TEXT_COLOR;
+        public static Color LINE_COLOR;
+        public static Color CIRCLE_COLOR;
+        public static Color LENGTH_COLOR;
 
         //默认地块颜色
-        public static Color DEFAULT_ROAD_COLOR = ColorTranslator.FromHtml("#767676");
-        public static Color DEFAULT_WALL_COLOR = ColorTranslator.FromHtml("#bbbbbb");
-        public static Color DEFAULT_FLOOR_COLOR = ColorTranslator.FromHtml("#343434");
-        public static Color DEFAULT_FORBIDDEN_COLOR = ColorTranslator.FromHtml("#161616");
+        public static Color DEFAULT_ROAD_COLOR;
+        public static Color DEFAULT_WALL_COLOR;
+        public static Color DEFAULT_FLOOR_COLOR;
+        public static Color DEFAULT_FORBIDDEN_COLOR;
 
         //装置颜色
-        public static Color PREDEFINED_LINECOLOR = Color.OrangeRed;
-        public static Color PREDEFINED_BACKCOLOR = Color.Gray;
-        public static Color PREDEFINED_SELECTED_BACKCOLOR = Color.LightGray;
-        public static Color PREDEFINED_SELECTED_TEXTCOLOR = Color.Black;
+        public static Color PREDEFINED_LINECOLOR;
+        public static Color PREDEFINED_BACKCOLOR;
+        public static Color PREDEFINED_SELECTED_BACKCOLOR;
+        public static Color PREDEFINED_SELECTED_TEXTCOLOR;
+
+        static GlobalDefine()
+        {
+            // 初始颜色与配置缺失/非法时的回退共用同一套内置默认值。
+            // 加载文件后，DrawConfigValidator.Apply 再设置校验过的运行时颜色。
+            var colors = new DrawConfig.ColorConfig();
+            TEXT_COLOR = ColorTranslator.FromHtml(colors.textColor);
+            LINE_COLOR = ColorTranslator.FromHtml(colors.lineColor);
+            CIRCLE_COLOR = ColorTranslator.FromHtml(colors.circleColor);
+            LENGTH_COLOR = ColorTranslator.FromHtml(colors.lengthColor);
+            DEFAULT_ROAD_COLOR = ColorTranslator.FromHtml(colors.defaultRoadColor);
+            DEFAULT_WALL_COLOR = ColorTranslator.FromHtml(colors.defaultWallColor);
+            DEFAULT_FLOOR_COLOR = ColorTranslator.FromHtml(colors.defaultFloorColor);
+            DEFAULT_FORBIDDEN_COLOR = ColorTranslator.FromHtml(colors.defaultForbiddenColor);
+            PREDEFINED_LINECOLOR = ColorTranslator.FromHtml(colors.predefinedForeColor);
+            PREDEFINED_BACKCOLOR = ColorTranslator.FromHtml(colors.predefinedBackColor);
+            PREDEFINED_SELECTED_BACKCOLOR = ColorTranslator.FromHtml(colors.predefinedSelectedBackColor);
+            PREDEFINED_SELECTED_TEXTCOLOR = ColorTranslator.FromHtml(colors.predefinedSelectedTextColor);
+        }
 
         //TileInfo <tileKey, tileInfo>
         public readonly static Dictionary<string, TileInfo> TileInfo = new Dictionary<string, TileInfo>();

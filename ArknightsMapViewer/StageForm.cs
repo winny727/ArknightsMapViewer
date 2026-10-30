@@ -65,13 +65,12 @@ namespace ArknightsMapViewer
                         string code = stageInfo.code ?? "";
                         string description = stageInfo.description ?? "";
 
-                        bool match = false;
-                        match |= stageId.ToLower().Contains(searchText);
-                        match |= levelId.ToLower().Contains(searchText);
-                        match |= zoneId.ToLower().Contains(searchText);
-                        match |= name.ToLower().Contains(searchText);
-                        match |= $"[{code}]".ToLower().Contains(searchText);
-                        match |= description.ToLower().Contains(searchText);
+                        bool match = stageId.ToLower().Contains(searchText)
+                            || levelId.ToLower().Contains(searchText)
+                            || zoneId.ToLower().Contains(searchText)
+                            || name.ToLower().Contains(searchText)
+                            || $"[{code}]".ToLower().Contains(searchText)
+                            || description.ToLower().Contains(searchText);
 
                         if (!match)
                         {

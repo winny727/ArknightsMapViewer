@@ -65,6 +65,7 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.checkBoxTileName = new System.Windows.Forms.CheckBox();
             this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.checkBox3 = new System.Windows.Forms.CheckBox();
             this.checkBox4 = new System.Windows.Forms.CheckBox();
@@ -364,7 +365,6 @@
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.flowLayoutPanel1);
-            this.groupBox1.Controls.Add(this.flowLayoutPanel2);
             this.groupBox1.Controls.Add(this.richTextBox1);
             this.groupBox1.Location = new System.Drawing.Point(313, 517);
             this.groupBox1.Margin = new System.Windows.Forms.Padding(2);
@@ -379,14 +379,6 @@
             this.flowLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.flowLayoutPanel1.AutoScroll = true;
-            this.flowLayoutPanel1.Controls.Add(this.checkBox1);
-            this.flowLayoutPanel1.Controls.Add(this.checkBox2);
-            this.flowLayoutPanel1.Controls.Add(this.checkBox3);
-            this.flowLayoutPanel1.Controls.Add(this.checkBox4);
-            this.flowLayoutPanel1.Controls.Add(this.checkBox5);
-            this.flowLayoutPanel1.Controls.Add(this.checkBox6);
-            this.flowLayoutPanel1.Controls.Add(this.checkBox7);
-            this.flowLayoutPanel1.Controls.Add(this.checkBox8);
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(497, 19);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
@@ -394,6 +386,14 @@
             this.flowLayoutPanel1.TabIndex = 2;
             this.flowLayoutPanel1.WrapContents = false;
             // 
+            // checkBoxTileName
+            this.checkBoxTileName.AutoSize = true;
+            this.checkBoxTileName.Name = "checkBoxTileName";
+            this.checkBoxTileName.TabIndex = 9;
+            this.checkBoxTileName.Text = "显示地块名称";
+            this.checkBoxTileName.UseVisualStyleBackColor = true;
+            this.checkBoxTileName.CheckedChanged += new System.EventHandler(this.checkBoxTileName_CheckedChanged);
+            //
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
@@ -660,7 +660,6 @@
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(70, 20);
             this.comboBox1.TabIndex = 103;
-            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
             // label1
             // 
@@ -762,6 +761,7 @@
         private System.Windows.Forms.CheckBox checkBox2;
         private System.Windows.Forms.RichTextBox richTextBox1;
         private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.CheckBox checkBoxTileName;
         private System.Windows.Forms.CheckBox checkBox7;
         private System.Windows.Forms.CheckBox checkBox8;
         private System.Windows.Forms.ToolStripMenuItem openFolderToolStripMenuItem;
@@ -790,4 +790,3 @@
         private System.Windows.Forms.ToolStripMenuItem githubKengxxiaoArknightsGameDataToolStripMenuItem;
     }
 }
-
